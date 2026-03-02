@@ -71,7 +71,7 @@ private struct BluetoothConnectedNotchView: View {
                             Text("---")
                                 .foregroundStyle(.white.opacity(0.6))
                         }
-                        Image(systemName: bluetoothViewModel.deviceType.symbolName)
+                        Image(systemName: bluetoothViewModel.deviceType.sfSymbol)
                             .font(.system(size: 18))
                             .foregroundStyle(.white.opacity(0.8))
                     }
@@ -96,3 +96,4 @@ private struct BluetoothConnectedNotchView: View {
         }
     }
 }
+
