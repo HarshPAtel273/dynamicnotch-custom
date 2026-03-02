@@ -6,12 +6,10 @@
 //
 
 import Foundation
-import IOBluetooth
-import IOKit
 import Combine
 
 final class BluetoothViewModel: ObservableObject {
-    @Published var deviceType: BluetoothDeviceType = .unknown
+    @Published var deviceType: BluetoothAudioDeviceType = .generic
     @Published var event: BluetoothEvent?
     @Published var isConnected: Bool = false
     @Published var deviceName: String = ""
@@ -19,81 +17,61 @@ final class BluetoothViewModel: ObservableObject {
     
     var notchViewModel: NotchViewModel?
     
-    private var hasHandledInitialState = false
-    private var isInitialized = false
-    private var bluetoothService = BluetoothService()
     private var cancellables = Set<AnyCancellable>()
+    private let bluetoothService: BluetoothService
     
-    init(notchViewModel: NotchViewModel? = nil) {
+    init(notchViewModel: NotchViewModel? = nil, bluetoothService: BluetoothService = .shared) {
         self.notchViewModel = notchViewModel
-        setupMonitoring()
-        setupNotifications()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.isInitialized = true
-            self.checkBluetooth()
-        }
+        self.bluetoothService = bluetoothService
+        bindToService()
     }
     
     func update() {
-        checkBluetooth()
+        Task { @MainActor in
+            bluetoothService.refreshConnectedDeviceBatteries()
+        }
     }
     
-    private func setupMonitoring() {
-        Timer.publish(every: 3, on: .main, in: .common)
-            .autoconnect()
-            .sink { [weak self] _ in
-                self?.checkBluetooth()
+    private func bindToService() {
+        bluetoothService.$connectedDevices
+            .receive(on: RunLoop.main)
+            .sink { [weak self] devices in
+                guard let self = self else { return }
+                
+                let wasConnected = self.isConnected
+                let isNowConnected = !devices.isEmpty
+                self.isConnected = isNowConnected
+                
+                if isNowConnected {
+                    let device = devices.last ?? self.bluetoothService.lastConnectedDevice
+                    self.deviceName = device?.name ?? ""
+                    self.batteryLevel = device?.batteryLevel
+                    self.deviceType = device?.deviceType ?? .generic
+                } else {
+                    self.deviceName = ""
+                    self.batteryLevel = nil
+                    self.deviceType = .generic
+                }
+                
+                if isNowConnected && !wasConnected {
+                    self.event = .connected
+                }
             }
             .store(in: &cancellables)
-    }
     
-    private func checkBluetooth() {
-        let info = bluetoothService.getLatestDeviceInfo()
-        
-        DispatchQueue.main.async {
-            
-            if !self.hasHandledInitialState {
-                self.isConnected = info.isConnected
-                self.deviceName = info.name
-                self.batteryLevel = info.battery
-                self.deviceType = info.type
+        bluetoothService.$lastConnectedDevice
+            .receive(on: RunLoop.main)
+            .sink { [weak self] device in
+                guard let self = self else { return }
+                guard let device = device else { return }
                 
-                self.hasHandledInitialState = true
-                return
+                guard self.isConnected else { return }
+                
+                self.deviceName = device.name
+                self.batteryLevel = device.batteryLevel
+                self.deviceType = device.deviceType
             }
-            
-            if info.isConnected && !self.isConnected {
-                self.event = .connected
-            }
-            
-            self.isConnected = info.isConnected
-            self.deviceName = info.name
-            self.batteryLevel = info.battery
-            self.deviceType = info.type
-        }
-    }
-    
-    private func setupNotifications() {
-        NotificationCenter.default.addObserver(
-            forName: NSNotification.Name("IOBluetoothDeviceConnectNotification"),
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                self?.checkBluetooth()
-            }
-        }
-        
-        NotificationCenter.default.addObserver(
-            forName: NSNotification.Name("IOBluetoothDeviceDisconnectNotification"),
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                self?.checkBluetooth()
-            }
-        }
+            .store(in: &cancellables)
     }
 }
 
