@@ -100,8 +100,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 bluetoothViewModel: bluetoothViewModel,
                 networkViewModel: networkViewModel,
                 doNotDisturbViewModel: doNotDisturbViewModel,
-                airDropViewModel: airDropViewModel,
-                window: window
+                airDropViewModel: airDropViewModel
             )
             .ignoresSafeArea()
         )

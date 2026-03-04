@@ -12,7 +12,7 @@ struct NotchView: View {
     @ObservedObject var doNotDisturbViewModel: DoNotDisturbViewModel
     @ObservedObject var airDropViewModel: AirDropNotchViewModel
     
-    let window: NSWindow?
+    @Environment(\.openWindow) private var openWindow
     
     var body: some View {
         ZStack {
@@ -23,11 +23,11 @@ struct NotchView: View {
                 .onReceive(networkViewModel.$networkEvent.compactMap { $0 }, perform: notchEventCoordinator.handleNetworkEvent)
                 .onReceive(doNotDisturbViewModel.$focusEvent.compactMap{ $0 }, perform: notchEventCoordinator.handleDoNotDisturbEvent)
                 .onReceive(airDropViewModel.$event.compactMap { $0 }, perform: notchEventCoordinator.handleAirDropEvent)
-                .onChange(of: notchViewModel.notchModel.content?.id) { _, newId in
+                .onChange(of: notchViewModel.notchModel.content?.id) {
                     notchViewModel.handleStrokeVisibility()
                 }
                 .onDrop(of: [.fileURL], isTargeted: $airDropViewModel.isDraggingFile) { providers in
-                    let frame = window?.contentView?.frame ?? .zero
+                    let frame = NSApp.keyWindow?.contentView?.frame ?? .zero
                     let dropPoint = NSPoint(x: frame.midX, y: frame.midY)
                     airDropViewModel.handleDrop(providers: providers, point: dropPoint)
                     return true
@@ -76,6 +76,7 @@ private extension NotchView {
             Image(systemName: "gearshape")
             Text("Settings")
         }
+        
         Divider()
         Button(action: { NSApp.terminate(nil) }) {
             Image(systemName: "rectangle.portrait.and.arrow.right")
