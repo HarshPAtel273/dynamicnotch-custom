@@ -17,9 +17,9 @@ final class DoNotDisturbService {
             .sink { [weak self] isActive in
                 guard let self = self else { return }
                 if isActive {
-                    self.onEvent?(.on)
+                    self.onEvent?(.FocusOn)
                 } else {
-                    self.onEvent?(.off)
+                    self.onEvent?(.FocusOff)
                 }
             }
             .store(in: &cancellables)

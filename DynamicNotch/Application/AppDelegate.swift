@@ -7,6 +7,11 @@
 
 import SwiftUI
 
+class NotchPanel: NSPanel {
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { true }
+}
+
 final class AppDelegate: NSObject, NSApplicationDelegate {
     let notchViewModel = NotchViewModel()
     let powerService = PowerService()
@@ -57,15 +62,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         
         let screenFrame = screen.frame
         
-        let notchWidth: CGFloat = 1000
-        let notchHeight: CGFloat = 1000
+        let notchWidth: CGFloat = 500
+        let notchHeight: CGFloat = 300
         
         let x = screenFrame.midX - notchWidth / 2
-        let y = screenFrame.maxY - notchHeight
+        let y = screenFrame.maxY - notchHeight + 1
         
-        window = NSWindow(
+        window = NotchPanel(
             contentRect: NSRect(x: x, y: y, width: notchWidth, height: notchHeight),
-            styleMask: [.borderless],
+            styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
         )
@@ -87,7 +92,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window.level = .mainMenu + 3
         window.hasShadow = false
         
-        window.contentView = NSHostingView(
+        window.contentView = NotchHostingView(
             rootView: NotchView(
                 notchViewModel: notchViewModel,
                 notchEventCoordinator: notchEventCoordinator,
@@ -95,8 +100,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 bluetoothViewModel: bluetoothViewModel,
                 networkViewModel: networkViewModel,
                 doNotDisturbViewModel: doNotDisturbViewModel,
-                airDropViewModel: airDropViewModel
+                airDropViewModel: airDropViewModel,
+                window: window
             )
+            .ignoresSafeArea()
         )
         
         window.makeKeyAndOrderFront(nil)
@@ -112,12 +119,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let windowSize = window.frame.size
         
         let x = floor(screenFrame.midX - windowSize.width / 2)
-        let y = screenFrame.maxY - windowSize.height
+        let y = screenFrame.maxY - windowSize.height + 1
         
         window.setFrame(
             NSRect(origin: CGPoint(x: x, y: y), size: windowSize),
             display: true,
             animate: false
         )
+    }
+}
+
+class NotchHostingView<Content: SwiftUI.View>: NSHostingView<Content> {
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        return true
+    }
+    
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        if self.bounds.contains(point) {
+            return self
+        }
+        return super.hitTest(point)
     }
 }

@@ -39,6 +39,18 @@ struct NotchControlPanel: View {
                 } label: {
                     Label("Onboarding", systemImage: "clipboard")
                 }
+                
+                Button {
+                    notchEventCoordinator.handleAirDropEvent(.dragStarted)
+                } label: {
+                    Label("AirDrop", systemImage: "dot.radiowaves.left.and.right")
+                }
+                
+                Button {
+                    notchEventCoordinator.handleNetworkEvent(.hotspotActive)
+                } label: {
+                    Label("Hotspot", systemImage: "personalhotspot")
+                }
             }
         }
     }
@@ -99,7 +111,7 @@ struct NotchControlPanel: View {
                 
                 
                 Button {
-                    notchEventCoordinator.handleDoNotDisturbEvent(.off)
+                    notchEventCoordinator.handleDoNotDisturbEvent(.FocusOff)
                 } label: {
                     Label("DoNotDisturb", systemImage: "moon")
                 }

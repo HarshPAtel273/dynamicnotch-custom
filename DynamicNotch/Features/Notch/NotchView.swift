@@ -12,37 +12,30 @@ struct NotchView: View {
     @ObservedObject var doNotDisturbViewModel: DoNotDisturbViewModel
     @ObservedObject var airDropViewModel: AirDropNotchViewModel
     
+    let window: NSWindow?
+    
     var body: some View {
-        ZStack(alignment: .top) {
+        ZStack {
             notchBody
                 .environment(\.notchScale, notchViewModel.notchModel.scale)
-                .onReceive(powerViewModel.$event.compactMap { $0 }.receive(on: RunLoop.main), perform: notchEventCoordinator.handlePowerEvent)
-                .onReceive(bluetoothViewModel.$event.compactMap { $0 }.receive(on: RunLoop.main), perform: notchEventCoordinator.handleBluetoothEvent)
-                .onReceive(networkViewModel.$networkEvent.compactMap { $0 }.receive(on: RunLoop.main), perform: notchEventCoordinator.handleNetworkEvent)
-                .onReceive(doNotDisturbViewModel.$focusEvent.compactMap{ $0 }.receive(on: RunLoop.main), perform: notchEventCoordinator.handleDoNotDisturbEvent)
+                .onReceive(powerViewModel.$event.compactMap { $0 }, perform: notchEventCoordinator.handlePowerEvent)
+                .onReceive(bluetoothViewModel.$event.compactMap { $0 }, perform: notchEventCoordinator.handleBluetoothEvent)
+                .onReceive(networkViewModel.$networkEvent.compactMap { $0 }, perform: notchEventCoordinator.handleNetworkEvent)
+                .onReceive(doNotDisturbViewModel.$focusEvent.compactMap{ $0 }, perform: notchEventCoordinator.handleDoNotDisturbEvent)
+                .onReceive(airDropViewModel.$event.compactMap { $0 }, perform: notchEventCoordinator.handleAirDropEvent)
                 .onChange(of: notchViewModel.notchModel.content?.id) { _, newId in
                     notchViewModel.handleStrokeVisibility()
                 }
-                .onChange(of: airDropViewModel.isDraggingFile) { _, isTargeted in
-                    if isTargeted {
-                        notchEventCoordinator.handleAirDropDragStarted()
-                    } else {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            if !airDropViewModel.isDraggingFile {
-                                notchEventCoordinator.handleAirDropDragEnded()
-                            }
-                        }
-                    }
-                }
                 .onDrop(of: [.fileURL], isTargeted: $airDropViewModel.isDraggingFile) { providers in
-                    let frame = notchViewModel.window?.contentView?.frame ?? .zero
+                    let frame = window?.contentView?.frame ?? .zero
                     let dropPoint = NSPoint(x: frame.midX, y: frame.midY)
                     airDropViewModel.handleDrop(providers: providers, point: dropPoint)
                     return true
                 }
         }
-        .windowHover(notchViewModel.window)
+        .offset(y: 1)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .ignoresSafeArea()
     }
 }
 

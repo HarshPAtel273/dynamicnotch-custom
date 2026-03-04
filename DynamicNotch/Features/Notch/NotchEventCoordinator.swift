@@ -56,16 +56,26 @@ final class NotchEventCoordinator: ObservableObject {
         }
     }
     
-    func handleAirDropDragStarted() {
+    func handleAirDropEvent(_ event: AirDropEvent) {
         guard !isOnboardingActive else { return }
-        
-        notchViewModel.send(.showLiveActivitiy(AirDropNotchContent(airDropViewModel: airDropViewModel,notchViewModel: notchViewModel)))
-    }
-    
-    func handleAirDropDragEnded() {
-        guard isAirDropActive else { return }
-        
-        notchViewModel.send(.hide)
+
+        switch event {
+        case .dragStarted:
+            notchViewModel.send(.showLiveActivitiy(AirDropNotchContent(airDropViewModel: airDropViewModel, notchViewModel: notchViewModel)))
+            
+        case .dragEnded:
+            if isAirDropActive {
+                notchViewModel.send(.hide)
+            }
+            
+        case .dropped(let urls, let point):
+            if let view = NSApp.keyWindow?.contentView {
+                airDropViewModel.shareViaAirDrop(urls: urls, point: point, view: view)
+            } else {
+                airDropViewModel.shareViaAirDrop(urls: urls, point: point, view: NSView())
+            }
+            notchViewModel.send(.hide)
+        }
     }
     
     func handleDoNotDisturbEvent(_ event: FocusEvent) {
@@ -73,10 +83,10 @@ final class NotchEventCoordinator: ObservableObject {
         guard !isOnboardingActive && !isAirDropActive else { return }
         
         switch event {
-        case .on:
+        case .FocusOn:
             notchViewModel.send(.showLiveActivitiy(DoNotDisturbOnNotchContent()))
             
-        case .off:
+        case .FocusOff:
             notchViewModel.send(.hide)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                 self.notchViewModel.send(.showTemporaryNotification(DoNotDisturbOffNotchContent(), duration: 3))

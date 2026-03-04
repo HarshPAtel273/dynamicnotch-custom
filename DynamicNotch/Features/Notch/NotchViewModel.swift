@@ -10,8 +10,6 @@ final class NotchViewModel: ObservableObject {
     @Published var isPressed = false
     @Published var cachedStrokeColor: Color = .clear
     
-    let window: NSWindow? = nil
-    
     private var temporaryTask: Task<Void, Never>?
     private var suspendedActivity: NotchContentProtocol? = nil
     

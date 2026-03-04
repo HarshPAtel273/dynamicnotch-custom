@@ -6,13 +6,8 @@
 //
 
 import SwiftUI
+import AppKit
 internal import UniformTypeIdentifiers
-
-func shareViaAirDrop(urls: [URL], point: NSPoint, view: NSView) {
-    let sharingService = NSSharingService(named: .sendViaAirDrop)
-    sharingService?.delegate = nil
-    sharingService?.perform(withItems: urls)
-}
 
 struct AirDropNotchContent: NotchContentProtocol {
     let id = "airdrop"
@@ -20,14 +15,14 @@ struct AirDropNotchContent: NotchContentProtocol {
     let notchViewModel: NotchViewModel
     
     var strokeColor: Color { .blue.opacity(0.3) }
-    var offsetYTransition: CGFloat { -80 }
+    var offsetYTransition: CGFloat { -90 }
     
     func cornerRadius(baseRadius: CGFloat) -> (top: CGFloat, bottom: CGFloat) {
         return (top: 24, bottom: 36)
     }
     
     func size(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
-        return .init(width: baseWidth + 70, height: baseHeight + 110)
+        return .init(width: baseWidth + 40, height: baseHeight + 110)
     }
     
     func makeView() -> AnyView {
@@ -44,8 +39,8 @@ struct AirDropNotchView: View {
             Spacer()
             
             ZStack {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(.blue.opacity(0.15))
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(airDropViewModel.isDraggingFile ? .blue.opacity(0.2) : .clear.opacity(0))
                     .stroke(.blue,style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round, dash: [20, 10]))
                     .frame(height: 90)
                     .overlay{
