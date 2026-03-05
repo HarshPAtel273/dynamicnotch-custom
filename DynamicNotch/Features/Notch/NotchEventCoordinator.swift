@@ -72,17 +72,17 @@ final class NotchEventCoordinator: ObservableObject {
         }
     }
     
-    func handleDoNotDisturbEvent(_ event: FocusEvent) {
+    func handleFocusEvent(_ event: FocusEvent) {
         guard !isOnboardingActive else { return }
         guard !isOnboardingActive && !isAirDropActive else { return }
         
         switch event {
         case .FocusOn:
-            notchViewModel.send(.showLiveActivitiy(DoNotDisturbOnNotchContent()))
+            notchViewModel.send(.showLiveActivitiy(FocusOnNotchContent()))
             
         case .FocusOff:
-            notchViewModel.send(.hideLiveActivity(id: "focus.active"))
-            self.notchViewModel.send(.showTemporaryNotification(DoNotDisturbOffNotchContent(), duration: 3))
+            notchViewModel.send(.hideLiveActivity(id: "focus.on"))
+            self.notchViewModel.send(.showTemporaryNotification(FocusOffNotchContent(), duration: 3))
         }
     }
     

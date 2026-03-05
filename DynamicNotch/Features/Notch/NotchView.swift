@@ -9,7 +9,7 @@ struct NotchView: View {
     @ObservedObject var powerViewModel: PowerViewModel
     @ObservedObject var bluetoothViewModel: BluetoothViewModel
     @ObservedObject var networkViewModel: NetworkViewModel
-    @ObservedObject var doNotDisturbViewModel: DoNotDisturbViewModel
+    @ObservedObject var focusViewModel: FocusViewModel
     @ObservedObject var airDropViewModel: AirDropNotchViewModel
     
     @Environment(\.openWindow) private var openWindow
@@ -21,7 +21,7 @@ struct NotchView: View {
                 .onReceive(powerViewModel.$event.compactMap { $0 }, perform: notchEventCoordinator.handlePowerEvent)
                 .onReceive(bluetoothViewModel.$event.compactMap { $0 }, perform: notchEventCoordinator.handleBluetoothEvent)
                 .onReceive(networkViewModel.$networkEvent.compactMap { $0 }, perform: notchEventCoordinator.handleNetworkEvent)
-                .onReceive(doNotDisturbViewModel.$focusEvent.compactMap{ $0 }, perform: notchEventCoordinator.handleDoNotDisturbEvent)
+                .onReceive(focusViewModel.$focusEvent.compactMap{ $0 }, perform: notchEventCoordinator.handleFocusEvent)
                 .onReceive(airDropViewModel.$event.compactMap { $0 }, perform: notchEventCoordinator.handleAirDropEvent)
                 .onChange(of: notchViewModel.notchModel.content?.id) {
                     notchViewModel.handleStrokeVisibility()

@@ -18,7 +18,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let bluetoothViewModel = BluetoothViewModel()
     let powerViewModel: PowerViewModel
     let networkViewModel = NetworkViewModel()
-    let doNotDisturbViewModel = DoNotDisturbViewModel()
+    let focusViewModelViewModel = FocusViewModel()
     let airDropViewModel = AirDropNotchViewModel()
     
     lazy var notchEventCoordinator = NotchEventCoordinator(
@@ -99,7 +99,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 powerViewModel: powerViewModel,
                 bluetoothViewModel: bluetoothViewModel,
                 networkViewModel: networkViewModel,
-                doNotDisturbViewModel: doNotDisturbViewModel,
+                focusViewModel: focusViewModelViewModel,
                 airDropViewModel: airDropViewModel
             )
             .ignoresSafeArea()

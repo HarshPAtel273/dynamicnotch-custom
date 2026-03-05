@@ -39,7 +39,7 @@ struct DebugPanel: View {
                             notchEventCoordinator.handleNetworkEvent(.hotspotActive)
                         }
                         debugTile(title: "Focus on", icon: "moon.fill", color: .indigo) {
-                            notchEventCoordinator.handleDoNotDisturbEvent(.FocusOn)
+                            notchEventCoordinator.handleFocusEvent(.FocusOn)
                         }
                     }
                 }
@@ -64,7 +64,7 @@ struct DebugPanel: View {
                             notchEventCoordinator.handleBluetoothEvent(.connected)
                         }
                         debugTile(title: "Focus off", icon: "moon.fill", color: .indigo) {
-                            notchEventCoordinator.handleDoNotDisturbEvent(.FocusOff)
+                            notchEventCoordinator.handleFocusEvent(.FocusOff)
                         }
                         debugTile(title: "VPN", icon: "network", color: .cyan) {
                             notchEventCoordinator.handleNetworkEvent(.vpnConnected)

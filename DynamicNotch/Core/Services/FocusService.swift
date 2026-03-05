@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 import AppKit
 
-final class DoNotDisturbService {
+final class FocusService {
     var onEvent: ((FocusEvent) -> Void)?
     private var cancellables = Set<AnyCancellable>()
     private let manager = DoNotDisturbManager.shared
