@@ -11,6 +11,27 @@ struct DebugPanelSettingsView: View {
     @ObservedObject var notchViewModel: NotchViewModel
     @ObservedObject var notchEventCoordinator: NotchEventCoordinator
     
+    var body: some View {
+        TabView {
+            LiveActivityPanelSettingsView(notchViewModel: notchViewModel, notchEventCoordinator: notchEventCoordinator)
+                .tabItem {
+                    Text("Live Activity")
+                }
+            
+            TemporaryActivityPanelSettingsView(notchViewModel: notchViewModel, notchEventCoordinator: notchEventCoordinator)
+                .tabItem {
+                    Text("Temporary Activity")
+                }
+        }
+        .padding(12)
+        .tabViewStyle(.grouped)
+    }
+}
+
+private struct LiveActivityPanelSettingsView: View {
+    @ObservedObject var notchViewModel: NotchViewModel
+    @ObservedObject var notchEventCoordinator: NotchEventCoordinator
+    
     private let columns = [
         GridItem(.flexible(), spacing: 10),
         GridItem(.flexible(), spacing: 10),
@@ -21,55 +42,75 @@ struct DebugPanelSettingsView: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 24) {
-                
-                // --- ACTIVE SECTION ---
                 VStack(alignment: .leading, spacing: 12) {
-                    sectionHeader(title: "Live Active Event", systemImage: "dot.radiowaves.left.and.right", color: .blue)
+                    SectionHeader(title: "Live Activities Events", systemImage: "dot.radiowaves.left.and.right", color: .blue)
                     
                     LazyVGrid(columns: columns, spacing: 10) {
-                        debugTile(title: "Onboarding", icon: "clipboard", color: .orange) {
+                        DebugTitle(title: "Onboarding", icon: "clipboard", color: .orange) {
                             notchEventCoordinator.handleOnboardingEvent(.onboarding)
                         }
                         
-                        debugTile(title: "AirDrop", icon: "dot.radiowaves.left.and.right", color: .blue) {
+                        DebugTitle(title: "AirDrop", icon: "dot.radiowaves.left.and.right", color: .blue) {
                             notchEventCoordinator.handleAirDropEvent(.dragStarted)
                         }
                         
-                        debugTile(title: "Hotspot", icon: "personalhotspot", color: .green) {
+                        DebugTitle(title: "Hotspot", icon: "personalhotspot", color: .green) {
                             notchEventCoordinator.handleNetworkEvent(.hotspotActive)
                         }
-                        debugTile(title: "Focus on", icon: "moon.fill", color: .indigo) {
+                        DebugTitle(title: "Focus on", icon: "moon.fill", color: .indigo) {
                             notchEventCoordinator.handleFocusEvent(.FocusOn)
                         }
                     }
                 }
-                
-                Divider().opacity(0.5)
-                
-                // --- TEMPORARY SECTION ---
+            }
+            Spacer()
+            
+            Button(action: {notchViewModel.send(.hide)}) {
+                Text("Hide All Temporary")
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .padding(20)
+    }
+}
+
+private struct TemporaryActivityPanelSettingsView: View {
+    @ObservedObject var notchViewModel: NotchViewModel
+    @ObservedObject var notchEventCoordinator: NotchEventCoordinator
+    
+    private let columns = [
+        GridItem(.flexible(), spacing: 10),
+        GridItem(.flexible(), spacing: 10),
+        GridItem(.flexible(), spacing: 10),
+        GridItem(.flexible(), spacing: 10)
+    ]
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 24) {
                 VStack(alignment: .leading, spacing: 12) {
-                    sectionHeader(title: "Temporary Events", systemImage: "bolt.badge.clock", color: .purple)
+                    SectionHeader(title: "Temporary Activities Events", systemImage: "bolt.badge.clock", color: .purple)
                     
                     LazyVGrid(columns: columns, spacing: 10) {
-                        debugTile(title: "Charger", icon: "bolt.fill", color: .yellow) {
+                        DebugTitle(title: "Charger", icon: "bolt.fill", color: .yellow) {
                             notchEventCoordinator.handlePowerEvent(.charger)
                         }
-                        debugTile(title: "Low Power", icon: "battery.25", color: .red) {
+                        DebugTitle(title: "Low Power", icon: "battery.25", color: .red) {
                             notchEventCoordinator.handlePowerEvent(.lowPower)
                         }
-                        debugTile(title: "Full Power", icon: "battery.100", color: .green) {
+                        DebugTitle(title: "Full Power", icon: "battery.100", color: .green) {
                             notchEventCoordinator.handlePowerEvent(.fullPower)
                         }
-                        debugTile(title: "Bluetooth", icon: "headphones", color: .blue) {
+                        DebugTitle(title: "Bluetooth", icon: "headphones", color: .blue) {
                             notchEventCoordinator.handleBluetoothEvent(.connected)
                         }
-                        debugTile(title: "Focus off", icon: "moon.fill", color: .indigo) {
+                        DebugTitle(title: "Focus off", icon: "moon.fill", color: .indigo) {
                             notchEventCoordinator.handleFocusEvent(.FocusOff)
                         }
-                        debugTile(title: "VPN", icon: "network", color: .cyan) {
+                        DebugTitle(title: "VPN", icon: "network", color: .cyan) {
                             notchEventCoordinator.handleNetworkEvent(.vpnConnected)
                         }
-                        debugTile(title: "WiFi", icon: "wifi", color: .blue) {
+                        DebugTitle(title: "WiFi", icon: "wifi", color: .blue) {
                             notchEventCoordinator.handleNetworkEvent(.wifiConnected)
                         }
                     }
@@ -84,9 +125,14 @@ struct DebugPanelSettingsView: View {
         }
         .padding(20)
     }
+}
+
+private struct SectionHeader: View {
+    var title: String
+    var systemImage: String
+    var color: Color
     
-    @ViewBuilder
-    private func sectionHeader(title: String, systemImage: String, color: Color) -> some View {
+    var body: some View {
         HStack {
             Image(systemName: systemImage)
                 .foregroundStyle(color)
@@ -94,9 +140,15 @@ struct DebugPanelSettingsView: View {
                 .font(.headline)
         }
     }
+}
+
+private struct DebugTitle: View {
+    var title: String
+    var icon: String
+    var color: Color
+    var action: () -> Void
     
-    @ViewBuilder
-    private func debugTile(title: String, icon: String, color: Color, action: @escaping () -> Void) -> some View {
+    var body: some View {
         Button(action: action) {
             VStack(spacing: 8) {
                 Image(systemName: icon)

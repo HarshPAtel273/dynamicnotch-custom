@@ -14,36 +14,29 @@ struct NotchApp: App {
                     Image(systemName: "lock.rectangle.stack")
                     Text("Debug Panel")
                 }
-                .frame(width: 600, height: 400)
+                .frame(width: 600, height: 500)
                 #endif
                 
                 GeneralSettingsView()
                     .tabItem {
-                        Image(systemName: "gear")
+                        Image(systemName: "gearshape.fill")
                         Text("General")
                     }
-                    .frame(width: 600, height: 600)
+                    .frame(width: 600, height: 500)
                 
-                LiveActivitySettingsView()
+                ActivitySettingsView()
                     .tabItem {
-                        Image(systemName: "livephoto")
-                        Text("Live Activity")
+                        Image(systemName: "clock.fill")
+                        Text("Activities")
                     }
-                    .frame(width: 600, height: 600)
-                
-                TemporarySettingsView()
-                    .tabItem {
-                        Image(systemName: "bell")
-                        Text("Temp Activity")
-                    }
-                    .frame(width: 600, height: 600)
+                    .frame(width: 600, height: 500)
                 
                 AboutAppSettingsView()
                     .tabItem {
-                        Image(systemName: "info.circle")
-                        Text("About App")
+                        Image(systemName: "ellipsis.circle.fill")
+                        Text("About")
                     }
-                    .frame(width: 600, height: 600)
+                    .frame(width: 500, height: 560)
             }
             .background(.ultraThinMaterial)
         }

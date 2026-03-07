@@ -43,19 +43,19 @@
       "size" : "256x256"
     },
     {
-      "filename" : "logo512 1.png",
+      "filename" : "logo512.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "256x256"
     },
     {
-      "filename" : "logo512.png",
+      "filename" : "logo1512.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "512x512"
     },
     {
-      "filename" : "image-2.png",
+      "filename" : "logo1024.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "512x512"
