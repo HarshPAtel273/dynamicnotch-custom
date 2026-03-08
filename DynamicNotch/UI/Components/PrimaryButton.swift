@@ -21,10 +21,3 @@ struct PrimaryButtonStyle: ButtonStyle {
             .opacity(configuration.isPressed ? 0.7 : 1.0)
     }
 }
-
-#Preview {
-    Button(action: {}) {
-        Text("Start")
-    }
-    .buttonStyle(PrimaryButtonStyle(height: 30))
-}

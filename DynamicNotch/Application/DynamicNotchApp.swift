@@ -8,32 +8,30 @@ struct NotchApp: App {
     var body: some Scene {
         Settings {
             TabView {
-                #if DEBUG
-                DebugPanelSettingsView(notchViewModel: appDelegate.notchViewModel, notchEventCoordinator: appDelegate.notchEventCoordinator)
+                GeneralSettingsView(
+                    notchViewModel: appDelegate.notchViewModel,
+                    powerService: appDelegate.powerService,
+                    generalSettingsViewModel: appDelegate.generalSettingsViewModel
+                )
                 .tabItem {
-                    Image(systemName: "lock.rectangle.stack")
-                    Text("Debug Panel")
+                    Image(systemName: "gearshape.fill")
+                    Text("General")
                 }
-                .frame(width: 600, height: 500)
-                #endif
+                .frame(width: 500, height: 560)
                 
-                GeneralSettingsView()
-                    .tabItem {
-                        Image(systemName: "gearshape.fill")
-                        Text("General")
-                    }
-                    .frame(width: 600, height: 500)
-                
-                ActivitySettingsView()
-                    .tabItem {
-                        Image(systemName: "clock.fill")
-                        Text("Activities")
-                    }
-                    .frame(width: 600, height: 500)
+                ActivitySettingsView(
+                    notchViewModel: appDelegate.notchViewModel,
+                    notchEventCoordinator: appDelegate.notchEventCoordinator
+                )
+                .tabItem {
+                    Image(systemName: "clock.fill")
+                    Text("Activities")
+                }
+                .frame(width: 500, height: 560)
                 
                 AboutAppSettingsView()
                     .tabItem {
-                        Image(systemName: "ellipsis.circle.fill")
+                        Image(systemName: "info.circle.fill")
                         Text("About")
                     }
                     .frame(width: 500, height: 560)

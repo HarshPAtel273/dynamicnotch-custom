@@ -12,19 +12,18 @@ struct DebugPanelSettingsView: View {
     @ObservedObject var notchEventCoordinator: NotchEventCoordinator
     
     var body: some View {
-        TabView {
+        VStack(spacing: 20) {
             LiveActivityPanelSettingsView(notchViewModel: notchViewModel, notchEventCoordinator: notchEventCoordinator)
-                .tabItem {
-                    Text("Live Activity")
-                }
             
             TemporaryActivityPanelSettingsView(notchViewModel: notchViewModel, notchEventCoordinator: notchEventCoordinator)
-                .tabItem {
-                    Text("Temporary Activity")
-                }
+            
+            Spacer()
+            
+            Button(action: {notchViewModel.send(.hide)}) {
+                Text("Hide All Temporary")
+            }
         }
-        .padding(12)
-        .tabViewStyle(.grouped)
+        .padding(20)
     }
 }
 
@@ -63,14 +62,7 @@ private struct LiveActivityPanelSettingsView: View {
                     }
                 }
             }
-            Spacer()
-            
-            Button(action: {notchViewModel.send(.hide)}) {
-                Text("Hide All Temporary")
-            }
-            .buttonStyle(.borderedProminent)
         }
-        .padding(20)
     }
 }
 
@@ -116,14 +108,7 @@ private struct TemporaryActivityPanelSettingsView: View {
                     }
                 }
             }
-            Spacer()
-            
-            Button(action: {notchViewModel.send(.hide)}) {
-                Text("Hide All Temporary")
-            }
-            .buttonStyle(.borderedProminent)
         }
-        .padding(20)
     }
 }
 

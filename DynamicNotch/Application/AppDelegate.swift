@@ -20,6 +20,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let networkViewModel = NetworkViewModel()
     let focusViewModel = FocusViewModel()
     let airDropViewModel = AirDropNotchViewModel()
+    let generalSettingsViewModel = GeneralSettingsViewModel()
     
     lazy var notchEventCoordinator = NotchEventCoordinator(
         notchViewModel: notchViewModel,

@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct ActivitySettingsView: View {
+    @ObservedObject var notchViewModel: NotchViewModel
+    @ObservedObject var notchEventCoordinator: NotchEventCoordinator
+    
     var body: some View {
         TabView {
             LiveActivitySettingsView()
@@ -19,6 +22,13 @@ struct ActivitySettingsView: View {
                 .tabItem{
                     Text("Temporary Activity")
                 }
+            
+            #if DEBUG
+            DebugPanelSettingsView(notchViewModel: notchViewModel, notchEventCoordinator: notchEventCoordinator)
+                .tabItem {
+                    Text("Debug Panel")
+                }
+            #endif
         }
         .padding(12)
         .tabViewStyle(.grouped)
