@@ -13,7 +13,6 @@ class NotchPanel: NSPanel {
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    let notchViewModel = NotchViewModel()
     let powerService = PowerService()
     let bluetoothViewModel = BluetoothViewModel()
     let powerViewModel: PowerViewModel
@@ -22,6 +21,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let airDropViewModel = AirDropNotchViewModel()
     let generalSettingsViewModel = GeneralSettingsViewModel()
     
+    lazy var notchViewModel = NotchViewModel(generalSettingsViewModel: generalSettingsViewModel)
     lazy var notchEventCoordinator = NotchEventCoordinator(
         notchViewModel: notchViewModel,
         bluetoothViewModel: bluetoothViewModel,
@@ -101,7 +101,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 bluetoothViewModel: bluetoothViewModel,
                 networkViewModel: networkViewModel,
                 focusViewModel: focusViewModel,
-                airDropViewModel: airDropViewModel
+                airDropViewModel: airDropViewModel,
+                generalSettingsViewModel: generalSettingsViewModel
             )
         )
         

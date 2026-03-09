@@ -68,14 +68,14 @@ struct CustomPicker<Option: Hashable>: View {
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .stroke(isSelected ? Color.blue.opacity(0.9) : Color.black.opacity(0.25), lineWidth: isSelected ? 2 : 1)
+                        .stroke(isSelected ? Color.blue.opacity(0.9) : Color.gray.opacity(0.1), lineWidth: isSelected ? 2 : 1)
                 )
                 .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
             .buttonStyle(.plain)
             
             Text(title(option))
-                .font(.system(size: 13, weight: .semibold))
+                .font(.system(size: 13))
                 .foregroundStyle(isSelected ? Color.primary : Color.secondary)
                 .lineLimit(1)
                 .truncationMode(.tail)

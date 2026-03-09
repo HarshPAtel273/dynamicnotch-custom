@@ -41,12 +41,6 @@ struct TickedSlider: View {
             
             GeometryReader { geo in
                 ZStack {
-                    RoundedRectangle(cornerRadius: 2)
-                        .fill(Color.gray.opacity(0.25))
-                        .frame(height: 3)
-                    
-                    
-                    
                     Slider(
                         value: doubleBinding,
                         in: Double(range.lowerBound)...Double(range.upperBound),
@@ -66,7 +60,7 @@ struct TickedSlider: View {
         let text: String
         var body: some View {
             Text(text)
-                .font(.system(size: 12, weight: .semibold))
+                .font(.system(size: 12))
                 .padding(.vertical, 3)
                 .padding(.horizontal, 8)
                 .background(

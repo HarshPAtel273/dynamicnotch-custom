@@ -36,7 +36,6 @@ struct NotchApp: App {
                     }
                     .frame(width: 500, height: 560)
             }
-            .background(.ultraThinMaterial)
         }
         .defaultPosition(.center)
         .windowResizability(.contentSize)

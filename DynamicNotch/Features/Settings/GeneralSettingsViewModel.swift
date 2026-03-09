@@ -7,34 +7,25 @@
 
 import Combine
 import SwiftUI
-
-enum NotchDisplayLocation: String, CaseIterable {
-    case builtIn
-    case main
-    
-    var title: String {
-        switch self {
-        case .builtIn: return "Show on other display"
-        case .main:    return "Show on main screen"
-        }
-    }
-    
-    var symbolName: String {
-        switch self {
-        case .builtIn: return "laptopcomputer"
-        case .main:    return "display.2"
-        }
-    }
-}
+import ServiceManagement
 
 final class GeneralSettingsViewModel: ObservableObject {
-    @AppStorage("isLaunchAtLoginEnabled") var isLaunchAtLoginEnabled: Bool = false
-    @AppStorage("isHideMenuBarIconEnabled") var isHideMenuBarIconEnabled: Bool = false
-    @AppStorage("isShowNotchStrokeEnabled") var isShowNotchStrokeEnabled: Bool = false
-    @AppStorage("displayLocation") private var storedDisplayLocationRaw: String = NotchDisplayLocation.main.rawValue
-    @AppStorage("notchStrokeWidth") var notchStrokeWidth: Double = 1.5
+    @AppStorage("isLaunchAtLoginEnabled") var isLaunchAtLoginEnabled: Bool = true {
+        didSet {
+            updateLaunchAtLogin()
+        }
+    }
+    @AppStorage("isHideMenuBarIconEnabled") var isHideMenuBarIconEnabled: Bool = true
+    @AppStorage("isShowNotchStrokeEnabled") var isShowNotchStrokeEnabled: Bool = true
     
+    @AppStorage("notchStrokeWidth") var notchStrokeWidth: Double = 1.5
+    @AppStorage("notchWidth") var notchWidth: Int = 0
+    @AppStorage("notchHeight") var notchHeight: Int = 0
+    
+    @AppStorage("displayLocation") private var storedDisplayLocationRaw: String = NotchDisplayLocation.main.rawValue
     @Published var displayLocation: NotchDisplayLocation
+    
+    private var cancellables = Set<AnyCancellable>()
     
     init() {
         let raw = UserDefaults.standard.string(forKey: "displayLocation") ?? NotchDisplayLocation.main.rawValue
@@ -45,8 +36,21 @@ final class GeneralSettingsViewModel: ObservableObject {
                 self?.storedDisplayLocationRaw = newValue.rawValue
             }
             .store(in: &cancellables)
+        
+        updateLaunchAtLogin()
     }
     
-    private var cancellables = Set<AnyCancellable>()
+    private func updateLaunchAtLogin() {
+        let instance = SMAppService.mainApp
+        
+        do {
+            if isLaunchAtLoginEnabled {
+                try instance.register()
+            } else {
+                try instance.unregister()
+            }
+        } catch {
+            print("Ошибка для \(instance.description): \(error)")
+        }
+    }
 }
-

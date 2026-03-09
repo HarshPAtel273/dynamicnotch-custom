@@ -7,9 +7,10 @@ final class NotchViewModel: ObservableObject {
     @Published private(set) var notchModel = NotchModel()
     @Published private var activeLiveActivities: [NotchContentProtocol] = []
     @Published var showNotch = false
-    @Published var showStroke = false
     @Published var isPressed = false
     @Published var cachedStrokeColor: Color = .clear
+    
+    let generalSettingsViewModel: GeneralSettingsViewModel
     
     private var highestPriorityActivity: NotchContentProtocol? { activeLiveActivities.sorted { $0.priority > $1.priority }.first }
     private var temporaryTask: Task<Void, Never>?
@@ -20,7 +21,8 @@ final class NotchViewModel: ObservableObject {
     private var isProcessingQueue = false
     private var isTransitioning = false
     
-    init() {
+    init(generalSettingsViewModel: GeneralSettingsViewModel) {
+        self.generalSettingsViewModel = generalSettingsViewModel
         updateDimensions()
     }
     
@@ -32,12 +34,17 @@ final class NotchViewModel: ObservableObject {
         
         notchModel.scale = max(0.35, screenWidth / baseScreenWidth)
         
+        // 1. Получаем смещения из настроек и конвертируем в CGFloat
+        let widthOffset = CGFloat(generalSettingsViewModel.notchWidth)
+        let heightOffset = CGFloat(generalSettingsViewModel.notchHeight)
+        
+        // 2. Прибавляем значения ползунков к базовым размерам
         if topInset > 0 {
-            notchModel.baseHeight = topInset
-            notchModel.baseWidth = 190 * notchModel.scale
+            notchModel.baseHeight = topInset + heightOffset
+            notchModel.baseWidth = (190 * notchModel.scale) + widthOffset
         } else {
-            notchModel.baseHeight = 25 * notchModel.scale
-            notchModel.baseWidth = 190 * notchModel.scale
+            notchModel.baseHeight = (25 * notchModel.scale) + heightOffset
+            notchModel.baseWidth = (190 * notchModel.scale) + widthOffset
         }
     }
     
@@ -64,7 +71,7 @@ final class NotchViewModel: ObservableObject {
                 }
                 return
             }
-
+            
         case .hideLiveActivity(let id):
             let wasVisible = notchModel.liveActivityContent?.id == id
             activeLiveActivities.removeAll(where: { $0.id == id })
@@ -77,7 +84,7 @@ final class NotchViewModel: ObservableObject {
                 })
                 return
             }
-
+            
         case .hide:
             eventQueue.removeAll()
         }
@@ -85,7 +92,7 @@ final class NotchViewModel: ObservableObject {
         eventQueue.append(notchState)
         processQueue()
     }
-
+    
     // MARK: - Queue Processing
     private func processQueue() {
         guard !isProcessingQueue, !eventQueue.isEmpty else { return }
@@ -109,13 +116,13 @@ final class NotchViewModel: ObservableObject {
         while isTransitioning {
             try? await Task.sleep(nanoseconds: 10_000_000)
         }
-
+        
         switch state {
         case .showLiveActivity(let content):
-
+            
             let current = notchModel.liveActivityContent
             let best = highestPriorityActivity
-
+            
             // если это самая приоритетная активность
             if best?.id == content.id {
                 await showLiveContentTransition(content)
@@ -128,11 +135,11 @@ final class NotchViewModel: ObservableObject {
             else {
                 await showLiveContentTransition(content)
             }
-
+            
         case .hideLiveActivity(let id):
-
+            
             let currentID = notchModel.liveActivityContent?.id
-
+            
             if currentID == id {
                 if let nextBest = highestPriorityActivity {
                     await showLiveContentTransition(nextBest)
@@ -140,15 +147,15 @@ final class NotchViewModel: ObservableObject {
                     await hideAllTransition()
                 }
             }
-
+            
         case .showTemporaryNotification(let content, let duration):
             await showTemporaryTransition(content, duration: duration)
-
+            
         case .hide:
             await hideAllTransition()
         }
     }
-
+    
     // MARK: - Transitions
     private func showLiveContentTransition(_ content: NotchContentProtocol?) async {
         if notchModel.temporaryNotificationContent != nil {
@@ -172,7 +179,7 @@ final class NotchViewModel: ObservableObject {
             )
         }
     }
-
+    
     private func showTemporaryTransition(_ content: NotchContentProtocol, duration: TimeInterval) async {
         return await withCheckedContinuation { continuation in
             transition(
@@ -202,7 +209,7 @@ final class NotchViewModel: ObservableObject {
             )
         }
     }
-
+    
     private func hideAllTransition() async {
         return await withCheckedContinuation { continuation in
             transition(
@@ -217,7 +224,7 @@ final class NotchViewModel: ObservableObject {
             )
         }
     }
-
+    
     // MARK: - Helpers
     private func updateLiveActivityStack(with content: NotchContentProtocol) {
         if let index = activeLiveActivities.firstIndex(where: { $0.id == content.id }) {
@@ -225,10 +232,10 @@ final class NotchViewModel: ObservableObject {
         } else {
             activeLiveActivities.append(content)
         }
-
+        
         activeLiveActivities.sort { $0.priority > $1.priority }
     }
-
+    
     func hideTemporaryNotification() {
         cancelTemporary()
         
@@ -246,7 +253,7 @@ final class NotchViewModel: ObservableObject {
             }
         )
     }
-
+    
     private func transition(customDelay: TimeInterval? = nil, hide: @escaping () -> Void, show: @escaping () -> Void) {
         guard !isTransitioning else { return }
         isTransitioning = true
@@ -261,12 +268,12 @@ final class NotchViewModel: ObservableObject {
             }
         }
     }
-
+    
     private func cancelTemporary() {
         temporaryTask?.cancel()
         temporaryTask = nil
     }
-
+    
     private func restartTemporaryTimer(duration: TimeInterval) {
         cancelTemporary()
         if duration.isInfinite { return }
@@ -278,13 +285,16 @@ final class NotchViewModel: ObservableObject {
     
     func handleStrokeVisibility() {
         if let content = notchModel.content {
+            // Берем цвет из контента
             cachedStrokeColor = content.strokeColor
-            showStroke = true
             showNotch = true
         } else {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
                 guard let self, self.notchModel.content == nil else { return }
-                self.showStroke = false
+                
+                // Сбрасываем цвет обводки, чтобы она стала невидимой,
+                // но НЕ ТРОГАЕМ саму настройку пользователя!
+                self.cachedStrokeColor = .clear
                 self.showNotch = false
             }
         }

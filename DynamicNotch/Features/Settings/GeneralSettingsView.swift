@@ -7,6 +7,25 @@
 
 import SwiftUI
 
+enum NotchDisplayLocation: String, CaseIterable {
+    case builtIn
+    case main
+    
+    var title: String {
+        switch self {
+        case .builtIn: return "Show on other display"
+        case .main:    return "Show on main screen"
+        }
+    }
+    
+    var symbolName: String {
+        switch self {
+        case .builtIn: return "laptopcomputer"
+        case .main:    return "display.2"
+        }
+    }
+}
+
 struct GeneralSettingsView: View {
     @ObservedObject var notchViewModel: NotchViewModel
     @ObservedObject var powerService: PowerService
@@ -15,7 +34,7 @@ struct GeneralSettingsView: View {
     var body: some View {
         Form {
             systemSection
-            notchSection
+            notchShapeSection
         }
         .formStyle(.grouped)
     }
@@ -40,10 +59,10 @@ struct GeneralSettingsView: View {
     }
     
     @ViewBuilder
-    var notchSection: some View {
-        Section("Notch") {
+    var notchShapeSection: some View {
+        Section("Notch shape") {
             ZStack(alignment: .top) {
-                Image("background")
+                Image("backgroundDark")
                     .resizable()
                     .frame(height: 100)
                     .cornerRadius(10)
@@ -52,7 +71,7 @@ struct GeneralSettingsView: View {
                     .fill(.black)
                     .stroke(generalSettingsViewModel.isShowNotchStrokeEnabled ? .green.opacity(0.3) : Color.clear, lineWidth: generalSettingsViewModel.notchStrokeWidth)
                     .overlay(ChargerNotchView(powerService: powerService))
-                    .frame(width: 370, height: notchViewModel.notchModel.size.height)
+                    .frame(width: 370, height: 38)
             }
             
             Toggle("Show notch stroke ", isOn: $generalSettingsViewModel.isShowNotchStrokeEnabled)
@@ -64,6 +83,28 @@ struct GeneralSettingsView: View {
                 range: 1...3,
                 step: 0.5,
                 valueFormatter: { "\($0) px" }
+            )
+            
+            TickedSlider(
+                title: "Notch width",
+                value: Binding<Double>(
+                    get: { Double(generalSettingsViewModel.notchWidth) },
+                    set: { generalSettingsViewModel.notchWidth = Int($0.rounded()) }
+                ),
+                range: -8...8,
+                step: 1,
+                valueFormatter: { "\(Int($0)) px" }
+            )
+            
+            TickedSlider(
+                title: "Notch height",
+                value: Binding<Double>(
+                    get: { Double(generalSettingsViewModel.notchHeight) },
+                    set: { generalSettingsViewModel.notchHeight = Int($0.rounded()) }
+                ),
+                range: -4...4,
+                step: 1,
+                valueFormatter: { "\(Int($0)) px" }
             )
         }
     }
