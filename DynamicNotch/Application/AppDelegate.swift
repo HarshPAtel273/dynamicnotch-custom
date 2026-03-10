@@ -27,7 +27,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         bluetoothViewModel: bluetoothViewModel,
         powerService: powerService,
         networkViewModel: networkViewModel,
-        airDropViewModel: airDropViewModel
+        airDropViewModel: airDropViewModel,
+        generalSettingsViewModel: generalSettingsViewModel
     )
     
     var window: NSWindow!

@@ -15,15 +15,25 @@ final class GeneralSettingsViewModel: ObservableObject {
             updateLaunchAtLogin()
         }
     }
+    @AppStorage("notchWidth") var notchWidth: Int = 0 {
+        didSet {
+            notchSizeEvent.send(.width)
+        }
+    }
+
+    @AppStorage("notchHeight") var notchHeight: Int = 0 {
+        didSet {
+            notchSizeEvent.send(.height)
+        }
+    }
     @AppStorage("isHideMenuBarIconEnabled") var isHideMenuBarIconEnabled: Bool = true
     @AppStorage("isShowNotchStrokeEnabled") var isShowNotchStrokeEnabled: Bool = true
-    
     @AppStorage("notchStrokeWidth") var notchStrokeWidth: Double = 1.5
-    @AppStorage("notchWidth") var notchWidth: Int = 0
-    @AppStorage("notchHeight") var notchHeight: Int = 0
-    
     @AppStorage("displayLocation") private var storedDisplayLocationRaw: String = NotchDisplayLocation.main.rawValue
+    
     @Published var displayLocation: NotchDisplayLocation
+    
+    let notchSizeEvent = PassthroughSubject<NotchSizeEvent, Never>()
     
     private var cancellables = Set<AnyCancellable>()
     

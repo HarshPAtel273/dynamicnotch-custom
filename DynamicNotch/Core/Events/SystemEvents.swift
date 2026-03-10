@@ -37,6 +37,11 @@ enum FocusEvent {
     case FocusOff
 }
 
+enum NotchSizeEvent {
+    case width
+    case height
+}
+
 enum BluetoothEvent {
     case connected
 }

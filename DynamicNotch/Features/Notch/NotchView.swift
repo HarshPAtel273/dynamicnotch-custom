@@ -22,6 +22,7 @@ struct NotchView: View {
                 .onReceive(networkViewModel.$networkEvent.compactMap { $0 }, perform: notchEventCoordinator.handleNetworkEvent)
                 .onReceive(focusViewModel.$focusEvent.compactMap{ $0 }, perform: notchEventCoordinator.handleFocusEvent)
                 .onReceive(airDropViewModel.$event.compactMap { $0 }, perform: notchEventCoordinator.handleAirDropEvent)
+                .onReceive(generalSettingsViewModel.notchSizeEvent, perform: notchEventCoordinator.handleNotchWidthEvent)
                 .onChange(of: notchViewModel.notchModel.content?.id) {
                     notchViewModel.handleStrokeVisibility()
                 }

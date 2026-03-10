@@ -15,6 +15,7 @@ final class NotchEventCoordinator: ObservableObject {
     private let powerService: PowerService
     private let networkViewModel: NetworkViewModel
     private let airDropViewModel: AirDropNotchViewModel
+    private let generalSettingsViewModel: GeneralSettingsViewModel
     
     private var isOnboardingActive: Bool {
         notchViewModel.notchModel.liveActivityContent?.id == "onboarding" ||
@@ -30,13 +31,15 @@ final class NotchEventCoordinator: ObservableObject {
         bluetoothViewModel: BluetoothViewModel,
         powerService: PowerService,
         networkViewModel: NetworkViewModel,
-        airDropViewModel: AirDropNotchViewModel
+        airDropViewModel: AirDropNotchViewModel,
+        generalSettingsViewModel: GeneralSettingsViewModel
     ) {
         self.notchViewModel = notchViewModel
         self.bluetoothViewModel = bluetoothViewModel
         self.powerService = powerService
         self.networkViewModel = networkViewModel
         self.airDropViewModel = airDropViewModel
+        self.generalSettingsViewModel = generalSettingsViewModel
     }
     
     func checkFirstLaunch() {
@@ -69,6 +72,19 @@ final class NotchEventCoordinator: ObservableObject {
                 airDropViewModel.shareViaAirDrop(urls: urls, point: point, view: view)
             }
             notchViewModel.send(.hideLiveActivity(id: "airdrop"))
+        }
+    }
+    
+    func handleNotchWidthEvent(_ event: NotchSizeEvent) {
+        guard !isOnboardingActive else { return }
+        guard !isOnboardingActive && !isAirDropActive else { return }
+        
+        switch event {
+        case .width:
+            notchViewModel.send(.showTemporaryNotification(NotchSizeWidthNotchContent(generalSettingsViewModel: generalSettingsViewModel), duration: 2))
+            
+        case .height:
+            notchViewModel.send(.showTemporaryNotification(NotchSizeHeightNotchContent(generalSettingsViewModel: generalSettingsViewModel), duration: 2))
         }
     }
     
