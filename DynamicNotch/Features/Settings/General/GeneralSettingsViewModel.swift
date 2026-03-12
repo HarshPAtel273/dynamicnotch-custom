@@ -26,7 +26,7 @@ final class GeneralSettingsViewModel: ObservableObject {
             notchSizeEvent.send(.height)
         }
     }
-    @AppStorage("isHideMenuBarIconEnabled") var isHideMenuBarIconEnabled: Bool = true
+    @AppStorage("isMenuBarIconVisible") var isMenuBarIconVisible: Bool = true
     @AppStorage("isShowNotchStrokeEnabled") var isShowNotchStrokeEnabled: Bool = true
     @AppStorage("notchStrokeWidth") var notchStrokeWidth: Double = 1.5
     @AppStorage("displayLocation") private var storedDisplayLocationRaw: String = NotchDisplayLocation.main.rawValue

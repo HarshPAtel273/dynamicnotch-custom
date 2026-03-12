@@ -105,6 +105,12 @@ private struct TemporaryActivityPanelSettingsView: View {
                         DebugTitle(title: "WiFi", icon: "wifi", color: .blue) {
                             notchEventCoordinator.handleNetworkEvent(.wifiConnected)
                         }
+                        DebugTitle(title: "NotchSizeHeight", icon: "chevron.up.chevron.down", color: .red) {
+                            notchEventCoordinator.handleNotchWidthEvent(.height)
+                        }
+                        DebugTitle(title: "NotchSizeWidth", icon: "chevron.left.chevron.right", color: .red) {
+                            notchEventCoordinator.handleNotchWidthEvent(.width)
+                        }
                     }
                 }
             }

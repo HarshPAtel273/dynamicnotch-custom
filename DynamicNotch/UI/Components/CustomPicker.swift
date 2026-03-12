@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct CustomPicker<Option: Hashable>: View {
+    @Environment(\.colorScheme) var colorScheme: ColorScheme
+    
     @Binding var selection: Option
     let options: [Option]
     let title: (Option) -> String
@@ -64,7 +66,7 @@ struct CustomPicker<Option: Hashable>: View {
                 .padding(.horizontal, 12)
                 .background(
                     RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .fill(Color.gray.opacity(isSelected ? 0.12 : 0.08))
+                        .fill(colorScheme == .dark ? Color.gray.opacity(isSelected ? 0.12 : 0.08) : Color .gray.opacity(isSelected ? 0.22 : 0.18))
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 10, style: .continuous)

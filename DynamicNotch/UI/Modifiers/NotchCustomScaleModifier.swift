@@ -31,9 +31,3 @@ struct NotchCustomScaleModifier: ViewModifier {
             )
     }
 }
-
-extension View {
-    func customNotchPressable(isPressed: Binding<Bool>, baseSize: CGSize) -> some View {
-        modifier(NotchCustomScaleModifier(isPressed: isPressed, baseSize: baseSize))
-    }
-}

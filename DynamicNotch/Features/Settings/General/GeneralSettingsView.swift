@@ -45,7 +45,7 @@ struct GeneralSettingsView: View {
             Toggle("Launch at login", isOn: $generalSettingsViewModel.isLaunchAtLoginEnabled)
                 .toggleStyle(CustomToggleStyle())
             
-            Toggle("Hide menu bar icon", isOn: $generalSettingsViewModel.isHideMenuBarIconEnabled)
+            Toggle("Show menu bar icon", isOn: $generalSettingsViewModel.isMenuBarIconVisible)
                 .toggleStyle(CustomToggleStyle())
             
             CustomPicker(

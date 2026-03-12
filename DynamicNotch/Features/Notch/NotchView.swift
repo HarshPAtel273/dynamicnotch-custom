@@ -69,7 +69,9 @@ private extension NotchView {
             height: notchViewModel.notchModel.size.height
         )
         .contextMenu {
-            contextMenuItem
+            if !generalSettingsViewModel.isMenuBarIconVisible {
+                contextMenuItem
+            }
         }
         .animation(.easeInOut(duration: 0.3), value: generalSettingsViewModel.isShowNotchStrokeEnabled)
         .animation(.spring(duration: 0.6), value: notchViewModel.showNotch)

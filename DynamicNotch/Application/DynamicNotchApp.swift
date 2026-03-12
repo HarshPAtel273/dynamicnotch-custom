@@ -4,8 +4,22 @@ import SwiftUI
 @main
 struct NotchApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @AppStorage("isMenuBarIconVisible") var isMenuBarIconVisible: Bool = true
     
     var body: some Scene {
+        MenuBarExtra("Dynamic Notch", systemImage: "rectangle.topthird.inset.filled", isInserted: $isMenuBarIconVisible) {
+            SettingsLink {
+                Image(systemName: "gearshape")
+                Text("Settings")
+            }
+            
+            Divider()
+            
+            Button("Quit") {
+                NSApplication.shared.terminate(nil)
+            }
+        }
+        
         Settings {
             TabView {
                 GeneralSettingsView(

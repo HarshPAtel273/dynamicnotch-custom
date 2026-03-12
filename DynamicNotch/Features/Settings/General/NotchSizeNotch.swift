@@ -13,6 +13,7 @@ struct NotchSizeWidthNotchContent: NotchContentProtocol {
     
     var priority: Int { 60 }
     var strokeColor: Color { .red }
+    var offsetYTransition: CGFloat { -60 }
     
     func size(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
         return .init(width: baseWidth, height: baseHeight + 40)
