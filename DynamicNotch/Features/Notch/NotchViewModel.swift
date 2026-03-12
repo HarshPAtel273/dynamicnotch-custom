@@ -379,6 +379,20 @@ final class NotchViewModel: ObservableObject {
     }
 
 
+    /// Dismisses the currently visible notch content.
+    /// Temporary notifications collapse first; live activities are removed from the stack.
+    func dismissActiveContent() {
+
+        if notchModel.temporaryNotificationContent != nil {
+            hideTemporaryNotification()
+            return
+        }
+
+        guard let liveActivityID = notchModel.liveActivityContent?.id else { return }
+        send(.hideLiveActivity(id: liveActivityID))
+    }
+
+
     /// Generic hide/show transition helper
     private func transition(
         customDelay: TimeInterval? = nil,

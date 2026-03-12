@@ -74,4 +74,60 @@ final class NotchViewModelIntegrationTests: XCTestCase {
             await MainActor.run { viewModel.notchModel.liveActivityContent?.id == "low" }
         }
     }
+
+    @MainActor
+    func testDismissActiveContentHidesTemporaryNotificationAndRestoresLiveActivity() async {
+        let viewModel = NotchViewModel(
+            settings: TestNotchSettings(),
+            hideDelay: 0.01,
+            queueDelay: 0
+        )
+
+        viewModel.send(.showLiveActivity(TestNotchContent(id: "live", priority: 10)))
+        await assertEventually {
+            await MainActor.run { viewModel.notchModel.liveActivityContent?.id == "live" }
+        }
+
+        viewModel.send(
+            .showTemporaryNotification(
+                TestNotchContent(id: "temporary", priority: 0),
+                duration: .infinity
+            )
+        )
+
+        await assertEventually {
+            await MainActor.run { viewModel.notchModel.temporaryNotificationContent?.id == "temporary" }
+        }
+
+        viewModel.dismissActiveContent()
+
+        await assertEventually {
+            await MainActor.run {
+                viewModel.notchModel.temporaryNotificationContent == nil &&
+                viewModel.notchModel.liveActivityContent?.id == "live"
+            }
+        }
+    }
+
+    @MainActor
+    func testDismissActiveContentRemovesVisibleLiveActivityAndShowsNextHighest() async {
+        let viewModel = NotchViewModel(
+            settings: TestNotchSettings(),
+            hideDelay: 0.01,
+            queueDelay: 0
+        )
+
+        viewModel.send(.showLiveActivity(TestNotchContent(id: "low", priority: 10)))
+        viewModel.send(.showLiveActivity(TestNotchContent(id: "high", priority: 50)))
+
+        await assertEventually {
+            await MainActor.run { viewModel.notchModel.liveActivityContent?.id == "high" }
+        }
+
+        viewModel.dismissActiveContent()
+
+        await assertEventually {
+            await MainActor.run { viewModel.notchModel.liveActivityContent?.id == "low" }
+        }
+    }
 }
