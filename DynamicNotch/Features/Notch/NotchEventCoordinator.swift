@@ -186,9 +186,10 @@ final class NotchEventCoordinator: ObservableObject {
         
         switch event {
         case .started:
-            notchViewModel.send(.showLiveActivity(NowPlayingMinimalNotchContent(nowPlayingViewModel: nowPlayingViewModel)))
+            notchViewModel.send(.showLiveActivity(NowPlayingNotchContent(nowPlayingViewModel: nowPlayingViewModel)))
+            
         case .stopped:
-            notchViewModel.send(.hideLiveActivity(id: "nowPlaying.minimal"))
+            notchViewModel.send(.hideLiveActivity(id: "nowPlaying"))
         }
     }
 }

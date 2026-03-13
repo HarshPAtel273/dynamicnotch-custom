@@ -40,6 +40,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var uiTestSettingsWindow: NSWindow?
     private var localScrollMonitor: Any?
     private var globalScrollMonitor: Any?
+    private var localClickMonitor: Any?
+    private let globalClickMonitor = GlobalClickMonitor()
     private var cancellables = Set<AnyCancellable>()
     
     override init() {
@@ -58,6 +60,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         if !isRunningUITests {
             createNotchWindow()
+            observeOutsideClickDismissal()
 
             NotificationCenter.default.addObserver(
                 self,
@@ -85,6 +88,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        stopOutsideClickMonitoring()
         stopDismissGestureMonitoring()
     }
     
@@ -190,6 +194,101 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             .store(in: &cancellables)
     }
 
+    private func observeOutsideClickDismissal() {
+        notchViewModel.$notchModel
+            .map(\.isLiveActivityExpanded)
+            .removeDuplicates()
+            .sink { [weak self] isEnabled in
+                guard let self else { return }
+
+                if isEnabled {
+                    self.startOutsideClickMonitoring()
+                } else {
+                    self.stopOutsideClickMonitoring()
+                }
+            }
+            .store(in: &cancellables)
+    }
+
+    private func startOutsideClickMonitoring() {
+        if localClickMonitor == nil {
+            localClickMonitor = NSEvent.addLocalMonitorForEvents(
+                matching: [.leftMouseDown, .rightMouseDown, .otherMouseDown]
+            ) { [weak self] event in
+                let sourceWindow = event.window
+                let screenLocation =
+                    sourceWindow?.convertPoint(toScreen: event.locationInWindow) ??
+                    NSEvent.mouseLocation
+
+                Task { @MainActor [weak self] in
+                    self?.handleLocalClick(from: sourceWindow, atScreenLocation: screenLocation)
+                }
+                return event
+            }
+        }
+
+        globalClickMonitor.start { [weak self] _ in
+            let screenLocation = NSEvent.mouseLocation
+            Task { @MainActor [weak self] in
+                self?.handleGlobalClick(atScreenLocation: screenLocation)
+            }
+        }
+    }
+
+    private func stopOutsideClickMonitoring() {
+        if let localClickMonitor {
+            NSEvent.removeMonitor(localClickMonitor)
+        }
+
+        localClickMonitor = nil
+        globalClickMonitor.stop()
+    }
+
+    @MainActor
+    private func handleLocalClick(from _: NSWindow?, atScreenLocation screenLocation: NSPoint) {
+        guard shouldHandleOutsideClick else { return }
+        guard let activeNotchScreenRect else {
+            notchViewModel.handleOutsideClick()
+            return
+        }
+
+        guard !activeNotchScreenRect.contains(screenLocation) else { return }
+
+        notchViewModel.handleOutsideClick()
+    }
+
+    @MainActor
+    private func handleGlobalClick(atScreenLocation screenLocation: NSPoint) {
+        guard shouldHandleOutsideClick else { return }
+        guard let activeNotchScreenRect else {
+            notchViewModel.handleOutsideClick()
+            return
+        }
+
+        guard !activeNotchScreenRect.contains(screenLocation) else { return }
+        notchViewModel.handleOutsideClick()
+    }
+
+    @MainActor
+    private var shouldHandleOutsideClick: Bool {
+        notchViewModel.notchModel.isLiveActivityExpanded
+    }
+
+    @MainActor
+    private var activeNotchScreenRect: CGRect? {
+        guard let window else { return nil }
+
+        let notchSize = notchViewModel.notchModel.size
+        guard notchSize.width > 0, notchSize.height > 0 else { return nil }
+
+        let origin = CGPoint(
+            x: floor(window.frame.midX - notchSize.width / 2),
+            y: window.frame.maxY - notchSize.height
+        )
+
+        return CGRect(origin: origin, size: notchSize).insetBy(dx: -12, dy: -8)
+    }
+
     private func stopDismissGestureMonitoring() {
         if let localScrollMonitor {
             NSEvent.removeMonitor(localScrollMonitor)
@@ -261,6 +360,11 @@ class NotchHostingView: NSHostingView<AnyView> {
     override func hitTest(_ point: NSPoint) -> NSView? {
         return super.hitTest(point)
     }
+
+    func containsActiveNotch(atScreenLocation screenLocation: NSPoint) -> Bool {
+        guard let activeNotchScreenRect = currentActiveNotchScreenRect() else { return false }
+        return activeNotchScreenRect.contains(screenLocation)
+    }
 }
 
 private extension NotchHostingView {
@@ -286,13 +390,14 @@ private extension NotchHostingView {
         return CGRect(origin: origin, size: notchSize).insetBy(dx: -12, dy: -8)
     }
 
-    func pointerLocation(for event: NSEvent, screenLocation: NSPoint?) -> NSPoint {
-        if let screenLocation, let window {
-            let locationInWindow = window.convertPoint(fromScreen: screenLocation)
-            return convert(locationInWindow, from: nil)
+    func currentActiveNotchScreenRect() -> CGRect? {
+        guard let activeNotchRect = currentActiveNotchRect(),
+              let window else {
+            return nil
         }
 
-        return convert(event.locationInWindow, from: nil)
+        let rectInWindow = convert(activeNotchRect, to: nil)
+        return window.convertToScreen(rectInWindow)
     }
 
     func physicalVerticalDelta(from event: NSEvent) -> CGFloat {

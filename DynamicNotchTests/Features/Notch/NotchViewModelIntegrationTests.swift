@@ -178,6 +178,221 @@ final class NotchViewModelIntegrationTests: XCTestCase {
     }
 
     @MainActor
+    func testTappingExpandableLiveActivityUsesExpandedPresentation() async {
+        let viewModel = NotchViewModel(
+            settings: TestNotchSettings(),
+            hideDelay: 0.01,
+            queueDelay: 0
+        )
+        TestLifetime.retain(viewModel)
+
+        viewModel.send(
+            .showLiveActivity(
+                TestNotchContent(
+                    id: "expandable",
+                    priority: 10,
+                    collapsedWidthOffset: 20,
+                    isExpandable: true,
+                    expandedWidthOffset: 140,
+                    expandedHeightOffset: 80,
+                    expandedOffsetYTransition: -32
+                )
+            )
+        )
+
+        await assertEventually {
+            await MainActor.run { viewModel.notchModel.liveActivityContent?.id == "expandable" }
+        }
+
+        let collapsedSize = await MainActor.run { viewModel.notchModel.size }
+
+        viewModel.handleActiveContentTap()
+
+        let expandedState = await MainActor.run { viewModel.notchModel.isLiveActivityExpanded }
+        let expandedSize = await MainActor.run { viewModel.notchModel.size }
+        let expandedOffset = await MainActor.run { viewModel.notchModel.offsetYTransition }
+
+        XCTAssertTrue(expandedState)
+        XCTAssertGreaterThan(expandedSize.width, collapsedSize.width)
+        XCTAssertGreaterThan(expandedSize.height, collapsedSize.height)
+        XCTAssertEqual(expandedOffset, -32, accuracy: 0.001)
+    }
+
+    @MainActor
+    func testTappingNonExpandableLiveActivityKeepsCollapsedPresentation() async {
+        let viewModel = NotchViewModel(
+            settings: TestNotchSettings(),
+            hideDelay: 0.01,
+            queueDelay: 0
+        )
+        TestLifetime.retain(viewModel)
+
+        viewModel.send(.showLiveActivity(TestNotchContent(id: "static", priority: 10)))
+
+        await assertEventually {
+            await MainActor.run { viewModel.notchModel.liveActivityContent?.id == "static" }
+        }
+
+        let collapsedSize = await MainActor.run { viewModel.notchModel.size }
+
+        viewModel.handleActiveContentTap()
+
+        let isExpanded = await MainActor.run { viewModel.notchModel.isLiveActivityExpanded }
+        let currentSize = await MainActor.run { viewModel.notchModel.size }
+
+        XCTAssertFalse(isExpanded)
+        XCTAssertEqual(currentSize.width, collapsedSize.width, accuracy: 0.001)
+        XCTAssertEqual(currentSize.height, collapsedSize.height, accuracy: 0.001)
+    }
+
+    @MainActor
+    func testOutsideClickHidesExpandedLiveActivityThenRestoresCollapsedPresentation() async {
+        let viewModel = NotchViewModel(
+            settings: TestNotchSettings(),
+            hideDelay: 0.05,
+            queueDelay: 0
+        )
+        TestLifetime.retain(viewModel)
+
+        viewModel.send(
+            .showLiveActivity(
+                TestNotchContent(
+                    id: "expandable",
+                    priority: 10,
+                    isExpandable: true,
+                    expandedWidthOffset: 140,
+                    expandedHeightOffset: 80
+                )
+            )
+        )
+
+        await assertEventually {
+            await MainActor.run { viewModel.notchModel.liveActivityContent?.id == "expandable" }
+        }
+
+        viewModel.handleActiveContentTap()
+
+        let expandedBeforeOutsideClick = await MainActor.run {
+            viewModel.notchModel.isLiveActivityExpanded
+        }
+        XCTAssertTrue(expandedBeforeOutsideClick)
+
+        viewModel.handleOutsideClick()
+
+        await assertEventually {
+            await MainActor.run { viewModel.notchModel.liveActivityContent == nil }
+        }
+
+        await assertEventually {
+            await MainActor.run {
+                viewModel.notchModel.liveActivityContent?.id == "expandable" &&
+                !viewModel.notchModel.isLiveActivityExpanded
+            }
+        }
+    }
+
+    @MainActor
+    func testOutsideClickDoesNotDismissTemporaryNotification() async {
+        let viewModel = NotchViewModel(
+            settings: TestNotchSettings(),
+            hideDelay: 0.01,
+            queueDelay: 0
+        )
+        TestLifetime.retain(viewModel)
+
+        viewModel.send(.showLiveActivity(TestNotchContent(id: "live", priority: 10)))
+
+        await assertEventually {
+            await MainActor.run { viewModel.notchModel.liveActivityContent?.id == "live" }
+        }
+
+        viewModel.send(
+            .showTemporaryNotification(
+                TestNotchContent(id: "temporary", priority: 0),
+                duration: .infinity
+            )
+        )
+
+        await assertEventually {
+            await MainActor.run { viewModel.notchModel.temporaryNotificationContent?.id == "temporary" }
+        }
+
+        viewModel.handleOutsideClick()
+
+        let temporaryID = await MainActor.run {
+            viewModel.notchModel.temporaryNotificationContent?.id
+        }
+        let liveActivityID = await MainActor.run {
+            viewModel.notchModel.liveActivityContent?.id
+        }
+
+        XCTAssertEqual(temporaryID, "temporary")
+        XCTAssertNil(liveActivityID)
+    }
+
+    @MainActor
+    func testTemporaryNotificationCollapsesExpandedLiveActivityBeforeRestore() async {
+        let viewModel = NotchViewModel(
+            settings: TestNotchSettings(),
+            hideDelay: 0.01,
+            queueDelay: 0
+        )
+        TestLifetime.retain(viewModel)
+
+        viewModel.send(
+            .showLiveActivity(
+                TestNotchContent(
+                    id: "expandable",
+                    priority: 10,
+                    isExpandable: true,
+                    expandedWidthOffset: 140,
+                    expandedHeightOffset: 80
+                )
+            )
+        )
+
+        await assertEventually {
+            await MainActor.run { viewModel.notchModel.liveActivityContent?.id == "expandable" }
+        }
+
+        viewModel.handleActiveContentTap()
+        let isExpandedBeforeTemporary = await MainActor.run {
+            viewModel.notchModel.isLiveActivityExpanded
+        }
+        XCTAssertTrue(isExpandedBeforeTemporary)
+
+        viewModel.send(
+            .showTemporaryNotification(
+                TestNotchContent(id: "temporary", priority: 0),
+                duration: .infinity
+            )
+        )
+
+        await assertEventually {
+            await MainActor.run { viewModel.notchModel.temporaryNotificationContent?.id == "temporary" }
+        }
+
+        let isExpandedWhileTemporary = await MainActor.run {
+            viewModel.notchModel.isLiveActivityExpanded
+        }
+        XCTAssertFalse(isExpandedWhileTemporary)
+
+        viewModel.dismissActiveContent()
+
+        await assertEventually {
+            await MainActor.run {
+                viewModel.notchModel.temporaryNotificationContent == nil &&
+                viewModel.notchModel.liveActivityContent?.id == "expandable"
+            }
+        }
+
+        let isExpandedAfterRestore = await MainActor.run {
+            viewModel.notchModel.isLiveActivityExpanded
+        }
+        XCTAssertFalse(isExpandedAfterRestore)
+    }
+
+    @MainActor
     func testUpdateDimensionsAppliesSettingsOffsets() {
         let baseSettings = TestNotchSettings()
         let offsetSettings = TestNotchSettings(notchWidth: 7, notchHeight: 3)

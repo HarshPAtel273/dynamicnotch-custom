@@ -61,6 +61,16 @@ final class NotchViewModel: ObservableObject {
     /// Prevents overlapping transitions
     private var isTransitioning = false
 
+    var canExpandActiveLiveActivity: Bool {
+        guard notchModel.temporaryNotificationContent == nil else { return false }
+        guard let liveActivityContent = notchModel.liveActivityContent else { return false }
+
+        return
+            !notchModel.isLiveActivityExpanded &&
+            liveActivityContent.isExpandable &&
+            liveActivityContent.expandsOnTap
+    }
+
 
     init(
         settings: NotchSettingsProviding,
@@ -269,6 +279,7 @@ final class NotchViewModel: ObservableObject {
             transition(
                 hide: {
                     withAnimation(.spring(response: 0.5)) {
+                        self.notchModel.isLiveActivityExpanded = false
                         self.notchModel.liveActivityContent = nil
                     }
                 },
@@ -303,6 +314,7 @@ final class NotchViewModel: ObservableObject {
                             self.suspendedActivity =
                                 self.notchModel.liveActivityContent
 
+                            self.notchModel.isLiveActivityExpanded = false
                             self.notchModel.liveActivityContent = nil
                         }
 
@@ -336,6 +348,7 @@ final class NotchViewModel: ObservableObject {
 
                     withAnimation(.spring(response: 0.5)) {
 
+                        self.notchModel.isLiveActivityExpanded = false
                         self.notchModel.temporaryNotificationContent = nil
                         self.notchModel.liveActivityContent = nil
                         self.suspendedActivity = nil
@@ -400,6 +413,38 @@ final class NotchViewModel: ObservableObject {
 
         guard let liveActivityID = notchModel.liveActivityContent?.id else { return }
         send(.hideLiveActivity(id: liveActivityID))
+    }
+
+
+    /// Expands the active live activity if the content provides an expanded presentation.
+    func handleActiveContentTap() {
+        guard canExpandActiveLiveActivity else { return }
+
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            notchModel.isLiveActivityExpanded = true
+        }
+    }
+
+
+    /// Handles clicks outside the notch.
+    /// Only tap-expanded live activities collapse on outside clicks.
+    func handleOutsideClick() {
+        guard notchModel.isLiveActivityExpanded,
+              let liveActivityContent = notchModel.liveActivityContent else { return }
+
+        transition(
+            hide: {
+                withAnimation(.spring(response: 0.5)) {
+                    self.notchModel.isLiveActivityExpanded = false
+                    self.notchModel.liveActivityContent = nil
+                }
+            },
+            show: {
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                    self.notchModel.liveActivityContent = liveActivityContent
+                }
+            }
+        )
     }
 
 

@@ -62,6 +62,7 @@ private extension NotchView {
             contentOverlay
         }
         .customNotchPressable(
+            notchViewModel: notchViewModel,
             isPressed: $notchViewModel.isPressed,
             baseSize: notchViewModel.notchModel.size
         )
@@ -87,14 +88,35 @@ private extension NotchView {
     @ViewBuilder
     var contentOverlay: some View {
         if let content = notchViewModel.notchModel.content {
+            if notchViewModel.canExpandActiveLiveActivity {
+                renderedContentView(for: content)
+                    .id(notchViewModel.notchModel.presentationID)
+                    .transition(
+                        .blurAndFade
+                            .animation(.spring(duration: 0.5))
+                            .combined(with: .scale)
+                            .combined(with: .offset(y: notchViewModel.notchModel.offsetYTransition))
+                    )
+            } else {
+                renderedContentView(for: content)
+                    .id(notchViewModel.notchModel.presentationID)
+                    .transition(
+                        .blurAndFade
+                            .animation(.spring(duration: 0.5))
+                            .combined(with: .scale)
+                            .combined(with: .offset(y: notchViewModel.notchModel.offsetYTransition))
+                    )
+            }
+        }
+    }
+
+    @MainActor
+    @ViewBuilder
+    func renderedContentView(for content: NotchContentProtocol) -> some View {
+        if notchViewModel.notchModel.isPresentingExpandedLiveActivity {
+            content.makeExpandedView()
+        } else {
             content.makeView()
-                .id(content.id)
-                .transition(
-                    .blurAndFade
-                        .animation(.spring(duration: 0.5))
-                        .combined(with: .scale)
-                        .combined(with: .offset(y: notchViewModel.notchModel.offsetYTransition))
-                )
         }
     }
     
