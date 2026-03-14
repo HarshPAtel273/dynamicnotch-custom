@@ -7,10 +7,11 @@ struct NowPlayingNotchContent: NotchContentProtocol {
     
     var priority: Int { 81 }
     var isExpandable: Bool { true }
+    var expandedOffsetXTransition: CGFloat { -90 }
     var expandedOffsetYTransition: CGFloat { -90 }
     
     func size(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
-        .init(width: baseWidth + 80, height: baseHeight)
+        .init(width: baseWidth + 70, height: baseHeight)
     }
     
     func expandedSize(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
@@ -52,11 +53,17 @@ private struct NowPlayingMinimalNotchView: View {
     var body: some View {
         let snapshot = resolvedSnapshot
         
-        TimelineView(.periodic(from: .now, by: 0.25)) { context in
+        TimelineView(.periodic(from: .now, by: nowPlayingAnimationTick)) { context in
             HStack {
                 ArtworkView(nowPlayingViewModel: nowPlayingViewModel, width: 24, height: 24, cornerRadius: 5)
                 Spacer()
-                EqualizerView(isPlaying: snapshot.isPlaying, date: context.date, width: 2, height: 2)
+                EqualizerView(
+                    isPlaying: snapshot.isPlaying,
+                    trackSeed: snapshot.waveSeed,
+                    date: context.date,
+                    width: 2,
+                    height: 2
+                )
             }
             .padding(.horizontal, 14.scaled(by: scale))
         }
@@ -66,6 +73,7 @@ private struct NowPlayingMinimalNotchView: View {
 private struct NowPlayingExpandedNotchView: View {
     @Environment(\.notchScale) var scale
     @ObservedObject var nowPlayingViewModel: NowPlayingViewModel
+    @State private var scrubProgress: CGFloat?
     
     private var resolvedSnapshot: NowPlayingSnapshot {
         nowPlayingViewModel.snapshot ?? NowPlayingSnapshot(
@@ -83,11 +91,15 @@ private struct NowPlayingExpandedNotchView: View {
     var body: some View {
         let snapshot = resolvedSnapshot
         
-        TimelineView(.periodic(from: .now, by: 0.25)) { context in
+        TimelineView(.periodic(from: .now, by: nowPlayingAnimationTick)) { context in
             let elapsedTime = nowPlayingViewModel.snapshot != nil ?
             nowPlayingViewModel.elapsedTime(at: context.date) :
             snapshot.elapsedTime
             let progress = progressValue(elapsedTime: elapsedTime, duration: snapshot.duration)
+            let displayedProgress = min(max(scrubProgress ?? progress, 0), 1)
+            let displayedElapsedTime = snapshot.duration > 0 ?
+            TimeInterval(displayedProgress) * snapshot.duration :
+            elapsedTime
             
             VStack {
                 Spacer()
@@ -95,7 +107,7 @@ private struct NowPlayingExpandedNotchView: View {
                 HStack(spacing: 15) {
                     ArtworkView(nowPlayingViewModel: nowPlayingViewModel, width: 60, height: 60, cornerRadius: 10)
                     
-                    VStack(alignment: .leading, spacing: 6) {
+                    VStack(alignment: .leading, spacing: 3) {
                         HStack(alignment: .center, spacing: 10) {
                             MarqueeText(
                                 .constant(displayTitle(for: snapshot)),
@@ -111,11 +123,11 @@ private struct NowPlayingExpandedNotchView: View {
                             
                             EqualizerView(
                                 isPlaying: snapshot.isPlaying,
+                                trackSeed: snapshot.waveSeed,
                                 date: context.date,
-                                width: 3,
-                                height: 4
+                                width: 2.7,
+                                height: 3.7
                             )
-                            .padding(.top, 8)
                         }
                         
                         MarqueeText(
@@ -132,11 +144,21 @@ private struct NowPlayingExpandedNotchView: View {
                 Spacer()
                 
                 HStack(spacing: 10) {
-                    Text(formattedTime(elapsedTime))
+                    Text(formattedTime(displayedElapsedTime))
                         .font(.system(size: 11, weight: .medium, design: .rounded))
                         .foregroundStyle(.secondary)
                     
-                    PlayerProgressBar(progress: progress)
+                    PlayerProgressBar(
+                        progress: displayedProgress,
+                        isInteractive: snapshot.duration > 0,
+                        onScrubChanged: { newProgress in
+                            scrubProgress = newProgress
+                        },
+                        onScrubEnded: { newProgress in
+                            nowPlayingViewModel.seek(to: snapshot.duration * TimeInterval(newProgress))
+                            scrubProgress = nil
+                        }
+                    )
                     
                     Text(snapshot.duration > 0 ? formattedTime(snapshot.duration) : "LIVE")
                         .font(.system(size: 11, weight: .medium, design: .rounded))
@@ -241,7 +263,7 @@ private struct ArtworkView: View {
                     .fill(.gray.opacity(0.2))
                     .overlay {
                         Image(systemName: "music.note")
-                            .font(.system(size: 24, weight: .bold))
+                            .font(.system(size: 14, weight: .bold))
                             .foregroundStyle(.secondary)
                     }
             }
@@ -252,52 +274,185 @@ private struct ArtworkView: View {
 }
 
 private struct EqualizerView: View {
+    private struct SeededGenerator {
+        private var state: UInt64
+
+        init(seed: UInt64) {
+            state = seed == 0 ? 0x9E3779B97F4A7C15 : seed
+        }
+
+        mutating func nextUnit() -> Double {
+            state &+= 0x9E3779B97F4A7C15
+            var value = state
+            value = (value ^ (value >> 30)) &* 0xBF58476D1CE4E5B9
+            value = (value ^ (value >> 27)) &* 0x94D049BB133111EB
+            value = value ^ (value >> 31)
+            return Double(value & 0x1FFFFFFFFFFFFF) / Double(0x1FFFFFFFFFFFFF)
+        }
+
+        mutating func next(in range: ClosedRange<Double>) -> Double {
+            range.lowerBound + (nextUnit() * (range.upperBound - range.lowerBound))
+        }
+    }
+
+    private struct BarProfile {
+        let restLevel: CGFloat
+        let floorLevel: CGFloat
+        let amplitude: CGFloat
+        let primaryFrequency: Double
+        let primaryPhase: Double
+        let secondaryFrequency: Double
+        let secondaryPhase: Double
+        let accentFrequency: Double
+        let accentPhase: Double
+        let driftFrequency: Double
+        let driftPhase: Double
+        let pulseFrequency: Double
+        let pulsePhase: Double
+    }
+
     let isPlaying: Bool
+    let trackSeed: UInt64
     let date: Date
     let width: CGFloat
     let height: CGFloat
     
     var body: some View {
-        HStack(alignment: .bottom, spacing: 3) {
-            ForEach(0..<4, id: \.self) { index in
+        let profiles = makeProfiles()
+
+        HStack(alignment: .center, spacing: max(width, 2)) {
+            ForEach(Array(profiles.indices), id: \.self) { index in
                 RoundedRectangle(cornerRadius: 3)
                     .fill(.white.opacity(0.6).gradient)
-                    .frame(width: width, height: barHeight(for: index))
+                    .frame(width: width, height: barHeight(for: profiles[index], index: index))
+                    .animation(.linear(duration: nowPlayingAnimationTick * 1.15), value: date)
             }
         }
-        .frame(height: height, alignment: .bottom)
+        .frame(height: maxHeight, alignment: .center)
         .opacity(isPlaying ? 1 : 0.55)
     }
 
-    private func barHeight(for index: Int) -> CGFloat {
-        let minHeight: CGFloat = 4
-        let maxHeight: CGFloat = 18
+    private func barHeight(for profile: BarProfile, index: Int) -> CGFloat {
+        let dynamicRange = maxHeight - minHeight
 
         guard isPlaying else {
-            let restingHeights: [CGFloat] = [0.45, 0.7, 0.95, 0.62]
-            return minHeight + ((maxHeight - minHeight) * restingHeights[index])
+            return pausedBarHeight(for: index)
         }
 
-        let phaseOffsets: [Double] = [0.0, 0.9, 1.8, 2.7]
-        let wave = (sin(date.timeIntervalSinceReferenceDate * 7 + phaseOffsets[index]) + 1) / 2
-        return minHeight + ((maxHeight - minHeight) * CGFloat(wave))
+        let progress = waveProgress(for: profile)
+        let resolvedLevel = profile.floorLevel + (progress * profile.amplitude)
+        return minHeight + (dynamicRange * min(max(resolvedLevel, 0), 1))
+    }
+
+    private var minHeight: CGFloat {
+        max(height * 0.95, 3)
+    }
+
+    private var maxHeight: CGFloat {
+        max(height * 4.8, minHeight + 10)
+    }
+
+    private func waveProgress(for profile: BarProfile) -> CGFloat {
+        let time = date.timeIntervalSinceReferenceDate
+
+        let primary = sin((time * profile.primaryFrequency) + profile.primaryPhase) * 0.48
+        let secondary = sin((time * profile.secondaryFrequency) + profile.secondaryPhase) * 0.24
+        let accent = cos((time * profile.accentFrequency) + profile.accentPhase) * 0.14
+        let drift = ((sin((time * profile.driftFrequency) + profile.driftPhase) + 1) / 2) * 0.28
+        let pulse = max(0, sin((time * profile.pulseFrequency) + profile.pulsePhase)) * 0.24
+
+        let combined = primary + secondary + accent
+        let normalized = (combined + 1) / 2
+        let energized = min(max(normalized + drift + pulse, 0), 1)
+
+        // Keep the motion expressive but lower the overall peaks.
+        return pow(CGFloat(energized), 0.72)
+    }
+
+    private func pausedBarHeight(for index: Int) -> CGFloat {
+        let pausedLevels: [CGFloat] = [0.82, 0.98, 1.16, 0.98, 0.82]
+        let baseDotSize = max(width + 0.8, height * 0.9, 2.8)
+        return baseDotSize * pausedLevels[index]
+    }
+
+    private func makeProfiles() -> [BarProfile] {
+        var generator = SeededGenerator(seed: trackSeed)
+
+        return Array(0..<5).map { index in
+            let barOffset = Double(index) * 0.13
+
+            return BarProfile(
+                restLevel: CGFloat(generator.next(in: 0.08...0.92)),
+                floorLevel: CGFloat(generator.next(in: 0.08...0.22)),
+                amplitude: CGFloat(generator.next(in: 0.64...0.88)),
+                primaryFrequency: generator.next(in: 6.1...8.8) + (barOffset * 1.2),
+                primaryPhase: generator.next(in: 0...(Double.pi * 2)),
+                secondaryFrequency: generator.next(in: 3.4...5.6) + (barOffset * 0.95),
+                secondaryPhase: generator.next(in: 0...(Double.pi * 2)),
+                accentFrequency: generator.next(in: 10.8...15.6) + (barOffset * 1.1),
+                accentPhase: generator.next(in: 0...(Double.pi * 2)),
+                driftFrequency: generator.next(in: 1.2...2.3),
+                driftPhase: generator.next(in: 0...(Double.pi * 2)),
+                pulseFrequency: generator.next(in: 13.2...19.0) + (barOffset * 1.45),
+                pulsePhase: generator.next(in: 0...(Double.pi * 2))
+            )
+        }
+    }
+}
+
+private let nowPlayingAnimationTick: TimeInterval = 1.0 / 10.0
+
+private func stableFNV1A64Hash(of value: String) -> UInt64 {
+    let offsetBasis: UInt64 = 0xcbf29ce484222325
+    let prime: UInt64 = 0x100000001b3
+
+    return value.utf8.reduce(offsetBasis) { partialResult, byte in
+        (partialResult ^ UInt64(byte)) &* prime
     }
 }
 
 private struct PlayerProgressBar: View {
     let progress: CGFloat
+    let isInteractive: Bool
+    let onScrubChanged: (CGFloat) -> Void
+    let onScrubEnded: (CGFloat) -> Void
     
     var body: some View {
-        Capsule(style: .continuous)
-            .fill(.white.opacity(0.15))
-            .frame(height: 7)
-            .overlay(alignment: .leading) {
-                GeometryReader { proxy in
-                    Capsule(style: .continuous)
-                        .fill(.white.opacity(0.5))
-                        .frame(width: max(proxy.size.width * progress, 6))
-                }
+        GeometryReader { proxy in
+            let resolvedProgress = min(max(progress, 0), 1)
+            let trackHeight: CGFloat = 7
+            let filledWidth = proxy.size.width * resolvedProgress
+
+            ZStack(alignment: .leading) {
+                Capsule(style: .continuous)
+                    .fill(.white.opacity(0.15))
+                    .frame(height: trackHeight)
+
+                Capsule(style: .continuous)
+                    .fill(.white.opacity(0.5))
+                    .frame(width: filledWidth, height: trackHeight)
+
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { value in
+                        guard isInteractive else { return }
+                        onScrubChanged(progress(at: value.location.x, in: proxy.size.width))
+                    }
+                    .onEnded { value in
+                        guard isInteractive else { return }
+                        onScrubEnded(progress(at: value.location.x, in: proxy.size.width))
+                    }
+            )
+        }
+        .frame(height: 18)
+    }
+
+    private func progress(at locationX: CGFloat, in width: CGFloat) -> CGFloat {
+        guard width > 0 else { return 0 }
+        return min(max(locationX / width, 0), 1)
     }
 }
 
@@ -323,5 +478,19 @@ private struct PlayerControlButton: View {
 private extension String {
     var trimmed: String {
         trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}
+
+private extension NowPlayingSnapshot {
+    var waveSeed: UInt64 {
+        let trackIdentity = [
+            title.trimmed,
+            artist.trimmed,
+            album.trimmed,
+            String(Int(duration.rounded())),
+            String(artworkData?.count ?? 0)
+        ].joined(separator: "|")
+
+        return stableFNV1A64Hash(of: trackIdentity)
     }
 }

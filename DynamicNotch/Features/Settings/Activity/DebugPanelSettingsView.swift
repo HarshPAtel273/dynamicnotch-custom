@@ -12,18 +12,20 @@ struct DebugPanelSettingsView: View {
     @ObservedObject var notchEventCoordinator: NotchEventCoordinator
     
     var body: some View {
-        VStack(spacing: 20) {
-            LiveActivityPanelSettingsView(notchViewModel: notchViewModel, notchEventCoordinator: notchEventCoordinator)
-            
-            TemporaryActivityPanelSettingsView(notchViewModel: notchViewModel, notchEventCoordinator: notchEventCoordinator)
-            
-            Spacer()
-            
-            Button(action: {notchViewModel.send(.hide)}) {
-                Text("Hide All Temporary")
+        ScrollView {
+            VStack(spacing: 20) {
+                LiveActivityPanelSettingsView(notchViewModel: notchViewModel, notchEventCoordinator: notchEventCoordinator)
+                
+                TemporaryActivityPanelSettingsView(notchViewModel: notchViewModel, notchEventCoordinator: notchEventCoordinator)
+                
+                Spacer()
+                
+                Button(action: {notchViewModel.send(.hide)}) {
+                    Text("Hide All Temporary")
+                }
             }
+            .padding(20)
         }
-        .padding(20)
     }
 }
 
@@ -65,8 +67,8 @@ private struct LiveActivityPanelSettingsView: View {
                             notchEventCoordinator.handleNowPlayingEvent(.started)
                         }
                         
-                        DebugTitle(title: "Now playing", icon: "speaker.slash.fill", color: .red) {
-                            notchEventCoordinator.handleNowPlayingEvent(.stopped)
+                        DebugTitle(title: "Now playing Expanded", icon: "speaker.square.fill", color: .red) {
+                            notchViewModel.handleActiveContentTap()
                         }
                     }
                 }

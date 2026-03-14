@@ -16,6 +16,7 @@ struct AirDropNotchContent: NotchContentProtocol {
     
     var priority: Int { 90 }
     var strokeColor: Color { .blue.opacity(0.3) }
+    var offsetXTransition: CGFloat { -20 }
     var offsetYTransition: CGFloat { -90 }
     
     func cornerRadius(baseRadius: CGFloat) -> (top: CGFloat, bottom: CGFloat) {

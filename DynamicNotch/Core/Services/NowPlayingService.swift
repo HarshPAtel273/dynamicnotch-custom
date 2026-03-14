@@ -7,6 +7,7 @@ enum NowPlayingCommand: Equatable {
     case togglePlayPause
     case nextTrack
     case previousTrack
+    case seek(TimeInterval)
 }
 
 struct NowPlayingSnapshot: Equatable {
@@ -106,6 +107,7 @@ final class MediaRemoteNowPlayingService: NowPlayingMonitoring {
     )
     private let decoder = JSONDecoder()
     private let mediaKeyDispatcher = MediaKeyCommandDispatcher()
+    private let elapsedTimeDispatcher = MediaRemoteElapsedTimeDispatcher()
 
     private var process: Process?
     private var outputPipe: Pipe?
@@ -153,7 +155,12 @@ final class MediaRemoteNowPlayingService: NowPlayingMonitoring {
     }
 
     func send(_ command: NowPlayingCommand) {
-        mediaKeyDispatcher.send(command)
+        switch command {
+        case .seek(let position):
+            elapsedTimeDispatcher.seek(to: position)
+        default:
+            mediaKeyDispatcher.send(command)
+        }
     }
 }
 
@@ -333,6 +340,40 @@ private extension String {
     }
 }
 
+private final class MediaRemoteElapsedTimeDispatcher {
+    private typealias MRMediaRemoteSetElapsedTimeFunction = @convention(c) (Double) -> Void
+
+    private static let frameworkURL = URL(
+        fileURLWithPath: "/System/Library/PrivateFrameworks/MediaRemote.framework"
+    ) as CFURL
+
+    private let setElapsedTime: MRMediaRemoteSetElapsedTimeFunction?
+
+    init() {
+        guard
+            let bundle = CFBundleCreate(kCFAllocatorDefault, Self.frameworkURL),
+            CFBundleLoadExecutable(bundle),
+            let functionPointer = CFBundleGetFunctionPointerForName(
+                bundle,
+                "MRMediaRemoteSetElapsedTime" as CFString
+            )
+        else {
+            setElapsedTime = nil
+            return
+        }
+
+        setElapsedTime = unsafeBitCast(
+            functionPointer,
+            to: MRMediaRemoteSetElapsedTimeFunction.self
+        )
+    }
+
+    func seek(to position: TimeInterval) {
+        guard position.isFinite else { return }
+        setElapsedTime?(max(0, position))
+    }
+}
+
 private final class MediaKeyCommandDispatcher {
     private enum MediaKeyCode: Int32 {
         case playPause = 16
@@ -358,6 +399,8 @@ private final class MediaKeyCommandDispatcher {
             keyCode = .nextTrack
         case .previousTrack:
             keyCode = .previousTrack
+        case .seek:
+            return
         }
 
         postMediaKeyEvent(keyCode, isKeyDown: true)

@@ -13,6 +13,8 @@ struct FocusOnNotchContent: NotchContentProtocol {
     var priority: Int { 60 }
     var strokeColor: Color { .indigo.opacity(0.3) }
     
+    var offsetXTransition: CGFloat { -90 }
+    
     func size(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
         return .init(width: baseWidth + 70, height: baseHeight)
     }

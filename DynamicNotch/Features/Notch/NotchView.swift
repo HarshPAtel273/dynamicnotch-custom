@@ -95,7 +95,10 @@ private extension NotchView {
                         .blurAndFade
                             .animation(.spring(duration: 0.5))
                             .combined(with: .scale)
-                            .combined(with: .offset(y: notchViewModel.notchModel.offsetYTransition))
+                            .combined(with: .offset(
+                                x: notchViewModel.notchModel.offsetXTransition,
+                                y: notchViewModel.notchModel.offsetYTransition)
+                            )
                     )
             } else {
                 renderedContentView(for: content)
@@ -104,12 +107,15 @@ private extension NotchView {
                         .blurAndFade
                             .animation(.spring(duration: 0.5))
                             .combined(with: .scale)
-                            .combined(with: .offset(y: notchViewModel.notchModel.offsetYTransition))
+                            .combined(with: .offset(
+                                x: notchViewModel.notchModel.offsetXTransition,
+                                y: notchViewModel.notchModel.offsetYTransition)
+                            )
                     )
             }
         }
     }
-
+    
     @MainActor
     @ViewBuilder
     func renderedContentView(for content: NotchContentProtocol) -> some View {

@@ -4,6 +4,8 @@ struct BluetoothConnectedNotchContent: NotchContentProtocol {
     let id = "bluetooth.connected"
     let bluetoothViewModel: BluetoothViewModel
     
+    var offsetXTransition: CGFloat { -90 }
+    
     func size(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
         return .init(width: baseWidth + 210, height: baseHeight)
     }

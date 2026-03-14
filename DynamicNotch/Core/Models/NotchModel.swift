@@ -77,6 +77,22 @@ struct NotchModel: Equatable {
     
     var strokeColor: Color { content?.strokeColor ?? .clear }
     
+    var offsetXTransition: CGFloat {
+        if let temporaryNotificationContent {
+            return temporaryNotificationContent.offsetXTransition
+        }
+
+        if let liveActivityContent {
+            if isPresentingExpandedLiveActivity {
+                return liveActivityContent.expandedOffsetXTransition
+            }
+
+            return liveActivityContent.offsetXTransition
+        }
+
+        return 0
+    }
+    
     var offsetYTransition: CGFloat {
         if let temporaryNotificationContent {
             return temporaryNotificationContent.offsetYTransition

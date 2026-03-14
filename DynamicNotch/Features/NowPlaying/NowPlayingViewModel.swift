@@ -43,6 +43,10 @@ final class NowPlayingViewModel: ObservableObject {
     }
 
     func togglePlayPause() {
+        if let snapshot {
+            apply(snapshot: snapshot.togglingPlaybackState())
+        }
+
         service.send(.togglePlayPause)
     }
 
@@ -52,6 +56,14 @@ final class NowPlayingViewModel: ObservableObject {
 
     func previousTrack() {
         service.send(.previousTrack)
+    }
+
+    func seek(to elapsedTime: TimeInterval) {
+        guard let snapshot, snapshot.duration > 0 else { return }
+
+        let clampedElapsedTime = min(max(elapsedTime, 0), snapshot.duration)
+        apply(snapshot: snapshot.settingElapsedTime(clampedElapsedTime))
+        service.send(.seek(clampedElapsedTime))
     }
 
     func elapsedTime(at date: Date) -> TimeInterval {
@@ -77,5 +89,33 @@ private extension NowPlayingViewModel {
         } else if wasActive && !isActive {
             event = .stopped
         }
+    }
+}
+
+private extension NowPlayingSnapshot {
+    func togglingPlaybackState() -> Self {
+        Self(
+            title: title,
+            artist: artist,
+            album: album,
+            duration: duration,
+            elapsedTime: elapsedTime(at: .now),
+            playbackRate: isPlaying ? 0 : 1,
+            artworkData: artworkData,
+            refreshedAt: .now
+        )
+    }
+
+    func settingElapsedTime(_ newElapsedTime: TimeInterval) -> Self {
+        Self(
+            title: title,
+            artist: artist,
+            album: album,
+            duration: duration,
+            elapsedTime: min(max(newElapsedTime, 0), duration > 0 ? duration : newElapsedTime),
+            playbackRate: playbackRate,
+            artworkData: artworkData,
+            refreshedAt: .now
+        )
     }
 }

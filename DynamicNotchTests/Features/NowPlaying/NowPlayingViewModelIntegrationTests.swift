@@ -41,4 +41,35 @@ final class NowPlayingViewModelIntegrationTests: XCTestCase {
             [.previousTrack, .togglePlayPause, .nextTrack]
         )
     }
+
+    func testTogglePlayPauseUpdatesCurrentSnapshotImmediately() {
+        let service = FakeNowPlayingService()
+        let viewModel = NowPlayingViewModel(service: service)
+        TestLifetime.retain(viewModel)
+        viewModel.startMonitoring()
+
+        service.publish(makeNowPlayingSnapshot(elapsedTime: 42, playbackRate: 1))
+
+        viewModel.togglePlayPause()
+
+        XCTAssertEqual(service.commands, [.togglePlayPause])
+        XCTAssertEqual(viewModel.snapshot?.playbackRate, 0)
+        XCTAssertFalse(viewModel.snapshot?.isPlaying ?? true)
+    }
+
+    func testSeekUpdatesCurrentSnapshotImmediately() {
+        let service = FakeNowPlayingService()
+        let viewModel = NowPlayingViewModel(service: service)
+        TestLifetime.retain(viewModel)
+        viewModel.startMonitoring()
+
+        service.publish(makeNowPlayingSnapshot(duration: 243, elapsedTime: 42, playbackRate: 1))
+
+        viewModel.seek(to: 120)
+
+        XCTAssertEqual(service.commands, [.seek(120)])
+        XCTAssertEqual(viewModel.snapshot?.elapsedTime, 120)
+        XCTAssertEqual(viewModel.snapshot?.duration, 243)
+        XCTAssertEqual(viewModel.snapshot?.playbackRate, 1)
+    }
 }
