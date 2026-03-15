@@ -8,11 +8,6 @@ final class LockScreenPanelAnimator: ObservableObject {
     @Published var disablesTransitionAnimation = false
 }
 
-final class LockScreenPanelWindow: NSPanel {
-    override var canBecomeKey: Bool { true }
-    override var canBecomeMain: Bool { true }
-}
-
 @MainActor
 final class LockScreenPanelManager {
     private let nowPlayingViewModel: NowPlayingViewModel
@@ -20,7 +15,7 @@ final class LockScreenPanelManager {
     private let generalSettingsViewModel: GeneralSettingsViewModel
     private let animator = LockScreenPanelAnimator()
     
-    private var panelWindow: LockScreenPanelWindow?
+    private var panelWindow: OverlayPanelWindow?
     private var hostingView: NSHostingView<LockScreenNowPlayingPanelView>?
     private var hasDelegatedWindow = false
     private var appObservers: [NSObjectProtocol] = []
@@ -308,33 +303,16 @@ final class LockScreenPanelManager {
         return isLocked ? cachedArtworkImage : nil
     }
     
-    private func makeWindowIfNeeded() -> LockScreenPanelWindow {
+    private func makeWindowIfNeeded() -> OverlayPanelWindow {
         if let panelWindow {
             return panelWindow
         }
-        
-        let window = LockScreenPanelWindow(
-            contentRect: NSRect(origin: .zero, size: LockScreenWindowLayout.canvasSize),
-            styleMask: [.borderless, .nonactivatingPanel],
-            backing: .buffered,
-            defer: false
+
+        let window = OverlayPanelFactory.makePanel(
+            frame: NSRect(origin: .zero, size: OverlayWindowLayout.lockScreenCanvasSize),
+            level: NSWindow.Level(rawValue: Int(CGShieldingWindowLevel()))
         )
-        window.isReleasedWhenClosed = false
-        window.isFloatingPanel = true
-        window.isOpaque = false
-        window.backgroundColor = .clear
-        window.level = NSWindow.Level(rawValue: Int(CGShieldingWindowLevel()))
-        window.collectionBehavior = [
-            .canJoinAllSpaces,
-            .stationary,
-            .fullScreenAuxiliary,
-            .ignoresCycle
-        ]
-        window.hidesOnDeactivate = false
-        window.isMovable = false
-        window.hasShadow = false
-        window.animationBehavior = .none
-        
+
         panelWindow = window
         return window
     }
@@ -347,7 +325,7 @@ final class LockScreenPanelManager {
     }
     
     private func panelFrame(for screen: NSScreen) -> NSRect {
-        let canvasSize = LockScreenWindowLayout.canvasSize
+        let canvasSize = OverlayWindowLayout.lockScreenCanvasSize
         let size = LockScreenNowPlayingPanelView.panelSize
         let screenFrame = screen.frame
         

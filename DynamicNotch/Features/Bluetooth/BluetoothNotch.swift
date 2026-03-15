@@ -29,16 +29,18 @@ private struct BluetoothConnectedNotchView: View {
     
     var body: some View {
         HStack {
-            ZStack {
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(.blue)
-                    .frame(width: 22, height: 22)
-                
-                Image("bluetooth")
-                    .resizable()
-                    .frame(width: 14, height: 14)
-                    .foregroundStyle(.white)
-                    .contentTransition(.symbolEffect(.replace))
+            if !isSecondText {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(.blue)
+                        .frame(width: 22, height: 22)
+                    
+                    Image("bluetooth")
+                        .resizable()
+                        .frame(width: 14, height: 14)
+                        .foregroundStyle(.white)
+                        .contentTransition(.symbolEffect(.replace))
+                }
             }
             
             if isSecondText {
@@ -49,7 +51,7 @@ private struct BluetoothConnectedNotchView: View {
                     textColor: .white.opacity(0.8),
                     backgroundColor: .clear,
                     minDuration: 0.5,
-                    frameWidth: 75
+                    frameWidth: 100
                 )
                 .transition(.blurAndFade.animation(.spring(duration: 0.4)))
                 .lineLimit(1)

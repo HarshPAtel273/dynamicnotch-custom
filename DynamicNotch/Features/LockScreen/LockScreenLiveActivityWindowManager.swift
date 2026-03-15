@@ -2,10 +2,6 @@ import AppKit
 import Combine
 import SwiftUI
 
-enum LockScreenWindowLayout {
-    static let canvasSize = CGSize(width: 500, height: 500)
-}
-
 @MainActor
 final class LockScreenLiveActivityAnimator: ObservableObject {
     @Published var scale: CGFloat = 1
@@ -18,11 +14,6 @@ private struct LockScreenOverlayGeometry: Equatable {
     let scale: CGFloat
 }
 
-final class LockScreenLiveActivityWindow: NSPanel {
-    override var canBecomeKey: Bool { true }
-    override var canBecomeMain: Bool { true }
-}
-
 @MainActor
 final class LockScreenLiveActivityWindowManager {
     private let notchViewModel: NotchViewModel
@@ -30,7 +21,7 @@ final class LockScreenLiveActivityWindowManager {
     private let generalSettingsViewModel: GeneralSettingsViewModel
     private let animator = LockScreenLiveActivityAnimator()
 
-    private var overlayWindow: LockScreenLiveActivityWindow?
+    private var overlayWindow: OverlayPanelWindow?
     private var hostingView: NSHostingView<LockScreenLiveActivityOverlayView>?
     private var appObservers: [NSObjectProtocol] = []
     private var workspaceObservers: [NSObjectProtocol] = []
@@ -300,47 +291,26 @@ final class LockScreenLiveActivityWindowManager {
         window.orderFrontRegardless()
     }
 
-    private func makeWindowIfNeeded() -> LockScreenLiveActivityWindow {
+    private func makeWindowIfNeeded() -> OverlayPanelWindow {
         if let overlayWindow {
             return overlayWindow
         }
 
-        let window = LockScreenLiveActivityWindow(
-            contentRect: NSRect(origin: .zero, size: overlaySize),
-            styleMask: [.borderless, .nonactivatingPanel],
-            backing: .buffered,
-            defer: false
+        let window = OverlayPanelFactory.makePanel(
+            frame: NSRect(origin: .zero, size: overlaySize),
+            level: NSWindow.Level(rawValue: Int(CGShieldingWindowLevel()))
         )
-        window.isReleasedWhenClosed = false
-        window.isFloatingPanel = true
-        window.isOpaque = false
-        window.backgroundColor = .clear
-        window.level = NSWindow.Level(rawValue: Int(CGShieldingWindowLevel()))
-        window.collectionBehavior = [
-            .canJoinAllSpaces,
-            .stationary,
-            .fullScreenAuxiliary,
-            .ignoresCycle
-        ]
-        window.hidesOnDeactivate = false
-        window.isMovable = false
-        window.hasShadow = false
-        window.animationBehavior = .none
 
         overlayWindow = window
         return window
     }
 
     private var overlaySize: CGSize {
-        LockScreenWindowLayout.canvasSize
+        OverlayWindowLayout.lockScreenCanvasSize
     }
 
     private func overlayFrame(for size: CGSize, on screen: NSScreen) -> NSRect {
-        let screenFrame = screen.frame
-        let x = floor(screenFrame.midX - size.width / 2)
-        let y = screenFrame.maxY - size.height + 1
-
-        return NSRect(origin: CGPoint(x: x, y: y), size: size)
+        OverlayWindowLayout.topAnchoredFrame(on: screen, size: size)
     }
 
     private func currentScreen() -> NSScreen? {

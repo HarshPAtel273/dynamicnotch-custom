@@ -8,11 +8,6 @@
 import SwiftUI
 import Combine
 
-class NotchPanel: NSPanel {
-    override var canBecomeKey: Bool { true }
-    override var canBecomeMain: Bool { true }
-}
-
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let isRunningUITests = ProcessInfo.processInfo.arguments.contains("-ui-testing")
 
@@ -48,7 +43,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         generalSettingsViewModel: generalSettingsViewModel
     )
     
-    var window: NSWindow!
+    var window: OverlayPanelWindow!
     private var uiTestSettingsWindow: NSWindow?
     private var localScrollMonitor: Any?
     private var globalScrollMonitor: Any?
@@ -126,40 +121,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard let screen = NSScreen.preferredNotchScreen(for: generalSettingsViewModel.displayLocation) else {
             return
         }
-        
-        let screenFrame = screen.frame
-        
-        let notchWidth: CGFloat = 1000
-        let notchHeight: CGFloat = 1000
-        
-        let x = screenFrame.midX - notchWidth / 2
-        let y = screenFrame.maxY - notchHeight + 1
-        
-        window = NotchPanel(
-            contentRect: NSRect(x: x, y: y, width: notchWidth, height: notchHeight),
-            styleMask: [.borderless, .nonactivatingPanel],
-            backing: .buffered,
-            defer: false
-        )
-        
-        window.isOpaque = false
-        window.titleVisibility = .hidden
-        window.titlebarAppearsTransparent = true
-        window.backgroundColor = .clear
-        window.hidesOnDeactivate = false
-        window.isMovable = false
-        window.animationBehavior = .none
 
-        window.collectionBehavior = [
-            .fullScreenAuxiliary,
-            .stationary,
-            .canJoinAllSpaces,
-            .ignoresCycle,
-        ]
-        
-        window.isReleasedWhenClosed = false
-        window.level = .mainMenu + 3
-        window.hasShadow = false
+        let frame = OverlayWindowLayout.topAnchoredFrame(
+            on: screen,
+            size: OverlayWindowLayout.appCanvasSize
+        )
+
+        window = OverlayPanelFactory.makePanel(
+            frame: frame,
+            level: NSWindow.Level(rawValue: Int(CGShieldingWindowLevel()))
+        )
         
         let hostingView = NotchHostingView(
             rootView: NotchView(
@@ -193,6 +164,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         window.contentView = hostingView
+        SkyLightOperator.shared.delegateWindow(window)
 
         window.orderFrontRegardless()
     }
@@ -205,17 +177,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard let screen = NSScreen.preferredNotchScreen(for: generalSettingsViewModel.displayLocation) else {
             return
         }
-        let screenFrame = screen.frame
-        let windowSize = window.frame.size
-        
-        let x = floor(screenFrame.midX - windowSize.width / 2)
-        let y = screenFrame.maxY - windowSize.height + 1
-        
-        window.setFrame(
-            NSRect(origin: CGPoint(x: x, y: y), size: windowSize),
-            display: true,
-            animate: false
+
+        let targetFrame = OverlayWindowLayout.topAnchoredFrame(
+            on: screen,
+            size: window.frame.size
         )
+
+        window.setFrame(targetFrame, display: true, animate: false)
 
         if !isPrimaryWindowSuspendedForLock {
             window.orderFrontRegardless()
@@ -242,8 +210,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
             if isLocked {
                 self.suspendPrimaryWindowForLock()
+            } else if self.isPrimaryWindowSuspendedForLock {
+                self.restorePrimaryWindowForUnlockTransition()
             } else if isLockIdle {
-                self.restorePrimaryWindowAfterLock()
+                self.updateWindowFrame()
             }
         }
         .store(in: &cancellables)
@@ -256,7 +226,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window.orderOut(nil)
     }
 
-    private func restorePrimaryWindowAfterLock() {
+    private func restorePrimaryWindowForUnlockTransition() {
         guard let window, isPrimaryWindowSuspendedForLock else { return }
 
         isPrimaryWindowSuspendedForLock = false

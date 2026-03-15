@@ -23,7 +23,7 @@ struct LockScreenNotchView: View {
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: lockScreenManager.isLocked ? "lock.fill" : "lock.open.fill")
-                .font(.system(size: 16, weight: .semibold))
+                .font(.system(size: 16))
                 .foregroundStyle(.white.opacity(0.8))
             
             Spacer()
