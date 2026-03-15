@@ -70,6 +70,9 @@ private struct LiveActivityPanelSettingsView: View {
                         DebugTitle(title: "Now playing Expanded", icon: "speaker.square.fill", color: .red) {
                             notchViewModel.handleActiveContentTap()
                         }
+                        DebugTitle(title: "Lock", icon: "lock.fill", color: .white) {
+                            notchEventCoordinator.handleLockScreenEvent(.started)
+                        }
                     }
                 }
             }

@@ -17,6 +17,7 @@ final class NotchEventCoordinator: ObservableObject {
     private let airDropViewModel: AirDropNotchViewModel
     private let generalSettingsViewModel: GeneralSettingsViewModel
     private let nowPlayingViewModel: NowPlayingViewModel
+    private let lockScreenManager: LockScreenManager
     
     private var isOnboardingActive: Bool {
         notchViewModel.notchModel.liveActivityContent?.id == "onboarding" ||
@@ -30,6 +31,11 @@ final class NotchEventCoordinator: ObservableObject {
     private var isAirDropActive: Bool {
         notchViewModel.notchModel.content?.id == "airdrop"
     }
+
+    private var isLockScreenTransitionActive: Bool {
+        lockScreenManager.isTransitioning ||
+        notchViewModel.notchModel.liveActivityContent?.id == "lockScreen"
+    }
     
     init (
         notchViewModel: NotchViewModel,
@@ -38,7 +44,8 @@ final class NotchEventCoordinator: ObservableObject {
         networkViewModel: NetworkViewModel,
         airDropViewModel: AirDropNotchViewModel,
         generalSettingsViewModel: GeneralSettingsViewModel,
-        nowPlayingViewModel: NowPlayingViewModel
+        nowPlayingViewModel: NowPlayingViewModel,
+        lockScreenManager: LockScreenManager
     ) {
         self.notchViewModel = notchViewModel
         self.bluetoothViewModel = bluetoothViewModel
@@ -47,6 +54,7 @@ final class NotchEventCoordinator: ObservableObject {
         self.airDropViewModel = airDropViewModel
         self.generalSettingsViewModel = generalSettingsViewModel
         self.nowPlayingViewModel = nowPlayingViewModel
+        self.lockScreenManager = lockScreenManager
     }
     
     func checkFirstLaunch() {
@@ -56,16 +64,23 @@ final class NotchEventCoordinator: ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 self.handleOnboardingEvent(.onboarding)
             }
+        } else if nowPlayingViewModel.hasActiveSession {
+            notchViewModel.send(.showLiveActivity(NowPlayingNotchContent(nowPlayingViewModel: nowPlayingViewModel)))
         }
     }
     
     func finishOnboarding() {
         UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
         notchViewModel.send(.hideLiveActivity(id: "onboarding"))
+
+        if nowPlayingViewModel.hasActiveSession {
+            notchViewModel.send(.showLiveActivity(NowPlayingNotchContent(nowPlayingViewModel: nowPlayingViewModel)))
+        }
     }
     
     func handleAirDropEvent(_ event: AirDropEvent) {
         guard !isOnboardingActive else { return }
+        guard !isLockScreenTransitionActive else { return }
         
         switch event {
         case .dragStarted:
@@ -87,6 +102,7 @@ final class NotchEventCoordinator: ObservableObject {
     
     func handleNotchWidthEvent(_ event: NotchSizeEvent) {
         guard !isOnboardingActive else { return }
+        guard !isLockScreenTransitionActive else { return }
         guard !isOnboardingActive && !isAirDropActive else { return }
         
         switch event {
@@ -100,6 +116,7 @@ final class NotchEventCoordinator: ObservableObject {
     
     func handleFocusEvent(_ event: FocusEvent) {
         guard !isOnboardingActive else { return }
+        guard !isLockScreenTransitionActive else { return }
         guard !isOnboardingActive && !isAirDropActive else { return }
         
         switch event {
@@ -114,6 +131,7 @@ final class NotchEventCoordinator: ObservableObject {
     
     func handleHudEvent(_ event: HudEvent) {
         guard !isOnboardingActive else { return }
+        guard !isLockScreenTransitionActive else { return }
         guard !isOnboardingActive && !isAirDropActive else { return }
         
         switch event {
@@ -137,6 +155,7 @@ final class NotchEventCoordinator: ObservableObject {
     
     func handleBluetoothEvent(_ event: BluetoothEvent) {
         guard !isOnboardingActive else { return }
+        guard !isLockScreenTransitionActive else { return }
         guard !isOnboardingActive && !isAirDropActive else { return }
         
         switch event {
@@ -147,6 +166,7 @@ final class NotchEventCoordinator: ObservableObject {
     
     func handleNetworkEvent(_ event: NetworkEvent) {
         guard !isOnboardingActive else { return }
+        guard !isLockScreenTransitionActive else { return }
         guard !isOnboardingActive && !isAirDropActive else { return }
         
         switch event {
@@ -166,6 +186,7 @@ final class NotchEventCoordinator: ObservableObject {
     
     func handlePowerEvent(_ event: PowerEvent) {
         guard !isOnboardingActive else { return }
+        guard !isLockScreenTransitionActive else { return }
         guard !isOnboardingActive && !isAirDropActive else { return }
         
         switch event {
@@ -190,6 +211,21 @@ final class NotchEventCoordinator: ObservableObject {
             
         case .stopped:
             notchViewModel.send(.hideLiveActivity(id: "nowPlaying"))
+        }
+    }
+
+    func handleLockScreenEvent(_ event: LockScreenEvent) {
+        guard LockScreenSettings.isLiveActivityEnabled() else {
+            notchViewModel.send(.hideLiveActivity(id: "lockScreen"))
+            return
+        }
+
+        switch event {
+        case .started:
+            notchViewModel.send(.showLiveActivity(LockScreenNotchContent(lockScreenManager: lockScreenManager)))
+            
+        case .stopped:
+            notchViewModel.send(.hideLiveActivity(id: "lockScreen"))
         }
     }
 }

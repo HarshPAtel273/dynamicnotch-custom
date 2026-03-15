@@ -7,7 +7,7 @@ struct NowPlayingNotchContent: NotchContentProtocol {
     
     var priority: Int { 81 }
     var isExpandable: Bool { true }
-    var expandedOffsetXTransition: CGFloat { -90 }
+    var expandedOffsetXTransition: CGFloat { -100 }
     var expandedOffsetYTransition: CGFloat { -90 }
     
     func size(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
@@ -115,8 +115,8 @@ private struct NowPlayingExpandedNotchView: View {
                                 nsFont: .headline,
                                 textColor: .white.opacity(0.8),
                                 backgroundColor: .clear,
-                                minDuration: 0.5,
-                                frameWidth: 175.scaled(by: scale)
+                                minDuration: 2.0,
+                                frameWidth: 170.scaled(by: scale)
                             )
                             
                             Spacer(minLength: 0)
@@ -136,8 +136,8 @@ private struct NowPlayingExpandedNotchView: View {
                             nsFont: .headline,
                             textColor: .secondary,
                             backgroundColor: .clear,
-                            minDuration: 1.0,
-                            frameWidth: 175.scaled(by: scale)
+                            minDuration: 3.0,
+                            frameWidth: 170.scaled(by: scale)
                         )
                     }
                 }

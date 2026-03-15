@@ -24,6 +24,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let airDropViewModel = AirDropNotchViewModel()
     let generalSettingsViewModel = GeneralSettingsViewModel()
     let nowPlayingViewModel: NowPlayingViewModel
+    let lockScreenManager: LockScreenManager
     
     lazy var notchViewModel = NotchViewModel(settings: generalSettingsViewModel)
     lazy var notchEventCoordinator = NotchEventCoordinator(
@@ -33,16 +34,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         networkViewModel: networkViewModel,
         airDropViewModel: airDropViewModel,
         generalSettingsViewModel: generalSettingsViewModel,
-        nowPlayingViewModel: nowPlayingViewModel
+        nowPlayingViewModel: nowPlayingViewModel,
+        lockScreenManager: lockScreenManager
+    )
+    lazy var lockScreenPanelManager = LockScreenPanelManager(
+        nowPlayingViewModel: nowPlayingViewModel,
+        lockScreenManager: lockScreenManager,
+        generalSettingsViewModel: generalSettingsViewModel
+    )
+    lazy var lockScreenLiveActivityWindowManager = LockScreenLiveActivityWindowManager(
+        notchViewModel: notchViewModel,
+        lockScreenManager: lockScreenManager,
+        generalSettingsViewModel: generalSettingsViewModel
     )
     
-    var window: NSWindow!
+    var window: NotchPanel!
     private var uiTestSettingsWindow: NSWindow?
     private var localScrollMonitor: Any?
     private var globalScrollMonitor: Any?
     private var localClickMonitor: Any?
     private let globalClickMonitor = GlobalClickMonitor()
     private var cancellables = Set<AnyCancellable>()
+    private var isPrimaryWindowSuspendedForLock = false
     
     override init() {
         self.powerViewModel = PowerViewModel(powerService: powerService)
@@ -51,16 +64,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 InactiveNowPlayingService() :
                 MediaRemoteNowPlayingService()
         )
+        self.lockScreenManager = LockScreenManager(
+            service: ProcessInfo.processInfo.arguments.contains("-ui-testing") ?
+                InactiveLockScreenMonitoringService() :
+                DistributedLockScreenMonitoringService()
+        )
         super.init()
     }
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(isRunningUITests ? .regular : .accessory)
         observeDisplayLocationChanges()
+        observeLockScreenWindowHandoff()
 
         if !isRunningUITests {
             createNotchWindow()
             observeOutsideClickDismissal()
+            _ = lockScreenPanelManager
+            _ = lockScreenLiveActivityWindowManager
 
             NotificationCenter.default.addObserver(
                 self,
@@ -68,6 +89,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 name: NSApplication.didChangeScreenParametersNotification,
                 object: nil
             )
+            observeWorkspaceChanges()
 
             DispatchQueue.main.async {
                 for w in NSApp.windows {
@@ -84,10 +106,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             notchEventCoordinator.checkFirstLaunch()
         }
 
+        lockScreenManager.startMonitoring()
         nowPlayingViewModel.startMonitoring()
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        NotificationCenter.default.removeObserver(self)
+        NSWorkspace.shared.notificationCenter.removeObserver(self)
+        lockScreenManager.stopMonitoring()
+        if !isRunningUITests {
+            lockScreenPanelManager.invalidate()
+            lockScreenLiveActivityWindowManager.invalidate()
+        }
         stopOutsideClickMonitoring()
         stopDismissGestureMonitoring()
     }
@@ -113,11 +143,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
         
         window.isOpaque = false
+        window.isFloatingPanel = true
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
         window.backgroundColor = .clear
+        window.hidesOnDeactivate = false
         window.isMovable = false
-        
+        window.animationBehavior = .none
+
         window.collectionBehavior = [
             .fullScreenAuxiliary,
             .stationary,
@@ -139,7 +172,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 focusViewModel: focusViewModel,
                 airDropViewModel: airDropViewModel,
                 generalSettingsViewModel: generalSettingsViewModel,
-                nowPlayingViewModel: nowPlayingViewModel
+                nowPlayingViewModel: nowPlayingViewModel,
+                lockScreenManager: lockScreenManager
             )
         )
         airDropViewModel.presentationView = hostingView
@@ -160,8 +194,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         window.contentView = hostingView
-        
-        window.makeKeyAndOrderFront(nil)
+
+        window.orderFrontRegardless()
     }
     
     @objc func updateWindowFrame() {
@@ -183,6 +217,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             display: true,
             animate: false
         )
+
+        if !isPrimaryWindowSuspendedForLock {
+            window.orderFrontRegardless()
+        }
     }
 
     private func observeDisplayLocationChanges() {
@@ -192,6 +230,64 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.updateWindowFrame()
             }
             .store(in: &cancellables)
+    }
+
+    private func observeLockScreenWindowHandoff() {
+        Publishers.CombineLatest(
+            lockScreenManager.$isLocked.removeDuplicates(),
+            lockScreenManager.$isLockIdle.removeDuplicates()
+        )
+        .receive(on: RunLoop.main)
+        .sink { [weak self] isLocked, isLockIdle in
+            guard let self, !self.isRunningUITests else { return }
+
+            if isLocked {
+                self.suspendPrimaryWindowForLock()
+            } else if isLockIdle {
+                self.restorePrimaryWindowAfterLock()
+            }
+        }
+        .store(in: &cancellables)
+    }
+
+    private func suspendPrimaryWindowForLock() {
+        guard let window, !isPrimaryWindowSuspendedForLock else { return }
+
+        isPrimaryWindowSuspendedForLock = true
+        window.orderOut(nil)
+    }
+
+    private func restorePrimaryWindowAfterLock() {
+        guard let window, isPrimaryWindowSuspendedForLock else { return }
+
+        isPrimaryWindowSuspendedForLock = false
+        updateWindowFrame()
+        window.orderFrontRegardless()
+    }
+
+    private func observeWorkspaceChanges() {
+        let center = NSWorkspace.shared.notificationCenter
+
+        center.addObserver(
+            self,
+            selector: #selector(handleWorkspaceContextChange),
+            name: NSWorkspace.activeSpaceDidChangeNotification,
+            object: nil
+        )
+
+        center.addObserver(
+            self,
+            selector: #selector(handleWorkspaceContextChange),
+            name: NSWorkspace.didActivateApplicationNotification,
+            object: nil
+        )
+    }
+
+    @objc
+    private func handleWorkspaceContextChange(_ notification: Notification) {
+        DispatchQueue.main.async { [weak self] in
+            self?.updateWindowFrame()
+        }
     }
 
     private func observeOutsideClickDismissal() {

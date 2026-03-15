@@ -39,6 +39,9 @@ final class NotchViewModel: ObservableObject {
     /// Async task controlling lifetime of temporary notifications
     private var temporaryTask: Task<Void, Never>?
 
+    /// Delayed stroke cleanup so the outline can linger briefly after content hides.
+    private var strokeHideWorkItem: DispatchWorkItem?
+
     /// Unique token identifying the currently active temporary timer.
     /// Prevents outdated timers from closing newer notifications.
     private var temporaryTimerID = UUID()
@@ -510,6 +513,8 @@ final class NotchViewModel: ObservableObject {
 
     /// Handles notch stroke visibility when content changes
     func handleStrokeVisibility() {
+        strokeHideWorkItem?.cancel()
+        strokeHideWorkItem = nil
 
         if let content = notchModel.content {
 
@@ -518,7 +523,7 @@ final class NotchViewModel: ObservableObject {
 
         } else {
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            let workItem = DispatchWorkItem { [weak self] in
 
                 guard let self,
                       self.notchModel.content == nil else { return }
@@ -526,6 +531,12 @@ final class NotchViewModel: ObservableObject {
                 self.cachedStrokeColor = .clear
                 self.showNotch = false
             }
+
+            strokeHideWorkItem = workItem
+            DispatchQueue.main.asyncAfter(
+                deadline: .now() + hideDelay,
+                execute: workItem
+            )
         }
     }
 }

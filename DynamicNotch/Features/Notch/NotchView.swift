@@ -13,39 +13,56 @@ struct NotchView: View {
     @ObservedObject var airDropViewModel: AirDropNotchViewModel
     @ObservedObject var generalSettingsViewModel: GeneralSettingsViewModel
     @ObservedObject var nowPlayingViewModel: NowPlayingViewModel
+    @ObservedObject var lockScreenManager: LockScreenManager
     
     var body: some View {
         ZStack {
             notchBody
-                .environment(\.notchScale, notchViewModel.notchModel.scale)
-                .onReceive(powerViewModel.$event.compactMap { $0 }, perform: notchEventCoordinator.handlePowerEvent)
-                .onReceive(bluetoothViewModel.$event.compactMap { $0 }, perform: notchEventCoordinator.handleBluetoothEvent)
-                .onReceive(networkViewModel.$networkEvent.compactMap { $0 }, perform: notchEventCoordinator.handleNetworkEvent)
-                .onReceive(focusViewModel.$focusEvent.compactMap{ $0 }, perform: notchEventCoordinator.handleFocusEvent)
-                .onReceive(airDropViewModel.$event.compactMap { $0 }, perform: notchEventCoordinator.handleAirDropEvent)
-                .onReceive(generalSettingsViewModel.notchSizeEvent, perform: notchEventCoordinator.handleNotchWidthEvent)
-                .onReceive(nowPlayingViewModel.$event.compactMap { $0 }, perform: notchEventCoordinator.handleNowPlayingEvent)
-                .onChange(of: notchViewModel.notchModel.content?.id) {
-                    notchViewModel.handleStrokeVisibility()
-                }
-                .onChange(of: generalSettingsViewModel.notchWidth) {
-                    notchViewModel.updateDimensions()
-                }
-                .onChange(of: generalSettingsViewModel.notchHeight) {
-                    notchViewModel.updateDimensions()
-                }
-                .onDrop(of: [.fileURL], isTargeted: $airDropViewModel.isDraggingFile) { providers in
-                    let dropPoint = NSEvent.mouseLocation
-                    airDropViewModel.handleDrop(providers: providers, point: dropPoint)
-                    return true
-                }
         }
+        .environment(\.notchScale, notchViewModel.notchModel.scale)
+        .modifier(
+            NotchSystemEventBindings(
+                powerViewModel: powerViewModel,
+                bluetoothViewModel: bluetoothViewModel,
+                networkViewModel: networkViewModel,
+                focusViewModel: focusViewModel,
+                notchEventCoordinator: notchEventCoordinator
+            )
+        )
+        .modifier(
+            NotchLiveActivityEventBindings(
+                airDropViewModel: airDropViewModel,
+                generalSettingsViewModel: generalSettingsViewModel,
+                nowPlayingViewModel: nowPlayingViewModel,
+                lockScreenManager: lockScreenManager,
+                notchEventCoordinator: notchEventCoordinator
+            )
+        )
+        .modifier(
+            NotchStateBindings(
+                notchViewModel: notchViewModel,
+                airDropViewModel: airDropViewModel,
+                generalSettingsViewModel: generalSettingsViewModel
+            )
+        )
         .offset(y: 1)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 }
 
 private extension NotchView {
+    var notchStrokeColor: Color {
+        guard generalSettingsViewModel.isShowNotchStrokeEnabled else {
+            return .clear
+        }
+
+        if notchViewModel.notchModel.content != nil {
+            return notchViewModel.notchModel.strokeColor
+        }
+
+        return notchViewModel.cachedStrokeColor
+    }
+
     @ViewBuilder
     var notchBody: some View {
         NotchShape(
@@ -54,13 +71,11 @@ private extension NotchView {
         )
         .fill(.black)
         .stroke(
-            generalSettingsViewModel.isShowNotchStrokeEnabled ?
-            notchViewModel.cachedStrokeColor : Color.clear,
+            Color.clear,
             lineWidth: generalSettingsViewModel.notchStrokeWidth
         )
-        .overlay {
-            contentOverlay
-        }
+        .overlay { contentOverlay }
+        .overlay { strokeOverlay }
         .customNotchPressable(
             notchViewModel: notchViewModel,
             isPressed: $notchViewModel.isPressed,
@@ -88,32 +103,32 @@ private extension NotchView {
     @ViewBuilder
     var contentOverlay: some View {
         if let content = notchViewModel.notchModel.content {
-            if notchViewModel.canExpandActiveLiveActivity {
-                renderedContentView(for: content)
-                    .id(notchViewModel.notchModel.presentationID)
-                    .transition(
-                        .blurAndFade
-                            .animation(.spring(duration: 0.5))
-                            .combined(with: .scale)
-                            .combined(with: .offset(
-                                x: notchViewModel.notchModel.offsetXTransition,
-                                y: notchViewModel.notchModel.offsetYTransition)
-                            )
-                    )
-            } else {
-                renderedContentView(for: content)
-                    .id(notchViewModel.notchModel.presentationID)
-                    .transition(
-                        .blurAndFade
-                            .animation(.spring(duration: 0.5))
-                            .combined(with: .scale)
-                            .combined(with: .offset(
-                                x: notchViewModel.notchModel.offsetXTransition,
-                                y: notchViewModel.notchModel.offsetYTransition)
-                            )
-                    )
-            }
+            renderedContentView(for: content)
+                .id(notchViewModel.notchModel.presentationID)
+                .transition(notchContentTransition)
         }
+    }
+
+    var strokeOverlay: some View {
+        NotchShape(
+            topCornerRadius: notchViewModel.notchModel.cornerRadius.top,
+            bottomCornerRadius: notchViewModel.notchModel.cornerRadius.bottom
+        )
+        .stroke(
+            notchStrokeColor,
+            lineWidth: generalSettingsViewModel.notchStrokeWidth
+        )
+        .allowsHitTesting(false)
+    }
+
+    var notchContentTransition: AnyTransition {
+        .blurAndFade
+            .animation(.spring(duration: 0.5))
+            .combined(with: .scale)
+            .combined(with: .offset(
+                x: notchViewModel.notchModel.offsetXTransition,
+                y: notchViewModel.notchModel.offsetYTransition
+            ))
     }
     
     @MainActor
@@ -138,5 +153,70 @@ private extension NotchView {
             Image(systemName: "rectangle.portrait.and.arrow.right")
             Text("Quit")
         }
+    }
+}
+
+private struct NotchSystemEventBindings: ViewModifier {
+    let powerViewModel: PowerViewModel
+    let bluetoothViewModel: BluetoothViewModel
+    let networkViewModel: NetworkViewModel
+    let focusViewModel: FocusViewModel
+    let notchEventCoordinator: NotchEventCoordinator
+
+    func body(content: Content) -> some View {
+        content
+            .onReceive(powerViewModel.$event.compactMap { $0 }, perform: notchEventCoordinator.handlePowerEvent)
+            .onReceive(bluetoothViewModel.$event.compactMap { $0 }, perform: notchEventCoordinator.handleBluetoothEvent)
+            .onReceive(networkViewModel.$networkEvent.compactMap { $0 }, perform: notchEventCoordinator.handleNetworkEvent)
+            .onReceive(focusViewModel.$focusEvent.compactMap { $0 }, perform: notchEventCoordinator.handleFocusEvent)
+    }
+}
+
+private struct NotchLiveActivityEventBindings: ViewModifier {
+    let airDropViewModel: AirDropNotchViewModel
+    let generalSettingsViewModel: GeneralSettingsViewModel
+    let nowPlayingViewModel: NowPlayingViewModel
+    let lockScreenManager: LockScreenManager
+    let notchEventCoordinator: NotchEventCoordinator
+
+    func body(content: Content) -> some View {
+        content
+            .onReceive(airDropViewModel.$event.compactMap { $0 }, perform: notchEventCoordinator.handleAirDropEvent)
+            .onReceive(nowPlayingViewModel.$event.compactMap { $0 }, perform: notchEventCoordinator.handleNowPlayingEvent)
+            .onReceive(lockScreenManager.$event.compactMap { $0 }, perform: notchEventCoordinator.handleLockScreenEvent)
+            .onReceive(generalSettingsViewModel.notchSizeEvent, perform: notchEventCoordinator.handleNotchWidthEvent)
+    }
+}
+
+private struct NotchStateBindings: ViewModifier {
+    let notchViewModel: NotchViewModel
+    let airDropViewModel: AirDropNotchViewModel
+    let generalSettingsViewModel: GeneralSettingsViewModel
+
+    func body(content: Content) -> some View {
+        content
+            .onAppear {
+                notchViewModel.handleStrokeVisibility()
+            }
+            .onChange(of: notchViewModel.notchModel.content?.id) {
+                notchViewModel.handleStrokeVisibility()
+            }
+            .onChange(of: generalSettingsViewModel.notchWidth) {
+                notchViewModel.updateDimensions()
+            }
+            .onChange(of: generalSettingsViewModel.notchHeight) {
+                notchViewModel.updateDimensions()
+            }
+            .onDrop(
+                of: [.fileURL],
+                isTargeted: Binding(
+                    get: { airDropViewModel.isDraggingFile },
+                    set: { airDropViewModel.isDraggingFile = $0 }
+                )
+            ) { providers in
+                let dropPoint = NSEvent.mouseLocation
+                airDropViewModel.handleDrop(providers: providers, point: dropPoint)
+                return true
+            }
     }
 }

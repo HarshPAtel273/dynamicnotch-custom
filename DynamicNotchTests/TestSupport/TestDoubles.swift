@@ -81,6 +81,25 @@ final class FakeNowPlayingService: NowPlayingMonitoring {
     }
 }
 
+final class FakeLockScreenMonitoringService: LockScreenMonitoring {
+    var onLockStateChange: ((Bool) -> Void)?
+
+    private(set) var startCalls = 0
+    private(set) var stopCalls = 0
+
+    func startMonitoring() {
+        startCalls += 1
+    }
+
+    func stopMonitoring() {
+        stopCalls += 1
+    }
+
+    func publish(isLocked: Bool) {
+        onLockStateChange?(isLocked)
+    }
+}
+
 enum TestLifetime {
     private static var retainedObjects: [AnyObject] = []
 
