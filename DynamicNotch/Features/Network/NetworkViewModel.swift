@@ -18,6 +18,9 @@ final class NetworkViewModel: ObservableObject {
     @Published var wifiConnected: Bool = false
     @Published var hotspotActive: Bool = false
     @Published var vpnConnected: Bool = false
+    @Published var wifiName: String = ""
+    @Published var vpnName: String = ""
+    @Published var vpnConnectedAt: Date?
     
     @Published var networkEvent: NetworkEvent? = nil
     
@@ -36,6 +39,17 @@ final class NetworkViewModel: ObservableObject {
     private func setupMonitoring() {
         monitor.onStatusChange = { [weak self] wifi, hotspot, vpn in
             guard let self = self else { return }
+
+            self.wifiName = (wifi && !hotspot) ? (self.monitor.currentWiFiName ?? "") : ""
+            self.vpnName = vpn ? (self.monitor.currentVPNName ?? "") : ""
+
+            if vpn {
+                if self.vpnConnected == false {
+                    self.vpnConnectedAt = .now
+                }
+            } else {
+                self.vpnConnectedAt = nil
+            }
             
             if !self.isInitialCheck {
                 if wifi && !self.wifiConnected {

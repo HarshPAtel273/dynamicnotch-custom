@@ -192,7 +192,7 @@ final class NotchEventCoordinator: ObservableObject {
             
         case .vpnConnected:
             guard generalSettingsViewModel.isTemporaryActivityEnabled(.vpn) else { return }
-            notchViewModel.send(.showTemporaryNotification(VpnConnectedNotchContent(), duration: 3))
+            notchViewModel.send(.showTemporaryNotification(VpnConnectedNotchContent(networkViewModel: networkViewModel), duration: 5))
             
         case .hotspotActive:
             guard generalSettingsViewModel.isLiveActivityEnabled(.hotspot) else { return }

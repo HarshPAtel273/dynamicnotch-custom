@@ -42,4 +42,45 @@ final class NetworkViewModelIntegrationTests: XCTestCase {
         monitor.send(wifi: false, hotspot: false, vpn: true)
         XCTAssertEqual(viewModel.networkEvent, .hotspotHide)
     }
+
+    func testConnectedNetworkNamesAreUpdatedFromMonitor() {
+        let monitor = FakeNetworkMonitor()
+        let viewModel = NetworkViewModel(monitor: monitor)
+
+        monitor.send(wifi: false, hotspot: false, vpn: false)
+        monitor.send(
+            wifi: true,
+            hotspot: false,
+            vpn: true,
+            wifiName: "Office Wi-Fi",
+            vpnName: "Work VPN"
+        )
+
+        XCTAssertEqual(viewModel.wifiName, "Office Wi-Fi")
+        XCTAssertEqual(viewModel.vpnName, "Work VPN")
+
+        monitor.send(wifi: false, hotspot: false, vpn: false)
+
+        XCTAssertEqual(viewModel.wifiName, "")
+        XCTAssertEqual(viewModel.vpnName, "")
+    }
+
+    func testVPNConnectionStartDateTracksTunnelLifecycle() {
+        let monitor = FakeNetworkMonitor()
+        let viewModel = NetworkViewModel(monitor: monitor)
+
+        monitor.send(wifi: false, hotspot: false, vpn: false)
+        XCTAssertNil(viewModel.vpnConnectedAt)
+
+        monitor.send(wifi: false, hotspot: false, vpn: true)
+        let initialConnectionDate = viewModel.vpnConnectedAt
+
+        XCTAssertNotNil(initialConnectionDate)
+
+        monitor.send(wifi: false, hotspot: false, vpn: true)
+        XCTAssertEqual(viewModel.vpnConnectedAt, initialConnectionDate)
+
+        monitor.send(wifi: false, hotspot: false, vpn: false)
+        XCTAssertNil(viewModel.vpnConnectedAt)
+    }
 }

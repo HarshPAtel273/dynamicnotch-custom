@@ -111,7 +111,7 @@ private extension NotchView {
                     .id(notchViewModel.notchModel.presentationID)
                     .transition(
                         .blurAndFade
-                            .animation(.spring(duration: 0.6))
+                            .animation(.spring(duration: 0.5))
                             .combined(with: .scale)
                             .combined(with: .offset(
                                 x: notchViewModel.notchModel.offsetXTransition,
@@ -123,7 +123,7 @@ private extension NotchView {
                     .id(notchViewModel.notchModel.presentationID)
                     .transition(
                         .blurAndFade
-                            .animation(.spring(duration: 0.6))
+                            .animation(.spring(duration: 0.5))
                             .combined(with: .scale)
                             .combined(with: .offset(
                                 x: notchViewModel.notchModel.offsetXTransition,
