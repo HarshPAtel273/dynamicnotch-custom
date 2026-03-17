@@ -148,13 +148,13 @@ final class NotchEventCoordinator: ObservableObject {
         
         switch event {
         case .display(let level):
-            notchViewModel.send(.showTemporaryNotification(HudDisplayNotchContent(level: level), duration: 2))
+            notchViewModel.send(.showTemporaryNotification(HudNotchContent(kind: .brightness, level: level), duration: 2))
             
         case .keyboard(let level):
-            notchViewModel.send(.showTemporaryNotification(HudKeyboardNotchContent(level: level), duration: 2))
+            notchViewModel.send(.showTemporaryNotification(HudNotchContent(kind: .keyboard, level: level), duration: 2))
             
         case .volume(let level):
-            notchViewModel.send(.showTemporaryNotification(HudVolumeNotchContent(level: level), duration: 2))
+            notchViewModel.send(.showTemporaryNotification(HudNotchContent(kind: .volume, level: level), duration: 2))
         }
     }
     

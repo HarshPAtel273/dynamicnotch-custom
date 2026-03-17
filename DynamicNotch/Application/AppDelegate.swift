@@ -21,7 +21,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let nowPlayingViewModel: NowPlayingViewModel
     let lockScreenManager: LockScreenManager
     
+    lazy var hardwareHUDMonitor: HardwareHUDMonitor = {
+        let monitor = HardwareHUDMonitor()
+        monitor.onEvent = { [weak self] event in
+            self?.notchEventCoordinator.handleHudEvent(event)
+        }
+        return monitor
+    }()
+    
     lazy var notchViewModel = NotchViewModel(settings: generalSettingsViewModel)
+    
     lazy var notchEventCoordinator = NotchEventCoordinator(
         notchViewModel: notchViewModel,
         bluetoothViewModel: bluetoothViewModel,
@@ -82,6 +91,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             observeOutsideClickDismissal()
             _ = lockScreenPanelManager
             _ = lockScreenLiveActivityWindowManager
+            hardwareHUDMonitor.startMonitoring()
 
             NotificationCenter.default.addObserver(
                 self,
@@ -114,6 +124,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NotificationCenter.default.removeObserver(self)
         NSWorkspace.shared.notificationCenter.removeObserver(self)
         lockScreenManager.stopMonitoring()
+        hardwareHUDMonitor.stopMonitoring()
         if !isRunningUITests {
             lockScreenPanelManager.invalidate()
             lockScreenLiveActivityWindowManager.invalidate()
