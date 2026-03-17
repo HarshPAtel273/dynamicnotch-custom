@@ -54,10 +54,6 @@ struct GeneralSettingsView: View {
                     symbolName: { $0.symbolName }
                 )
                 .accessibilityIdentifier("settings.general.displayLocation")
-
-                Text("Changes apply immediately and move the overlay to the selected display.")
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
             }
         }
     }

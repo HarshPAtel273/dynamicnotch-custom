@@ -83,6 +83,7 @@ final class LockScreenManager: ObservableObject {
     @Published var event: LockScreenEvent?
 
     private let service: any LockScreenMonitoring
+    private let soundPlayer: any LockScreenSoundPlaying
     private let unlockCollapseDelay: TimeInterval
     private let idleResetDelay: TimeInterval
 
@@ -91,10 +92,12 @@ final class LockScreenManager: ObservableObject {
 
     init(
         service: (any LockScreenMonitoring)? = nil,
+        soundPlayer: (any LockScreenSoundPlaying)? = nil,
         unlockCollapseDelay: TimeInterval = 0.82,
         idleResetDelay: TimeInterval = 0.82
     ) {
         self.service = service ?? DistributedLockScreenMonitoringService()
+        self.soundPlayer = soundPlayer ?? LockScreenSoundPlayer()
         self.unlockCollapseDelay = unlockCollapseDelay
         self.idleResetDelay = idleResetDelay
 
@@ -131,12 +134,14 @@ final class LockScreenManager: ObservableObject {
         unlockWorkItem = nil
 
         if locked {
+            soundPlayer.playLock()
             isLocked = true
             isLockIdle = false
             event = .started
             return
         }
 
+        soundPlayer.playUnlock()
         isLocked = false
         isLockIdle = false
 

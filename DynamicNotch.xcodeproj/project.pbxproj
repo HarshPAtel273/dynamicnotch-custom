@@ -35,6 +35,22 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E249F57A2F69D18300EAE72A /* Exceptions for "DynamicNotch" folder in "DynamicNotchTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Resources/Sounds/DynamicNotch_lock.mp3,
+				Resources/Sounds/DynamicNotch_unlock.mp3,
+			);
+			target = F10000000000000000000006 /* DynamicNotchTests */;
+		};
+		E249F57B2F69D18300EAE72A /* Exceptions for "DynamicNotch" folder in "DynamicNotchUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Resources/Sounds/DynamicNotch_lock.mp3,
+				Resources/Sounds/DynamicNotch_unlock.mp3,
+			);
+			target = F20000000000000000000006 /* DynamicNotchUITests */;
+		};
 		E28957712F427D5B0025B0C8 /* Exceptions for "DynamicNotch" folder in "DynamicNotch" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -49,6 +65,8 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				E28957712F427D5B0025B0C8 /* Exceptions for "DynamicNotch" folder in "DynamicNotch" target */,
+				E249F57A2F69D18300EAE72A /* Exceptions for "DynamicNotch" folder in "DynamicNotchTests" target */,
+				E249F57B2F69D18300EAE72A /* Exceptions for "DynamicNotch" folder in "DynamicNotchUITests" target */,
 			);
 			path = DynamicNotch;
 			sourceTree = "<group>";

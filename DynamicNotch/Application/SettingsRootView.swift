@@ -2,7 +2,7 @@ import SwiftUI
 
 enum SettingsWindowLayout {
     static let width: CGFloat = 500
-    static let height: CGFloat = 560
+    static let height: CGFloat = 570
 }
 
 struct SettingsRootView: View {
@@ -11,10 +11,7 @@ struct SettingsRootView: View {
 
     @StateObject private var viewModel: SettingsRootViewModel
 
-    init(
-        powerService: PowerService,
-        generalSettingsViewModel: GeneralSettingsViewModel
-    ) {
+    init(powerService: PowerService, generalSettingsViewModel: GeneralSettingsViewModel) {
         self.powerService = powerService
         self.generalSettingsViewModel = generalSettingsViewModel
         _viewModel = StateObject(

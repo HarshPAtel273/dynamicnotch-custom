@@ -100,6 +100,23 @@ final class FakeLockScreenMonitoringService: LockScreenMonitoring {
     }
 }
 
+final class FakeLockScreenSoundPlayer: LockScreenSoundPlaying {
+    enum Sound: Equatable {
+        case lock
+        case unlock
+    }
+
+    private(set) var playedSounds: [Sound] = []
+
+    func playLock() {
+        playedSounds.append(.lock)
+    }
+
+    func playUnlock() {
+        playedSounds.append(.unlock)
+    }
+}
+
 enum TestLifetime {
     private static var retainedObjects: [AnyObject] = []
 

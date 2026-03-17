@@ -53,16 +53,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var isPrimaryWindowSuspendedForLock = false
     
     override init() {
+        let isRunningUITests = ProcessInfo.processInfo.arguments.contains("-ui-testing")
+
         self.powerViewModel = PowerViewModel(powerService: powerService)
         self.nowPlayingViewModel = NowPlayingViewModel(
-            service: ProcessInfo.processInfo.arguments.contains("-ui-testing") ?
+            service: isRunningUITests ?
                 InactiveNowPlayingService() :
                 MediaRemoteNowPlayingService()
         )
         self.lockScreenManager = LockScreenManager(
-            service: ProcessInfo.processInfo.arguments.contains("-ui-testing") ?
+            service: isRunningUITests ?
                 InactiveLockScreenMonitoringService() :
-                DistributedLockScreenMonitoringService()
+                DistributedLockScreenMonitoringService(),
+            soundPlayer: isRunningUITests ?
+                InactiveLockScreenSoundPlayer() :
+                LockScreenSoundPlayer()
         )
         super.init()
     }
