@@ -40,6 +40,8 @@ final class FakePowerStateProvider: PowerStateProviding {
 
 final class FakeNetworkMonitor: NetworkMonitoring {
     var onStatusChange: ((_ wifi: Bool, _ hotspot: Bool, _ vpn: Bool) -> Void)?
+    var currentWiFiName: String?
+    var currentVPNName: String?
 
     private(set) var startCalls = 0
     private(set) var stopCalls = 0
@@ -52,7 +54,15 @@ final class FakeNetworkMonitor: NetworkMonitoring {
         stopCalls += 1
     }
 
-    func send(wifi: Bool, hotspot: Bool, vpn: Bool) {
+    func send(
+        wifi: Bool,
+        hotspot: Bool,
+        vpn: Bool,
+        wifiName: String? = nil,
+        vpnName: String? = nil
+    ) {
+        currentWiFiName = wifiName
+        currentVPNName = vpnName
         onStatusChange?(wifi, hotspot, vpn)
     }
 }
@@ -97,6 +107,23 @@ final class FakeLockScreenMonitoringService: LockScreenMonitoring {
 
     func publish(isLocked: Bool) {
         onLockStateChange?(isLocked)
+    }
+}
+
+final class FakeLockScreenSoundPlayer: LockScreenSoundPlaying {
+    enum Sound: Equatable {
+        case lock
+        case unlock
+    }
+
+    private(set) var playedSounds: [Sound] = []
+
+    func playLock() {
+        playedSounds.append(.lock)
+    }
+
+    func playUnlock() {
+        playedSounds.append(.unlock)
     }
 }
 

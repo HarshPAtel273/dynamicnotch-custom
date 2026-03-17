@@ -21,7 +21,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let nowPlayingViewModel: NowPlayingViewModel
     let lockScreenManager: LockScreenManager
     
+    lazy var hardwareHUDMonitor: HardwareHUDMonitor = {
+        let monitor = HardwareHUDMonitor()
+        monitor.onEvent = { [weak self] event in
+            self?.notchEventCoordinator.handleHudEvent(event)
+        }
+        monitor.updateConfiguration(
+            interceptVolume: generalSettingsViewModel.isVolumeHUDEnabled,
+            interceptBrightness: generalSettingsViewModel.isBrightnessHUDEnabled
+        )
+        return monitor
+    }()
+    
     lazy var notchViewModel = NotchViewModel(settings: generalSettingsViewModel)
+    
     lazy var notchEventCoordinator = NotchEventCoordinator(
         notchViewModel: notchViewModel,
         bluetoothViewModel: bluetoothViewModel,
@@ -53,16 +66,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var isPrimaryWindowSuspendedForLock = false
     
     override init() {
+        let isRunningUITests = ProcessInfo.processInfo.arguments.contains("-ui-testing")
+
         self.powerViewModel = PowerViewModel(powerService: powerService)
         self.nowPlayingViewModel = NowPlayingViewModel(
-            service: ProcessInfo.processInfo.arguments.contains("-ui-testing") ?
+            service: isRunningUITests ?
                 InactiveNowPlayingService() :
                 MediaRemoteNowPlayingService()
         )
         self.lockScreenManager = LockScreenManager(
-            service: ProcessInfo.processInfo.arguments.contains("-ui-testing") ?
+            service: isRunningUITests ?
                 InactiveLockScreenMonitoringService() :
-                DistributedLockScreenMonitoringService()
+                DistributedLockScreenMonitoringService(),
+            soundPlayer: isRunningUITests ?
+                InactiveLockScreenSoundPlayer() :
+                LockScreenSoundPlayer()
         )
         super.init()
     }
@@ -70,6 +88,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(isRunningUITests ? .regular : .accessory)
         observeDisplayLocationChanges()
+        observeHUDConfigurationChanges()
         observeLockScreenWindowHandoff()
 
         if !isRunningUITests {
@@ -77,6 +96,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             observeOutsideClickDismissal()
             _ = lockScreenPanelManager
             _ = lockScreenLiveActivityWindowManager
+            hardwareHUDMonitor.startMonitoring()
 
             NotificationCenter.default.addObserver(
                 self,
@@ -109,6 +129,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NotificationCenter.default.removeObserver(self)
         NSWorkspace.shared.notificationCenter.removeObserver(self)
         lockScreenManager.stopMonitoring()
+        hardwareHUDMonitor.stopMonitoring()
         if !isRunningUITests {
             lockScreenPanelManager.invalidate()
             lockScreenLiveActivityWindowManager.invalidate()
@@ -197,6 +218,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.updateWindowFrame()
             }
             .store(in: &cancellables)
+    }
+
+    private func observeHUDConfigurationChanges() {
+        Publishers.CombineLatest(
+            generalSettingsViewModel.$isVolumeHUDEnabled.removeDuplicates(),
+            generalSettingsViewModel.$isBrightnessHUDEnabled.removeDuplicates()
+        )
+        .sink { [weak self] isVolumeHUDEnabled, isBrightnessHUDEnabled in
+            self?.hardwareHUDMonitor.updateConfiguration(
+                interceptVolume: isVolumeHUDEnabled,
+                interceptBrightness: isBrightnessHUDEnabled
+            )
+        }
+        .store(in: &cancellables)
     }
 
     private func observeLockScreenWindowHandoff() {
@@ -371,15 +406,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         DispatchQueue.main.async {
             let hostingController = NSHostingController(
                 rootView: SettingsRootView(
-                    notchViewModel: self.notchViewModel,
                     powerService: self.powerService,
-                    notchEventCoordinator: self.notchEventCoordinator,
                     generalSettingsViewModel: self.generalSettingsViewModel
                 )
             )
 
             let settingsWindow = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 500, height: 560),
+                contentRect: NSRect(
+                    x: 0,
+                    y: 0,
+                    width: SettingsWindowLayout.width,
+                    height: SettingsWindowLayout.height
+                ),
                 styleMask: [.titled, .closable, .miniaturizable],
                 backing: .buffered,
                 defer: false

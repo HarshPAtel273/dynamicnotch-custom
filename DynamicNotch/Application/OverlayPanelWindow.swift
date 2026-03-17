@@ -9,11 +9,7 @@ enum OverlayWindowLayout {
     static let appCanvasSize = CGSize(width: 1000, height: 1000)
     static let lockScreenCanvasSize = CGSize(width: 500, height: 500)
 
-    static func topAnchoredFrame(
-        on screen: NSScreen,
-        size: CGSize,
-        yOffset: CGFloat = 1
-    ) -> NSRect {
+    static func topAnchoredFrame(on screen: NSScreen, size: CGSize, yOffset: CGFloat = 1) -> NSRect {
         let x = floor(screen.frame.midX - size.width / 2)
         let y = screen.frame.maxY - size.height + yOffset
 
@@ -22,11 +18,7 @@ enum OverlayWindowLayout {
 }
 
 enum OverlayPanelFactory {
-    static func makePanel(
-        frame: NSRect,
-        level: NSWindow.Level,
-        isFloatingPanel: Bool = true
-    ) -> OverlayPanelWindow {
+    static func makePanel(frame: NSRect, level: NSWindow.Level, isFloatingPanel: Bool = true) -> OverlayPanelWindow {
         let window = OverlayPanelWindow(
             contentRect: frame,
             styleMask: [.borderless, .nonactivatingPanel],
@@ -38,11 +30,7 @@ enum OverlayPanelFactory {
         return window
     }
 
-    static func configure(
-        _ window: NSPanel,
-        level: NSWindow.Level,
-        isFloatingPanel: Bool = true
-    ) {
+    static func configure(_ window: NSPanel, level: NSWindow.Level, isFloatingPanel: Bool = true) {
         window.isReleasedWhenClosed = false
         window.isFloatingPanel = isFloatingPanel
         window.isOpaque = false
