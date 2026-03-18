@@ -58,8 +58,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     
     var window: OverlayPanelWindow!
     private var uiTestSettingsWindow: NSWindow?
-    private var localScrollMonitor: Any?
-    private var globalScrollMonitor: Any?
     private var localClickMonitor: Any?
     private let globalClickMonitor = GlobalClickMonitor()
     private var cancellables = Set<AnyCancellable>()
@@ -135,7 +133,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             lockScreenLiveActivityWindowManager.invalidate()
         }
         stopOutsideClickMonitoring()
-        stopDismissGestureMonitoring()
     }
     
     func createNotchWindow() {
@@ -168,21 +165,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             )
         )
         airDropViewModel.presentationView = hostingView
-
-        hostingView.activeNotchSizeProvider = { [weak self] in
-            guard let self else { return .zero }
-            return self.notchViewModel.notchModel.size
-        }
-
-        hostingView.isDismissGestureEnabled = { [weak self] in
-            guard let self else { return false }
-            return self.notchViewModel.notchModel.content != nil
-        }
-
-        hostingView.onTwoFingerSwipeUp = { [weak self] in
-            guard let self else { return }
-            self.notchViewModel.dismissActiveContent()
-        }
 
         window.contentView = hostingView
         SkyLightOperator.shared.delegateWindow(window)
@@ -388,20 +370,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         return CGRect(origin: origin, size: notchSize).insetBy(dx: -12, dy: -8)
     }
-
-    private func stopDismissGestureMonitoring() {
-        if let localScrollMonitor {
-            NSEvent.removeMonitor(localScrollMonitor)
-        }
-
-        if let globalScrollMonitor {
-            NSEvent.removeMonitor(globalScrollMonitor)
-        }
-
-        localScrollMonitor = nil
-        globalScrollMonitor = nil
-    }
-
     private func openSettingsWindowForUITests() {
         DispatchQueue.main.async {
             let hostingController = NSHostingController(
@@ -436,10 +404,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 }
 
 class NotchHostingView: NSHostingView<AnyView> {
-    var activeNotchSizeProvider: (() -> CGSize)?
-    var isDismissGestureEnabled: (() -> Bool)?
-    var onTwoFingerSwipeUp: (() -> Void)?
-
     required init(rootView: AnyView) {
         super.init(rootView: rootView)
     }
@@ -462,54 +426,5 @@ class NotchHostingView: NSHostingView<AnyView> {
 
     override func hitTest(_ point: NSPoint) -> NSView? {
         return super.hitTest(point)
-    }
-
-    func containsActiveNotch(atScreenLocation screenLocation: NSPoint) -> Bool {
-        guard let activeNotchScreenRect = currentActiveNotchScreenRect() else { return false }
-        return activeNotchScreenRect.contains(screenLocation)
-    }
-}
-
-private extension NotchHostingView {
-    func shouldTrackDismissGesture(for event: NSEvent) -> Bool {
-        guard event.hasPreciseScrollingDeltas else { return false }
-        guard event.momentumPhase.isEmpty else { return false }
-        guard isDismissGestureEnabled?() == true else { return false }
-        return true
-    }
-
-    func currentActiveNotchRect() -> CGRect? {
-        guard let notchSize = activeNotchSizeProvider?(),
-              notchSize.width > 0,
-              notchSize.height > 0 else {
-            return nil
-        }
-
-        let origin = CGPoint(
-            x: floor((bounds.width - notchSize.width) / 2),
-            y: bounds.height - notchSize.height
-        )
-
-        return CGRect(origin: origin, size: notchSize).insetBy(dx: -12, dy: -8)
-    }
-
-    func currentActiveNotchScreenRect() -> CGRect? {
-        guard let activeNotchRect = currentActiveNotchRect(),
-              let window else {
-            return nil
-        }
-
-        let rectInWindow = convert(activeNotchRect, to: nil)
-        return window.convertToScreen(rectInWindow)
-    }
-
-    func physicalVerticalDelta(from event: NSEvent) -> CGFloat {
-        let deltaY = CGFloat(event.scrollingDeltaY)
-        return event.isDirectionInvertedFromDevice ? -deltaY : deltaY
-    }
-
-    func physicalHorizontalDelta(from event: NSEvent) -> CGFloat {
-        let deltaX = CGFloat(event.scrollingDeltaX)
-        return event.isDirectionInvertedFromDevice ? -deltaX : deltaX
     }
 }

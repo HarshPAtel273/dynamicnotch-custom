@@ -12,7 +12,7 @@
   <img src="https://img.shields.io/badge/platform-macOS-111111?logo=apple" alt="macOS" />
   <img src="https://img.shields.io/badge/Swift-5-F05138?logo=swift&logoColor=white" alt="Swift 5" />
   <img src="https://img.shields.io/badge/UI-SwiftUI%20%2B%20AppKit-0A84FF" alt="SwiftUI and AppKit" />
-  <img src="https://img.shields.io/badge/license-MIT-2EA043" alt="MIT License" />
+  <img src="https://img.shields.io/badge/license-GPL--3.0-2EA043" alt="GNU GPL v3.0" />
 </p>
 
 <p align="center">
@@ -45,8 +45,10 @@ The project is implemented as a native macOS app with SwiftUI for presentation a
 
 - 🪟 Native floating notch window pinned to the top display area
 - 🎛️ Priority-driven live activity and temporary notification orchestration
+- 🎚️ Custom hardware HUD for brightness, volume, and keyboard backlight changes
 - 🎞️ Smooth animated transitions between notch states
 - 🔋 Battery, Bluetooth, network, focus, lock screen, now playing, onboarding, and AirDrop-related flows
+- 🔒 Optional lock and unlock sounds for lock screen transitions
 - ⚙️ Native Settings window with dedicated General, Live Activity, Temporary, and About tabs
 - 🧪 Integration tests for the most important service and queue logic
 
@@ -72,6 +74,7 @@ The project is implemented as a native macOS app with SwiftUI for presentation a
 - Other app surfaces
   - Lock screen media panel
   - First-launch onboarding inside the notch
+  - Custom notch HUD for brightness, keyboard backlight, and volume
 
 ### 🫳 Interactions
 
@@ -87,7 +90,7 @@ The project is implemented as a native macOS app with SwiftUI for presentation a
 - Display selection for main or built-in screen
 - Notch stroke visibility and stroke width
 - Notch width and height tuning
-- Per-feature toggles for live and temporary activity types
+- Per-feature toggles for live, temporary, and HUD activity types
 - Lock screen live activity and media panel toggles
 
 ## 🧱 Architecture
@@ -134,6 +137,7 @@ Core architectural roles:
 1. Download the latest release DMG from the [Releases](https://github.com/jackson-storm/DynamicNotch/releases) page.
 2. Open the DMG and drag `DynamicNotch` into Applications.
 3. Launch Dynamic Notch and grant the requested permissions.
+4. If macOS blocks the first launch, open `System Settings > Privacy & Security` and choose `Open Anyway`.
 
 ## 📋 Requirements
 
@@ -178,4 +182,4 @@ DynamicNotch already has a solid notch presentation core, gesture support, separ
 
 ## 📄 License
 
-DynamicNotch is released under the MIT License. See [LICENSE](LICENSE) for details.
+DynamicNotch is released under the GNU General Public License v3.0. See [LICENSE](LICENSE) for details.

@@ -137,6 +137,86 @@ final class NotchViewModelIntegrationTests: XCTestCase {
     }
 
     @MainActor
+    func testRestoreDismissedContentBringsBackLastLiveActivity() async {
+        let viewModel = NotchViewModel(
+            settings: TestNotchSettings(),
+            hideDelay: 0.01,
+            queueDelay: 0
+        )
+        TestLifetime.retain(viewModel)
+
+        viewModel.send(.showLiveActivity(TestNotchContent(id: "low", priority: 10)))
+        viewModel.send(.showLiveActivity(TestNotchContent(id: "high", priority: 50)))
+
+        await assertEventually {
+            await MainActor.run { viewModel.notchModel.liveActivityContent?.id == "high" }
+        }
+
+        viewModel.dismissActiveContent()
+
+        await assertEventually {
+            await MainActor.run {
+                viewModel.notchModel.liveActivityContent?.id == "low" &&
+                viewModel.canRestoreDismissedContent
+            }
+        }
+
+        viewModel.restoreDismissedContent()
+
+        await assertEventually {
+            await MainActor.run {
+                viewModel.notchModel.liveActivityContent?.id == "high" &&
+                viewModel.canRestoreDismissedContent == false
+            }
+        }
+    }
+
+    @MainActor
+    func testRestoreDismissedContentBringsBackLastTemporaryNotification() async {
+        let viewModel = NotchViewModel(
+            settings: TestNotchSettings(),
+            hideDelay: 0.01,
+            queueDelay: 0
+        )
+        TestLifetime.retain(viewModel)
+
+        viewModel.send(.showLiveActivity(TestNotchContent(id: "live", priority: 10)))
+        await assertEventually {
+            await MainActor.run { viewModel.notchModel.liveActivityContent?.id == "live" }
+        }
+
+        viewModel.send(
+            .showTemporaryNotification(
+                TestNotchContent(id: "temporary", priority: 0),
+                duration: .infinity
+            )
+        )
+
+        await assertEventually {
+            await MainActor.run { viewModel.notchModel.temporaryNotificationContent?.id == "temporary" }
+        }
+
+        viewModel.dismissActiveContent()
+
+        await assertEventually {
+            await MainActor.run {
+                viewModel.notchModel.temporaryNotificationContent == nil &&
+                viewModel.notchModel.liveActivityContent?.id == "live" &&
+                viewModel.canRestoreDismissedContent
+            }
+        }
+
+        viewModel.restoreDismissedContent()
+
+        await assertEventually {
+            await MainActor.run {
+                viewModel.notchModel.temporaryNotificationContent?.id == "temporary" &&
+                viewModel.canRestoreDismissedContent == false
+            }
+        }
+    }
+
+    @MainActor
     func testDuplicateTemporaryNotificationRestartsLifetimeInsteadOfUsingOldTimer() async {
         let viewModel = NotchViewModel(
             settings: TestNotchSettings(),

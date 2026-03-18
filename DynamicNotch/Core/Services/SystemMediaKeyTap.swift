@@ -64,6 +64,9 @@ final class SystemMediaKeyTap {
             updateTapState()
         }
     }
+    var isAccessibilityTrusted: Bool {
+        currentAccessibilityTrustState()
+    }
 
     private var eventTap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
@@ -241,6 +244,10 @@ final class SystemMediaKeyTap {
 
 #if canImport(ApplicationServices)
 private extension SystemMediaKeyTap {
+    func currentAccessibilityTrustState() -> Bool {
+        AXIsProcessTrusted()
+    }
+
     func requestAccessibilityPermissionIfNeeded() {
         guard !AXIsProcessTrusted(), !hasRequestedAccessibilityPrompt else {
             return
@@ -254,6 +261,7 @@ private extension SystemMediaKeyTap {
 }
 #else
 private extension SystemMediaKeyTap {
+    func currentAccessibilityTrustState() -> Bool { true }
     func requestAccessibilityPermissionIfNeeded() {}
 }
 #endif

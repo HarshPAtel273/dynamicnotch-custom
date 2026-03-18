@@ -47,9 +47,9 @@ struct AboutAppSettingsView: View {
                     RoundedRectangle(cornerRadius: 4)
                         .fill(.orange.opacity(0.4))
                         .stroke(.orange.opacity(0.6), lineWidth: 1)
-                        .frame(width: 75, height: 18)
+                        .frame(width: 45, height: 18)
                         .overlay(
-                            Text("v.1.0.0-beta4")
+                            Text("v.1.0.0")
                                 .font(.system(size: 11))
                         )
                         .padding(3)

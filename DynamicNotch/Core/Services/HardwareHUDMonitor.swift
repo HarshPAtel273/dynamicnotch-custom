@@ -8,6 +8,7 @@ final class HardwareHUDMonitor {
     private let mediaKeyTap: SystemMediaKeyTap
     private let audioService: SystemAudioVolumeService
     private let brightnessService: SystemDisplayBrightnessService
+    private var accessibilityRetryTimer: Timer?
 
     private(set) var isMonitoring = false
 
@@ -38,9 +39,16 @@ final class HardwareHUDMonitor {
 
         mediaKeyTap.delegate = self
         isMonitoring = mediaKeyTap.start()
+
+        if isMonitoring {
+            stopAccessibilityRetryTimer()
+        } else if mediaKeyTap.isAccessibilityTrusted == false {
+            scheduleAccessibilityRetry()
+        }
     }
 
     func stopMonitoring() {
+        stopAccessibilityRetryTimer()
         mediaKeyTap.stop()
         mediaKeyTap.delegate = nil
         isMonitoring = false
@@ -48,6 +56,44 @@ final class HardwareHUDMonitor {
 
     private func emit(_ event: HudEvent) {
         onEvent?(event)
+    }
+
+    private func scheduleAccessibilityRetry() {
+        guard accessibilityRetryTimer == nil else {
+            return
+        }
+
+        let timer = Timer(
+            timeInterval: 1,
+            repeats: true
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.retryStartMonitoringIfPossible()
+            }
+        }
+        accessibilityRetryTimer = timer
+        RunLoop.main.add(timer, forMode: .common)
+    }
+
+    private func stopAccessibilityRetryTimer() {
+        accessibilityRetryTimer?.invalidate()
+        accessibilityRetryTimer = nil
+    }
+
+    private func retryStartMonitoringIfPossible() {
+        guard !isMonitoring else {
+            stopAccessibilityRetryTimer()
+            return
+        }
+
+        guard mediaKeyTap.isAccessibilityTrusted else {
+            return
+        }
+
+        isMonitoring = mediaKeyTap.start()
+        if isMonitoring {
+            stopAccessibilityRetryTimer()
+        }
     }
 }
 

@@ -21,4 +21,14 @@ extension View {
             )
         )
     }
+
+    func customNotchSwipeDismissable(
+        notchViewModel: NotchViewModel
+    ) -> some View {
+        modifier(
+            NotchSwipeDismissModifier(
+                notchViewModel: notchViewModel
+            )
+        )
+    }
 }

@@ -348,7 +348,7 @@ private extension GeneralSettingsViewModel {
         Keys.notchWidth: 0,
         Keys.notchHeight: 0,
         Keys.menuBarIcon: true,
-        Keys.notchStrokeEnabled: false,
+        Keys.notchStrokeEnabled: true,
         Keys.notchStrokeWidth: 1.5,
         Keys.displayLocation: NotchDisplayLocation.main.rawValue,
         Keys.brightnessHUDEnabled: true,

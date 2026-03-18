@@ -51,7 +51,6 @@ struct NotchView: View {
                     return true
                 }
         }
-        .offset(y: 1)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 }
@@ -85,14 +84,18 @@ private extension NotchView {
         .overlay {
             contentOverlay
         }
+        .frame(
+            width: notchViewModel.notchModel.size.width,
+            height: notchViewModel.notchModel.size.height
+        )
+        .offset(y: 1)
         .customNotchPressable(
             notchViewModel: notchViewModel,
             isPressed: $notchViewModel.isPressed,
             baseSize: notchViewModel.notchModel.size
         )
-        .frame(
-            width: notchViewModel.notchModel.size.width,
-            height: notchViewModel.notchModel.size.height
+        .customNotchSwipeDismissable(
+            notchViewModel: notchViewModel
         )
         .contextMenu {
             if !generalSettingsViewModel.isMenuBarIconVisible {

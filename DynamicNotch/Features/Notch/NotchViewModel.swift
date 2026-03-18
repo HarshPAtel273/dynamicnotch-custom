@@ -12,6 +12,11 @@ typealias NotchScreenMetrics = (width: CGFloat, topInset: CGFloat)
 /// External events → send() → eventQueue → executeState() → NotchModel → SwiftUI UI
 @MainActor
 final class NotchViewModel: ObservableObject {
+    private enum RestorableDismissedContent {
+        case live(NotchContentProtocol)
+        case temporary(NotchContentProtocol, duration: TimeInterval)
+    }
+
     /// Single source of truth for the current notch UI state
     @Published private(set) var notchModel = NotchModel()
     
@@ -45,6 +50,12 @@ final class NotchViewModel: ObservableObject {
     
     /// Suspended activity while temporary notification is visible
     private var suspendedActivity: NotchContentProtocol? = nil
+
+    /// Last content dismissed manually with a gesture.
+    private var lastDismissedContent: RestorableDismissedContent?
+
+    /// Cached duration of the current temporary notification.
+    private var currentTemporaryNotificationDuration: TimeInterval?
     
     /// Animation delay used between hide/show phases
     private var hideDelay: TimeInterval = 0.3
@@ -68,6 +79,10 @@ final class NotchViewModel: ObservableObject {
         return !notchModel.isLiveActivityExpanded &&
         liveActivityContent.isExpandable &&
         liveActivityContent.expandsOnTap
+    }
+
+    var canRestoreDismissedContent: Bool {
+        lastDismissedContent != nil
     }
     
     
@@ -124,6 +139,7 @@ final class NotchViewModel: ObservableObject {
             /// update its content and restart the timer instead of creating
             /// a new transition.
             if notchModel.temporaryNotificationContent?.id == content.id {
+                currentTemporaryNotificationDuration = duration
                 
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                     self.notchModel.temporaryNotificationContent = content
@@ -325,6 +341,7 @@ final class NotchViewModel: ObservableObject {
                     withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                         self.notchModel.temporaryNotificationContent = content
                     }
+                    self.currentTemporaryNotificationDuration = duration
                     
                     if !duration.isInfinite {
                         self.restartTemporaryTimer(duration: duration)
@@ -351,6 +368,7 @@ final class NotchViewModel: ObservableObject {
                         self.notchModel.temporaryNotificationContent = nil
                         self.notchModel.liveActivityContent = nil
                         self.suspendedActivity = nil
+                        self.currentTemporaryNotificationDuration = nil
                     }
                 },
                 show: {
@@ -388,6 +406,7 @@ final class NotchViewModel: ObservableObject {
                 
                 withAnimation(.spring(response: 0.5)) {
                     self.notchModel.temporaryNotificationContent = nil
+                    self.currentTemporaryNotificationDuration = nil
                 }
             },
             show: {
@@ -405,13 +424,33 @@ final class NotchViewModel: ObservableObject {
     /// Temporary notifications collapse first; live activities are removed from the stack.
     func dismissActiveContent() {
         
-        if notchModel.temporaryNotificationContent != nil {
+        if let temporaryContent = notchModel.temporaryNotificationContent {
+            lastDismissedContent = .temporary(
+                temporaryContent,
+                duration: currentTemporaryNotificationDuration ?? .infinity
+            )
             hideTemporaryNotification()
             return
         }
         
-        guard let liveActivityID = notchModel.liveActivityContent?.id else { return }
+        guard let liveActivityContent = notchModel.liveActivityContent else { return }
+        lastDismissedContent = .live(liveActivityContent)
+        let liveActivityID = liveActivityContent.id
         send(.hideLiveActivity(id: liveActivityID))
+    }
+
+    func restoreDismissedContent() {
+        guard let lastDismissedContent else { return }
+
+        self.lastDismissedContent = nil
+
+        switch lastDismissedContent {
+        case .live(let content):
+            send(.showLiveActivity(content))
+
+        case .temporary(let content, let duration):
+            send(.showTemporaryNotification(content, duration: duration))
+        }
     }
     
     
