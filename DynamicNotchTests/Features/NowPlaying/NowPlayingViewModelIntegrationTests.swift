@@ -72,4 +72,49 @@ final class NowPlayingViewModelIntegrationTests: XCTestCase {
         XCTAssertEqual(viewModel.snapshot?.duration, 243)
         XCTAssertEqual(viewModel.snapshot?.playbackRate, 1)
     }
+
+    func testPausedPlaybackHidesAfterDelay() async {
+        let service = FakeNowPlayingService()
+        let viewModel = NowPlayingViewModel(
+            service: service,
+            pauseHideDelay: 0.05
+        )
+        TestLifetime.retain(viewModel)
+        viewModel.startMonitoring()
+
+        service.publish(makeNowPlayingSnapshot(playbackRate: 1))
+        XCTAssertEqual(viewModel.event, .started)
+        XCTAssertTrue(viewModel.hasActiveSession)
+
+        service.publish(makeNowPlayingSnapshot(playbackRate: 0))
+
+        try? await Task.sleep(nanoseconds: 20_000_000)
+        XCTAssertTrue(viewModel.hasActiveSession)
+
+        try? await Task.sleep(nanoseconds: 60_000_000)
+        XCTAssertEqual(viewModel.event, .stopped)
+        XCTAssertFalse(viewModel.hasActiveSession)
+    }
+
+    func testResumingPlaybackBeforeDelayCancelsHide() async {
+        let service = FakeNowPlayingService()
+        let viewModel = NowPlayingViewModel(
+            service: service,
+            pauseHideDelay: 0.05
+        )
+        TestLifetime.retain(viewModel)
+        viewModel.startMonitoring()
+
+        service.publish(makeNowPlayingSnapshot(playbackRate: 1))
+        XCTAssertEqual(viewModel.event, .started)
+
+        service.publish(makeNowPlayingSnapshot(playbackRate: 0))
+        try? await Task.sleep(nanoseconds: 20_000_000)
+
+        service.publish(makeNowPlayingSnapshot(playbackRate: 1))
+        try? await Task.sleep(nanoseconds: 60_000_000)
+
+        XCTAssertTrue(viewModel.hasActiveSession)
+        XCTAssertEqual(viewModel.event, .started)
+    }
 }

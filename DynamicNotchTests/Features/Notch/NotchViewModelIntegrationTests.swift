@@ -217,6 +217,30 @@ final class NotchViewModelIntegrationTests: XCTestCase {
     }
 
     @MainActor
+    func testDownwardSwipeStretchChangesInteractiveSizeAndResets() async {
+        let viewModel = NotchViewModel(
+            settings: TestNotchSettings(),
+            hideDelay: 0.01,
+            queueDelay: 0
+        )
+        TestLifetime.retain(viewModel)
+
+        let initialSize = viewModel.interactiveNotchSize
+
+        viewModel.updateDownwardSwipeStretch(progress: 0.75)
+
+        let stretchedSize = viewModel.interactiveNotchSize
+        XCTAssertGreaterThan(stretchedSize.width, initialSize.width)
+        XCTAssertGreaterThan(stretchedSize.height, initialSize.height)
+
+        viewModel.resetDownwardSwipeStretch()
+
+        let resetSize = viewModel.interactiveNotchSize
+        XCTAssertEqual(resetSize.width, initialSize.width, accuracy: 0.001)
+        XCTAssertEqual(resetSize.height, initialSize.height, accuracy: 0.001)
+    }
+
+    @MainActor
     func testDuplicateTemporaryNotificationRestartsLifetimeInsteadOfUsingOldTimer() async {
         let viewModel = NotchViewModel(
             settings: TestNotchSettings(),

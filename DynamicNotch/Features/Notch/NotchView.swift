@@ -72,8 +72,8 @@ private extension NotchView {
     @ViewBuilder
     var notchBody: some View {
         NotchShape(
-            topCornerRadius: notchViewModel.notchModel.cornerRadius.top,
-            bottomCornerRadius: notchViewModel.notchModel.cornerRadius.bottom
+            topCornerRadius: notchViewModel.interactiveCornerRadius.top,
+            bottomCornerRadius: notchViewModel.interactiveCornerRadius.bottom
         )
         .fill(.black)
         .stroke(
@@ -85,14 +85,14 @@ private extension NotchView {
             contentOverlay
         }
         .frame(
-            width: notchViewModel.notchModel.size.width,
-            height: notchViewModel.notchModel.size.height
+            width: notchViewModel.interactiveNotchSize.width,
+            height: notchViewModel.interactiveNotchSize.height
         )
         .offset(y: 1)
         .customNotchPressable(
             notchViewModel: notchViewModel,
             isPressed: $notchViewModel.isPressed,
-            baseSize: notchViewModel.notchModel.size
+            baseSize: notchViewModel.interactiveNotchSize
         )
         .customNotchSwipeDismissable(
             notchViewModel: notchViewModel

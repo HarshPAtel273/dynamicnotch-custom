@@ -4,6 +4,11 @@ import AppKit
 
 typealias NotchScreenMetrics = (width: CGFloat, topInset: CGFloat)
 
+private enum RestorableDismissedContent {
+    case live(NotchContentProtocol)
+    case temporary(NotchContentProtocol, duration: TimeInterval)
+}
+
 /// ViewModel controlling the Dynamic Notch state machine.
 /// Handles event queueing, priority resolution, temporary notifications
 /// and animated transitions between different notch contents.
@@ -12,11 +17,6 @@ typealias NotchScreenMetrics = (width: CGFloat, topInset: CGFloat)
 /// External events → send() → eventQueue → executeState() → NotchModel → SwiftUI UI
 @MainActor
 final class NotchViewModel: ObservableObject {
-    private enum RestorableDismissedContent {
-        case live(NotchContentProtocol)
-        case temporary(NotchContentProtocol, duration: TimeInterval)
-    }
-
     /// Single source of truth for the current notch UI state
     @Published private(set) var notchModel = NotchModel()
     
@@ -26,6 +26,7 @@ final class NotchViewModel: ObservableObject {
     /// UI interaction state
     @Published var showNotch = false
     @Published var isPressed = false
+    @Published private(set) var downwardSwipeStretchProgress: CGFloat = 0
     
     /// Cached stroke color used when notch content changes
     @Published var cachedStrokeColor: Color = .clear
@@ -83,6 +84,26 @@ final class NotchViewModel: ObservableObject {
 
     var canRestoreDismissedContent: Bool {
         lastDismissedContent != nil
+    }
+
+    var interactiveNotchSize: CGSize {
+        let baseSize = notchModel.size
+        let progress = easedDownwardSwipeStretchProgress
+
+        return CGSize(
+            width: baseSize.width,
+            height: baseSize.height + (10 * progress)
+        )
+    }
+
+    var interactiveCornerRadius: (top: CGFloat, bottom: CGFloat) {
+        let baseCornerRadius = notchModel.cornerRadius
+        let progress = easedDownwardSwipeStretchProgress
+
+        return (
+            top: baseCornerRadius.top,
+            bottom: baseCornerRadius.bottom + (4 * progress)
+        )
     }
     
     
@@ -452,6 +473,18 @@ final class NotchViewModel: ObservableObject {
             send(.showTemporaryNotification(content, duration: duration))
         }
     }
+
+    func updateDownwardSwipeStretch(progress: CGFloat) {
+        downwardSwipeStretchProgress = min(max(progress, 0), 1)
+    }
+
+    func resetDownwardSwipeStretch() {
+        guard downwardSwipeStretchProgress > 0 else { return }
+
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.4)) {
+            downwardSwipeStretchProgress = 0
+        }
+    }
     
     
     /// Expands the active live activity if the content provides an expanded presentation.
@@ -559,5 +592,9 @@ final class NotchViewModel: ObservableObject {
                 self.showNotch = false
             }
         }
+    }
+
+    private var easedDownwardSwipeStretchProgress: CGFloat {
+        1 - pow(1 - downwardSwipeStretchProgress, 2)
     }
 }

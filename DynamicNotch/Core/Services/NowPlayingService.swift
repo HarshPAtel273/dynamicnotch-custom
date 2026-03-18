@@ -62,6 +62,81 @@ struct NowPlayingSnapshot: Equatable {
     }
 }
 
+struct NowPlayingPlaybackStateResolver {
+    private struct Observation {
+        let identity: MediaIdentity
+        let elapsedTime: TimeInterval
+        let playbackRate: Double
+        let observedAt: Date
+
+        init(snapshot: NowPlayingSnapshot) {
+            self.identity = MediaIdentity(snapshot: snapshot)
+            self.elapsedTime = snapshot.elapsedTime
+            self.playbackRate = snapshot.playbackRate
+            self.observedAt = snapshot.refreshedAt
+        }
+    }
+
+    private struct MediaIdentity: Equatable {
+        let title: String
+        let artist: String
+        let album: String
+        let duration: TimeInterval
+        let artworkData: Data?
+
+        init(snapshot: NowPlayingSnapshot) {
+            self.title = snapshot.title
+            self.artist = snapshot.artist
+            self.album = snapshot.album
+            self.duration = snapshot.duration
+            self.artworkData = snapshot.artworkData
+        }
+    }
+
+    private let stagnantElapsedTolerance: TimeInterval
+    private let stagnantObservationDelay: TimeInterval
+    private var lastObservation: Observation?
+
+    init(
+        stagnantElapsedTolerance: TimeInterval = 0.05,
+        stagnantObservationDelay: TimeInterval = 1.1
+    ) {
+        self.stagnantElapsedTolerance = stagnantElapsedTolerance
+        self.stagnantObservationDelay = stagnantObservationDelay
+    }
+
+    mutating func resolve(_ rawSnapshot: NowPlayingSnapshot?) -> NowPlayingSnapshot? {
+        defer { updateObservation(with: rawSnapshot) }
+
+        guard let rawSnapshot else {
+            return nil
+        }
+
+        guard shouldTreatAsPaused(rawSnapshot) else {
+            return rawSnapshot
+        }
+
+        return rawSnapshot.settingPlaybackRate(0)
+    }
+
+    private mutating func updateObservation(with rawSnapshot: NowPlayingSnapshot?) {
+        lastObservation = rawSnapshot.map(Observation.init)
+    }
+
+    private func shouldTreatAsPaused(_ rawSnapshot: NowPlayingSnapshot) -> Bool {
+        guard rawSnapshot.playbackRate > 0.001 else { return false }
+        guard let lastObservation else { return false }
+        guard lastObservation.playbackRate > 0.001 else { return false }
+        guard lastObservation.identity == MediaIdentity(snapshot: rawSnapshot) else { return false }
+        guard rawSnapshot.refreshedAt.timeIntervalSince(lastObservation.observedAt) >=
+                stagnantObservationDelay else {
+            return false
+        }
+        guard max(rawSnapshot.elapsedTime, lastObservation.elapsedTime) > 0 else { return false }
+        return abs(rawSnapshot.elapsedTime - lastObservation.elapsedTime) <= stagnantElapsedTolerance
+    }
+}
+
 protocol NowPlayingMonitoring: AnyObject {
     var onSnapshotChange: ((NowPlayingSnapshot?) -> Void)? { get set }
 
@@ -114,6 +189,7 @@ final class MediaRemoteNowPlayingService: NowPlayingMonitoring {
     private var errorPipe: Pipe?
     private var outputBuffer = ""
     private var lastSnapshot: NowPlayingSnapshot?
+    private var playbackStateResolver = NowPlayingPlaybackStateResolver()
     private var isMonitoring = false
     private var restartWorkItem: DispatchWorkItem?
 
@@ -307,10 +383,10 @@ private extension MediaRemoteNowPlayingService {
 
     private func makeSnapshot(from helperSnapshot: HelperSnapshot) -> NowPlayingSnapshot? {
         guard helperSnapshot.active else {
-            return nil
+            return playbackStateResolver.resolve(nil)
         }
 
-        let snapshot = NowPlayingSnapshot(
+        let rawSnapshot = NowPlayingSnapshot(
             title: helperSnapshot.title ?? "",
             artist: helperSnapshot.artist ?? "",
             album: helperSnapshot.album ?? "",
@@ -321,7 +397,11 @@ private extension MediaRemoteNowPlayingService {
             refreshedAt: .now
         )
 
-        return snapshot.hasVisibleMetadata ? snapshot : nil
+        guard rawSnapshot.hasVisibleMetadata else {
+            return playbackStateResolver.resolve(nil)
+        }
+
+        return playbackStateResolver.resolve(rawSnapshot)
     }
 
     private func decodeArtworkData(_ base64String: String?) -> Data? {
@@ -337,6 +417,21 @@ private extension MediaRemoteNowPlayingService {
 private extension String {
     var trimmed: String {
         trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}
+
+private extension NowPlayingSnapshot {
+    func settingPlaybackRate(_ newPlaybackRate: Double) -> Self {
+        Self(
+            title: title,
+            artist: artist,
+            album: album,
+            duration: duration,
+            elapsedTime: elapsedTime,
+            playbackRate: newPlaybackRate,
+            artworkData: artworkData,
+            refreshedAt: refreshedAt
+        )
     }
 }
 

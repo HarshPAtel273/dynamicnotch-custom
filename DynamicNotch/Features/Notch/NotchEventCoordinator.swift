@@ -19,6 +19,7 @@ final class NotchEventCoordinator: ObservableObject {
     private let nowPlayingViewModel: NowPlayingViewModel
     private let lockScreenManager: LockScreenManager
     private var cancellables = Set<AnyCancellable>()
+    private var deferredNowPlayingHideWhileExpanded = false
     
     private var isOnboardingActive: Bool {
         notchViewModel.notchModel.liveActivityContent?.id == "onboarding" ||
@@ -36,6 +37,11 @@ final class NotchEventCoordinator: ObservableObject {
     private var isLockScreenTransitionActive: Bool {
         lockScreenManager.isTransitioning ||
         notchViewModel.notchModel.liveActivityContent?.id == "lockScreen"
+    }
+
+    private var isExpandedNowPlayingVisible: Bool {
+        notchViewModel.notchModel.liveActivityContent?.id == "nowPlaying" &&
+        notchViewModel.notchModel.isLiveActivityExpanded
     }
     
     init (
@@ -229,10 +235,17 @@ final class NotchEventCoordinator: ObservableObject {
         
         switch event {
         case .started:
+            deferredNowPlayingHideWhileExpanded = false
             guard generalSettingsViewModel.isLiveActivityEnabled(.nowPlaying) else { return }
             notchViewModel.send(.showLiveActivity(NowPlayingNotchContent(nowPlayingViewModel: nowPlayingViewModel)))
             
         case .stopped:
+            if isExpandedNowPlayingVisible {
+                deferredNowPlayingHideWhileExpanded = true
+                return
+            }
+
+            deferredNowPlayingHideWhileExpanded = false
             notchViewModel.send(.hideLiveActivity(id: "nowPlaying"))
         }
     }
@@ -297,8 +310,26 @@ final class NotchEventCoordinator: ObservableObject {
                         self.handleNowPlayingEvent(.started)
                     }
                 } else {
+                    self.deferredNowPlayingHideWhileExpanded = false
                     self.notchViewModel.send(.hideLiveActivity(id: "nowPlaying"))
                 }
+            }
+            .store(in: &cancellables)
+
+        notchViewModel.$notchModel
+            .map(\.isLiveActivityExpanded)
+            .removeDuplicates()
+            .sink { [weak self] isExpanded in
+                guard let self else { return }
+                guard self.deferredNowPlayingHideWhileExpanded else { return }
+                guard !isExpanded else { return }
+                guard self.nowPlayingViewModel.hasActiveSession == false else {
+                    self.deferredNowPlayingHideWhileExpanded = false
+                    return
+                }
+
+                self.deferredNowPlayingHideWhileExpanded = false
+                self.notchViewModel.send(.hideLiveActivity(id: "nowPlaying"))
             }
             .store(in: &cancellables)
 

@@ -173,6 +173,48 @@ final class NotchEventCoordinatorIntegrationTests: XCTestCase {
         }
     }
 
+    func testExpandedNowPlayingDoesNotHideUntilCollapsedAfterPauseDelay() async {
+        let context = makeContext(nowPlayingPauseHideDelay: 0.05)
+
+        context.nowPlayingService.publish(makeNowPlayingSnapshot(playbackRate: 1))
+        context.coordinator.handleNowPlayingEvent(context.nowPlayingViewModel.event ?? .started)
+
+        await assertEventually {
+            await MainActor.run { context.notchViewModel.notchModel.liveActivityContent?.id == "nowPlaying" }
+        }
+
+        await MainActor.run {
+            context.notchViewModel.handleActiveContentTap()
+        }
+
+        await assertEventually {
+            await MainActor.run { context.notchViewModel.notchModel.isLiveActivityExpanded }
+        }
+
+        context.nowPlayingService.publish(makeNowPlayingSnapshot(playbackRate: 0))
+        try? await Task.sleep(nanoseconds: 80_000_000)
+
+        await MainActor.run {
+            context.coordinator.handleNowPlayingEvent(context.nowPlayingViewModel.event ?? .stopped)
+        }
+
+        try? await Task.sleep(nanoseconds: 50_000_000)
+
+        let stillVisibleWhileExpanded = await MainActor.run {
+            context.notchViewModel.notchModel.liveActivityContent?.id == "nowPlaying" &&
+            context.notchViewModel.notchModel.isLiveActivityExpanded
+        }
+        XCTAssertTrue(stillVisibleWhileExpanded)
+
+        await MainActor.run {
+            context.notchViewModel.handleOutsideClick()
+        }
+
+        await assertEventually(timeout: 0.5) {
+            await MainActor.run { context.notchViewModel.notchModel.content == nil }
+        }
+    }
+
     func testLockScreenEventsShowAndHideLockLiveActivity() async {
         let context = makeContext()
 
@@ -266,7 +308,8 @@ private extension NotchEventCoordinatorIntegrationTests {
     func makeContext(
         brightnessHUDEnabled: Bool = true,
         keyboardHUDEnabled: Bool = true,
-        volumeHUDEnabled: Bool = true
+        volumeHUDEnabled: Bool = true,
+        nowPlayingPauseHideDelay: TimeInterval = 4
     ) -> TestContext {
         UserDefaults.standard.set(false, forKey: "isLaunchAtLoginEnabled")
         UserDefaults.standard.set(0, forKey: "notchWidth")
@@ -299,7 +342,10 @@ private extension NotchEventCoordinatorIntegrationTests {
         let airDropViewModel = AirDropNotchViewModel()
         let nowPlayingService = FakeNowPlayingService()
         let lockScreenService = FakeLockScreenMonitoringService()
-        let nowPlayingViewModel = NowPlayingViewModel(service: nowPlayingService)
+        let nowPlayingViewModel = NowPlayingViewModel(
+            service: nowPlayingService,
+            pauseHideDelay: nowPlayingPauseHideDelay
+        )
         let lockScreenManager = LockScreenManager(
             service: lockScreenService,
             unlockCollapseDelay: 0.05,
