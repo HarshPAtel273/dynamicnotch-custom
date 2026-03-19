@@ -20,8 +20,6 @@ private struct HelperSnapshot: Codable, Equatable {
 private final class MediaRemoteHelper {
     private let fallbackPollInterval = DispatchTimeInterval.milliseconds(250)
     private let resyncInterval = DispatchTimeInterval.seconds(1)
-    private let stagnantPlaybackEmissionDelay: TimeInterval = 1.2
-    private let stagnantElapsedTolerance: Double = 0.05
 
     private enum NotificationName {
         static let nowPlayingInfoDidChange =
@@ -239,15 +237,9 @@ private final class MediaRemoteHelper {
         }
 
         if (snapshot.playbackRate ?? 0) > 0.001,
-            let lastEmissionDate {
-            if elapsedDelta <= stagnantElapsedTolerance,
-                now.timeIntervalSince(lastEmissionDate) >= stagnantPlaybackEmissionDelay {
-                return true
-            }
-
-            if now.timeIntervalSince(lastEmissionDate) >= 5 {
-                return true
-            }
+            let lastEmissionDate,
+            now.timeIntervalSince(lastEmissionDate) >= 5 {
+            return true
         }
 
         return false

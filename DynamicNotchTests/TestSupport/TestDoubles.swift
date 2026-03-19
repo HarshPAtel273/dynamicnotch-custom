@@ -181,8 +181,7 @@ func makeNowPlayingSnapshot(
     duration: TimeInterval = 243,
     elapsedTime: TimeInterval = 32,
     playbackRate: Double = 1,
-    artworkData: Data? = nil,
-    refreshedAt: Date = .now
+    artworkData: Data? = nil
 ) -> NowPlayingSnapshot {
     NowPlayingSnapshot(
         title: title,
@@ -192,6 +191,6 @@ func makeNowPlayingSnapshot(
         elapsedTime: elapsedTime,
         playbackRate: playbackRate,
         artworkData: artworkData,
-        refreshedAt: refreshedAt
+        refreshedAt: .now
     )
 }

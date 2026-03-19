@@ -1,4 +1,5 @@
 import XCTest
+import AppKit
 @testable import DynamicNotch
 
 @MainActor
@@ -73,48 +74,73 @@ final class NowPlayingViewModelIntegrationTests: XCTestCase {
         XCTAssertEqual(viewModel.snapshot?.playbackRate, 1)
     }
 
-    func testPausedPlaybackHidesAfterDelay() async {
+    func testArtworkPaletteUpdatesFromArtworkData() {
         let service = FakeNowPlayingService()
-        let viewModel = NowPlayingViewModel(
-            service: service,
-            pauseHideDelay: 0.05
-        )
+        let viewModel = NowPlayingViewModel(service: service)
         TestLifetime.retain(viewModel)
         viewModel.startMonitoring()
 
-        service.publish(makeNowPlayingSnapshot(playbackRate: 1))
-        XCTAssertEqual(viewModel.event, .started)
-        XCTAssertTrue(viewModel.hasActiveSession)
+        service.publish(
+            makeNowPlayingSnapshot(
+                artworkData: makeArtworkData(color: NSColor(calibratedRed: 0.98, green: 0.49, blue: 0.12, alpha: 1))
+            )
+        )
 
-        service.publish(makeNowPlayingSnapshot(playbackRate: 0))
-
-        try? await Task.sleep(nanoseconds: 20_000_000)
-        XCTAssertTrue(viewModel.hasActiveSession)
-
-        try? await Task.sleep(nanoseconds: 60_000_000)
-        XCTAssertEqual(viewModel.event, .stopped)
-        XCTAssertFalse(viewModel.hasActiveSession)
+        let components = rgbaComponents(from: viewModel.artworkPalette.equalizerBaseColor)
+        XCTAssertGreaterThan(components.red, components.green)
+        XCTAssertGreaterThan(components.green, components.blue)
+        XCTAssertNotEqual(viewModel.artworkPalette, .fallback)
     }
 
-    func testResumingPlaybackBeforeDelayCancelsHide() async {
+    func testArtworkPaletteFallsBackWhenArtworkDisappears() {
         let service = FakeNowPlayingService()
-        let viewModel = NowPlayingViewModel(
-            service: service,
-            pauseHideDelay: 0.05
-        )
+        let viewModel = NowPlayingViewModel(service: service)
         TestLifetime.retain(viewModel)
         viewModel.startMonitoring()
 
-        service.publish(makeNowPlayingSnapshot(playbackRate: 1))
-        XCTAssertEqual(viewModel.event, .started)
+        service.publish(makeNowPlayingSnapshot(artworkData: makeArtworkData(color: .systemBlue)))
+        XCTAssertNotEqual(viewModel.artworkPalette, .fallback)
 
-        service.publish(makeNowPlayingSnapshot(playbackRate: 0))
-        try? await Task.sleep(nanoseconds: 20_000_000)
+        service.publish(makeNowPlayingSnapshot(artworkData: nil))
 
-        service.publish(makeNowPlayingSnapshot(playbackRate: 1))
-        try? await Task.sleep(nanoseconds: 60_000_000)
-
-        XCTAssertTrue(viewModel.hasActiveSession)
-        XCTAssertEqual(viewModel.event, .started)
+        XCTAssertEqual(viewModel.artworkPalette, .fallback)
     }
+}
+
+private func makeArtworkData(
+    color: NSColor,
+    size: CGSize = CGSize(width: 20, height: 20)
+) -> Data {
+    let width = Int(size.width)
+    let height = Int(size.height)
+    let rep = NSBitmapImageRep(
+        bitmapDataPlanes: nil,
+        pixelsWide: width,
+        pixelsHigh: height,
+        bitsPerSample: 8,
+        samplesPerPixel: 4,
+        hasAlpha: true,
+        isPlanar: false,
+        colorSpaceName: .deviceRGB,
+        bytesPerRow: 0,
+        bitsPerPixel: 0
+    )!
+
+    NSGraphicsContext.saveGraphicsState()
+    NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
+    color.setFill()
+    NSBezierPath(rect: NSRect(origin: .zero, size: size)).fill()
+    NSGraphicsContext.restoreGraphicsState()
+
+    return rep.representation(using: .png, properties: [:])!
+}
+
+private func rgbaComponents(from color: NSColor) -> (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
+    let resolvedColor = color.usingColorSpace(.sRGB) ?? color
+    return (
+        resolvedColor.redComponent,
+        resolvedColor.greenComponent,
+        resolvedColor.blueComponent,
+        resolvedColor.alphaComponent
+    )
 }

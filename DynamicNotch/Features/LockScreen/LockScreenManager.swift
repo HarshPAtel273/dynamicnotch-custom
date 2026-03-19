@@ -5,6 +5,7 @@ import Combine
 enum LockScreenSettings {
     static let liveActivityKey = "isLockScreenLiveActivityEnabled"
     static let mediaPanelKey = "isLockScreenMediaPanelEnabled"
+    static let soundKey = "isLockScreenSoundEnabled"
 
     static func isLiveActivityEnabled(in defaults: UserDefaults = .standard) -> Bool {
         resolvedBoolean(forKey: liveActivityKey, defaultValue: true, in: defaults)
@@ -13,16 +14,15 @@ enum LockScreenSettings {
     static func isMediaPanelEnabled(in defaults: UserDefaults = .standard) -> Bool {
         resolvedBoolean(forKey: mediaPanelKey, defaultValue: true, in: defaults)
     }
+    
+    static func isSoundEnabled(in defaults: UserDefaults = .standard) -> Bool {
+        resolvedBoolean(forKey: soundKey, defaultValue: true, in: defaults)
+    }
 
-    private static func resolvedBoolean(
-        forKey key: String,
-        defaultValue: Bool,
-        in defaults: UserDefaults
-    ) -> Bool {
+    private static func resolvedBoolean(forKey key: String, defaultValue: Bool, in defaults: UserDefaults) -> Bool {
         guard defaults.object(forKey: key) != nil else {
             return defaultValue
         }
-
         return defaults.bool(forKey: key)
     }
 }
@@ -84,6 +84,7 @@ final class LockScreenManager: ObservableObject {
 
     private let service: any LockScreenMonitoring
     private let soundPlayer: any LockScreenSoundPlaying
+    private let defaults: UserDefaults
     private let unlockCollapseDelay: TimeInterval
     private let idleResetDelay: TimeInterval
 
@@ -93,11 +94,13 @@ final class LockScreenManager: ObservableObject {
     init(
         service: (any LockScreenMonitoring)? = nil,
         soundPlayer: (any LockScreenSoundPlaying)? = nil,
+        defaults: UserDefaults = .standard,
         unlockCollapseDelay: TimeInterval = 0.82,
         idleResetDelay: TimeInterval = 0.82
     ) {
         self.service = service ?? DistributedLockScreenMonitoringService()
         self.soundPlayer = soundPlayer ?? LockScreenSoundPlayer()
+        self.defaults = defaults
         self.unlockCollapseDelay = unlockCollapseDelay
         self.idleResetDelay = idleResetDelay
 
@@ -134,14 +137,18 @@ final class LockScreenManager: ObservableObject {
         unlockWorkItem = nil
 
         if locked {
-            soundPlayer.playLock()
+            if LockScreenSettings.isSoundEnabled(in: defaults) {
+                soundPlayer.playLock()
+            }
             isLocked = true
             isLockIdle = false
             event = .started
             return
         }
 
-        soundPlayer.playUnlock()
+        if LockScreenSettings.isSoundEnabled(in: defaults) {
+            soundPlayer.playUnlock()
+        }
         isLocked = false
         isLockIdle = false
 

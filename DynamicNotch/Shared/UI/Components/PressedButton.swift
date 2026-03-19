@@ -13,7 +13,7 @@ struct PressedButtonStyle: ButtonStyle {
     var cornerRadius: CGFloat = 30
     var fontSize: CGFloat = 15
     var foreground: Color = .primary
-    var hoverBackground: Color = Color.secondary.opacity(0.2)
+    var hoverBackground: Color = .white.opacity(0.1)
 
     func makeBody(configuration: Configuration) -> some View {
         CustomButtonBody(

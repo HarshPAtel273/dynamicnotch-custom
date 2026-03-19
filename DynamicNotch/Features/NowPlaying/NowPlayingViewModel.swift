@@ -6,25 +6,22 @@ import SwiftUI
 final class NowPlayingViewModel: ObservableObject {
     @Published private(set) var snapshot: NowPlayingSnapshot?
     @Published private(set) var artworkImage: NSImage?
+    @Published private(set) var artworkPalette = NowPlayingArtworkPalette.fallback
     @Published var event: NowPlayingEvent?
 
     private var service: any NowPlayingMonitoring
-    private let pauseHideDelay: TimeInterval
     private var hasStartedMonitoring = false
-    private var pauseHideTask: Task<Void, Never>?
-    private var isNowPlayingVisible = false
 
     var hasActiveSession: Bool {
-        isNowPlayingVisible
+        snapshot != nil
     }
 
     convenience init() {
         self.init(service: MediaRemoteNowPlayingService())
     }
 
-    init(service: any NowPlayingMonitoring, pauseHideDelay: TimeInterval = 6) {
+    init(service: any NowPlayingMonitoring) {
         self.service = service
-        self.pauseHideDelay = pauseHideDelay
         self.service.onSnapshotChange = { [weak self] snapshot in
             guard let self else { return }
 
@@ -77,66 +74,23 @@ final class NowPlayingViewModel: ObservableObject {
 
 private extension NowPlayingViewModel {
     func apply(snapshot newSnapshot: NowPlayingSnapshot?) {
-        let wasVisible = isNowPlayingVisible
+        let wasActive = snapshot != nil
         let artworkDidChange = snapshot?.artworkData != newSnapshot?.artworkData
 
         snapshot = newSnapshot
 
         if artworkDidChange {
             artworkImage = newSnapshot?.artworkData.flatMap(NSImage.init(data:))
+            artworkPalette = NowPlayingArtworkPaletteExtractor.extract(from: newSnapshot?.artworkData)
         }
 
-        guard let newSnapshot else {
-            cancelPauseHide()
+        let isActive = newSnapshot != nil
 
-            if wasVisible {
-                isNowPlayingVisible = false
-                event = .stopped
-            }
-            return
+        if !wasActive && isActive {
+            event = .started
+        } else if wasActive && !isActive {
+            event = .stopped
         }
-
-        if newSnapshot.isPlaying {
-            cancelPauseHide()
-
-            if !wasVisible {
-                isNowPlayingVisible = true
-                event = .started
-            } else {
-                isNowPlayingVisible = true
-            }
-            return
-        }
-
-        if wasVisible {
-            schedulePauseHide()
-        }
-    }
-
-    func schedulePauseHide() {
-        cancelPauseHide()
-
-        pauseHideTask = Task { [weak self] in
-            guard let self else { return }
-
-            try? await Task.sleep(
-                nanoseconds: UInt64(pauseHideDelay * 1_000_000_000)
-            )
-
-            await MainActor.run {
-                guard self.snapshot?.isPlaying == false else { return }
-                guard self.isNowPlayingVisible else { return }
-
-                self.isNowPlayingVisible = false
-                self.event = .stopped
-                self.pauseHideTask = nil
-            }
-        }
-    }
-
-    func cancelPauseHide() {
-        pauseHideTask?.cancel()
-        pauseHideTask = nil
     }
 }
 

@@ -139,6 +139,12 @@ final class GeneralSettingsViewModel: ObservableObject, NotchSettingsProviding {
             persist(isLockScreenLiveActivityEnabled, for: LockScreenSettings.liveActivityKey)
         }
     }
+    
+    @Published var isLockScreenSoundEnabled: Bool {
+        didSet {
+            persist(isLockScreenSoundEnabled, for: LockScreenSettings.soundKey)
+        }
+    }
 
     @Published var isLockScreenMediaPanelEnabled: Bool {
         didSet {
@@ -208,9 +214,7 @@ final class GeneralSettingsViewModel: ObservableObject, NotchSettingsProviding {
         self.isMenuBarIconVisible = defaults.bool(forKey: Keys.menuBarIcon)
         self.isShowNotchStrokeEnabled = defaults.bool(forKey: Keys.notchStrokeEnabled)
         self.notchStrokeWidth = defaults.double(forKey: Keys.notchStrokeWidth)
-        self.displayLocation = NotchDisplayLocation(
-            rawValue: defaults.string(forKey: Keys.displayLocation) ?? NotchDisplayLocation.main.rawValue
-        ) ?? .main
+        self.displayLocation = NotchDisplayLocation(rawValue: defaults.string(forKey: Keys.displayLocation) ?? NotchDisplayLocation.main.rawValue) ?? .main
         self.isBrightnessHUDEnabled = defaults.bool(forKey: Keys.brightnessHUDEnabled)
         self.isKeyboardHUDEnabled = defaults.bool(forKey: Keys.keyboardHUDEnabled)
         self.isVolumeHUDEnabled = defaults.bool(forKey: Keys.volumeHUDEnabled)
@@ -218,6 +222,7 @@ final class GeneralSettingsViewModel: ObservableObject, NotchSettingsProviding {
         self.isFocusLiveActivityEnabled = defaults.bool(forKey: Keys.focusLiveActivityEnabled)
         self.isNowPlayingLiveActivityEnabled = defaults.bool(forKey: Keys.nowPlayingLiveActivityEnabled)
         self.isLockScreenLiveActivityEnabled = defaults.bool(forKey: LockScreenSettings.liveActivityKey)
+        self.isLockScreenSoundEnabled = defaults.bool(forKey: LockScreenSettings.soundKey)
         self.isLockScreenMediaPanelEnabled = defaults.bool(forKey: LockScreenSettings.mediaPanelKey)
         self.isChargerTemporaryActivityEnabled = defaults.bool(forKey: Keys.chargerTemporaryActivityEnabled)
         self.isLowPowerTemporaryActivityEnabled = defaults.bool(forKey: Keys.lowPowerTemporaryActivityEnabled)
@@ -347,6 +352,7 @@ private extension GeneralSettingsViewModel {
         Keys.focusLiveActivityEnabled: true,
         Keys.nowPlayingLiveActivityEnabled: true,
         LockScreenSettings.liveActivityKey: true,
+        LockScreenSettings.soundKey: true,
         LockScreenSettings.mediaPanelKey: true,
         Keys.chargerTemporaryActivityEnabled: true,
         Keys.lowPowerTemporaryActivityEnabled: true,

@@ -59,6 +59,7 @@ private struct NowPlayingMinimalNotchView: View {
                 Spacer()
                 EqualizerView(
                     isPlaying: snapshot.isPlaying,
+                    palette: nowPlayingViewModel.artworkPalette,
                     trackSeed: snapshot.waveSeed,
                     date: context.date,
                     width: 2,
@@ -123,6 +124,7 @@ struct NowPlayingExpandedNotchView: View {
                             
                             EqualizerView(
                                 isPlaying: snapshot.isPlaying,
+                                palette: nowPlayingViewModel.artworkPalette,
                                 trackSeed: snapshot.waveSeed,
                                 date: context.date,
                                 width: 2.7,
@@ -134,7 +136,7 @@ struct NowPlayingExpandedNotchView: View {
                             .constant(displayArtist(for: snapshot)),
                             font: .system(size: 14),
                             nsFont: .headline,
-                            textColor: .secondary,
+                            textColor: .white.opacity(0.4),
                             backgroundColor: .clear,
                             minDuration: 3.0,
                             frameWidth: 170.scaled(by: scale)
@@ -146,7 +148,7 @@ struct NowPlayingExpandedNotchView: View {
                 HStack(spacing: 10) {
                     Text(formattedTime(displayedElapsedTime))
                         .font(.system(size: 11, weight: .medium, design: .rounded))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.white.opacity(0.4))
                     
                     PlayerProgressBar(
                         progress: displayedProgress,
@@ -162,7 +164,7 @@ struct NowPlayingExpandedNotchView: View {
                     
                     Text(snapshot.duration > 0 ? formattedTime(snapshot.duration) : "LIVE")
                         .font(.system(size: 11, weight: .medium, design: .rounded))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.white.opacity(0.4))
                 }
                 
                 Spacer()
@@ -312,6 +314,7 @@ private struct EqualizerView: View {
     }
 
     let isPlaying: Bool
+    let palette: NowPlayingArtworkPalette
     let trackSeed: UInt64
     let date: Date
     let width: CGFloat
@@ -323,7 +326,7 @@ private struct EqualizerView: View {
         HStack(alignment: .center, spacing: max(width, 2)) {
             ForEach(Array(profiles.indices), id: \.self) { index in
                 RoundedRectangle(cornerRadius: 3)
-                    .fill(.white.opacity(0.6).gradient)
+                    .fill(palette.equalizerGradient)
                     .frame(width: width, height: barHeight(for: profiles[index], index: index))
                     .animation(.linear(duration: nowPlayingAnimationTick * 1.15), value: date)
             }

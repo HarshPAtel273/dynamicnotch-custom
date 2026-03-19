@@ -15,6 +15,7 @@ struct AboutAppSettingsView: View {
             logoAndDescription
             Divider().opacity(0.8)
             aboutAppDescription
+            Spacer()
         }
         .accessibilityIdentifier("settings.about.root")
     }
