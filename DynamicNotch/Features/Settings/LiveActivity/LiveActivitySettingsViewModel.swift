@@ -49,15 +49,6 @@ final class LiveActivitySettingsViewModel: ObservableObject {
                         color: .green,
                         accessibilityIdentifier: "settings.activities.live.hotspot",
                         keyPath: \.isHotspotLiveActivityEnabled
-                    ),
-                    SettingsToggleItem(
-                        id: "live.airdrop",
-                        title: "AirDrop drop zone",
-                        description: "Expand the notch into a live AirDrop target while dragging files over it.",
-                        systemImage: "dot.radiowaves.left.and.right",
-                        color: .blue,
-                        accessibilityIdentifier: "settings.activities.live.airdrop",
-                        keyPath: \.isAirDropLiveActivityEnabled
                     )
                 ]
             ),
@@ -76,11 +67,20 @@ final class LiveActivitySettingsViewModel: ObservableObject {
                         keyPath: \.isLockScreenLiveActivityEnabled
                     ),
                     SettingsToggleItem(
+                        id: "live.lockScreen.sound",
+                        title: "Lock screen sound",
+                        description: "When locking and unlocking, a sound is played.",
+                        systemImage: "speaker.wave.2.fill",
+                        color: .red,
+                        accessibilityIdentifier: "settings.activities.lockScreen.sound",
+                        keyPath: \.isLockScreenSoundEnabled
+                    ),
+                    SettingsToggleItem(
                         id: "live.lockScreen.mediaPanel",
                         title: "Lock screen media panel",
                         description: "Present the detached media panel on the lock screen when playback is active.",
                         systemImage: "play.rectangle.fill",
-                        color: .black,
+                        color: .pink,
                         accessibilityIdentifier: "settings.activities.lockScreen.mediaPanel",
                         keyPath: \.isLockScreenMediaPanelEnabled
                     )

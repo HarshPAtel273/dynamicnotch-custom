@@ -4,6 +4,11 @@ import AppKit
 
 typealias NotchScreenMetrics = (width: CGFloat, topInset: CGFloat)
 
+private enum RestorableDismissedContent {
+    case live(NotchContentProtocol)
+    case temporary(NotchContentProtocol, duration: TimeInterval)
+}
+
 /// ViewModel controlling the Dynamic Notch state machine.
 /// Handles event queueing, priority resolution, temporary notifications
 /// and animated transitions between different notch contents.
@@ -21,6 +26,7 @@ final class NotchViewModel: ObservableObject {
     /// UI interaction state
     @Published var showNotch = false
     @Published var isPressed = false
+    @Published private(set) var downwardSwipeStretchProgress: CGFloat = 0
     
     /// Cached stroke color used when notch content changes
     @Published var cachedStrokeColor: Color = .clear
@@ -45,6 +51,12 @@ final class NotchViewModel: ObservableObject {
     
     /// Suspended activity while temporary notification is visible
     private var suspendedActivity: NotchContentProtocol? = nil
+
+    /// Last content dismissed manually with a gesture.
+    private var lastDismissedContent: RestorableDismissedContent?
+
+    /// Cached duration of the current temporary notification.
+    private var currentTemporaryNotificationDuration: TimeInterval?
     
     /// Animation delay used between hide/show phases
     private var hideDelay: TimeInterval = 0.3
@@ -68,6 +80,30 @@ final class NotchViewModel: ObservableObject {
         return !notchModel.isLiveActivityExpanded &&
         liveActivityContent.isExpandable &&
         liveActivityContent.expandsOnTap
+    }
+
+    var canRestoreDismissedContent: Bool {
+        lastDismissedContent != nil
+    }
+
+    var interactiveNotchSize: CGSize {
+        let baseSize = notchModel.size
+        let progress = easedDownwardSwipeStretchProgress
+
+        return CGSize(
+            width: baseSize.width,
+            height: baseSize.height + (10 * progress)
+        )
+    }
+
+    var interactiveCornerRadius: (top: CGFloat, bottom: CGFloat) {
+        let baseCornerRadius = notchModel.cornerRadius
+        let progress = easedDownwardSwipeStretchProgress
+
+        return (
+            top: baseCornerRadius.top,
+            bottom: baseCornerRadius.bottom + (4 * progress)
+        )
     }
     
     
@@ -124,6 +160,7 @@ final class NotchViewModel: ObservableObject {
             /// update its content and restart the timer instead of creating
             /// a new transition.
             if notchModel.temporaryNotificationContent?.id == content.id {
+                currentTemporaryNotificationDuration = duration
                 
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                     self.notchModel.temporaryNotificationContent = content
@@ -325,6 +362,7 @@ final class NotchViewModel: ObservableObject {
                     withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                         self.notchModel.temporaryNotificationContent = content
                     }
+                    self.currentTemporaryNotificationDuration = duration
                     
                     if !duration.isInfinite {
                         self.restartTemporaryTimer(duration: duration)
@@ -351,6 +389,7 @@ final class NotchViewModel: ObservableObject {
                         self.notchModel.temporaryNotificationContent = nil
                         self.notchModel.liveActivityContent = nil
                         self.suspendedActivity = nil
+                        self.currentTemporaryNotificationDuration = nil
                     }
                 },
                 show: {
@@ -388,6 +427,7 @@ final class NotchViewModel: ObservableObject {
                 
                 withAnimation(.spring(response: 0.5)) {
                     self.notchModel.temporaryNotificationContent = nil
+                    self.currentTemporaryNotificationDuration = nil
                 }
             },
             show: {
@@ -405,13 +445,45 @@ final class NotchViewModel: ObservableObject {
     /// Temporary notifications collapse first; live activities are removed from the stack.
     func dismissActiveContent() {
         
-        if notchModel.temporaryNotificationContent != nil {
+        if let temporaryContent = notchModel.temporaryNotificationContent {
+            lastDismissedContent = .temporary(
+                temporaryContent,
+                duration: currentTemporaryNotificationDuration ?? .infinity
+            )
             hideTemporaryNotification()
             return
         }
         
-        guard let liveActivityID = notchModel.liveActivityContent?.id else { return }
+        guard let liveActivityContent = notchModel.liveActivityContent else { return }
+        lastDismissedContent = .live(liveActivityContent)
+        let liveActivityID = liveActivityContent.id
         send(.hideLiveActivity(id: liveActivityID))
+    }
+
+    func restoreDismissedContent() {
+        guard let lastDismissedContent else { return }
+
+        self.lastDismissedContent = nil
+
+        switch lastDismissedContent {
+        case .live(let content):
+            send(.showLiveActivity(content))
+
+        case .temporary(let content, let duration):
+            send(.showTemporaryNotification(content, duration: duration))
+        }
+    }
+
+    func updateDownwardSwipeStretch(progress: CGFloat) {
+        downwardSwipeStretchProgress = min(max(progress, 0), 1)
+    }
+
+    func resetDownwardSwipeStretch() {
+        guard downwardSwipeStretchProgress > 0 else { return }
+
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.4)) {
+            downwardSwipeStretchProgress = 0
+        }
     }
     
     
@@ -520,5 +592,9 @@ final class NotchViewModel: ObservableObject {
                 self.showNotch = false
             }
         }
+    }
+
+    private var easedDownwardSwipeStretchProgress: CGFloat {
+        1 - pow(1 - downwardSwipeStretchProgress, 2)
     }
 }

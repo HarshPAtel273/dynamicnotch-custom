@@ -28,7 +28,6 @@ enum NotchDisplayLocation: String, CaseIterable {
 @MainActor
 final class GeneralSettingsViewModel: ObservableObject, NotchSettingsProviding {
     enum LiveActivityPreference {
-        case airDrop
         case hotspot
         case focus
         case nowPlaying
@@ -117,12 +116,6 @@ final class GeneralSettingsViewModel: ObservableObject, NotchSettingsProviding {
         }
     }
 
-    @Published var isAirDropLiveActivityEnabled: Bool {
-        didSet {
-            persist(isAirDropLiveActivityEnabled, for: Keys.airDropLiveActivityEnabled)
-        }
-    }
-
     @Published var isHotspotLiveActivityEnabled: Bool {
         didSet {
             persist(isHotspotLiveActivityEnabled, for: Keys.hotspotLiveActivityEnabled)
@@ -144,6 +137,12 @@ final class GeneralSettingsViewModel: ObservableObject, NotchSettingsProviding {
     @Published var isLockScreenLiveActivityEnabled: Bool {
         didSet {
             persist(isLockScreenLiveActivityEnabled, for: LockScreenSettings.liveActivityKey)
+        }
+    }
+    
+    @Published var isLockScreenSoundEnabled: Bool {
+        didSet {
+            persist(isLockScreenSoundEnabled, for: LockScreenSettings.soundKey)
         }
     }
 
@@ -215,17 +214,15 @@ final class GeneralSettingsViewModel: ObservableObject, NotchSettingsProviding {
         self.isMenuBarIconVisible = defaults.bool(forKey: Keys.menuBarIcon)
         self.isShowNotchStrokeEnabled = defaults.bool(forKey: Keys.notchStrokeEnabled)
         self.notchStrokeWidth = defaults.double(forKey: Keys.notchStrokeWidth)
-        self.displayLocation = NotchDisplayLocation(
-            rawValue: defaults.string(forKey: Keys.displayLocation) ?? NotchDisplayLocation.main.rawValue
-        ) ?? .main
+        self.displayLocation = NotchDisplayLocation(rawValue: defaults.string(forKey: Keys.displayLocation) ?? NotchDisplayLocation.main.rawValue) ?? .main
         self.isBrightnessHUDEnabled = defaults.bool(forKey: Keys.brightnessHUDEnabled)
         self.isKeyboardHUDEnabled = defaults.bool(forKey: Keys.keyboardHUDEnabled)
         self.isVolumeHUDEnabled = defaults.bool(forKey: Keys.volumeHUDEnabled)
-        self.isAirDropLiveActivityEnabled = defaults.bool(forKey: Keys.airDropLiveActivityEnabled)
         self.isHotspotLiveActivityEnabled = defaults.bool(forKey: Keys.hotspotLiveActivityEnabled)
         self.isFocusLiveActivityEnabled = defaults.bool(forKey: Keys.focusLiveActivityEnabled)
         self.isNowPlayingLiveActivityEnabled = defaults.bool(forKey: Keys.nowPlayingLiveActivityEnabled)
         self.isLockScreenLiveActivityEnabled = defaults.bool(forKey: LockScreenSettings.liveActivityKey)
+        self.isLockScreenSoundEnabled = defaults.bool(forKey: LockScreenSettings.soundKey)
         self.isLockScreenMediaPanelEnabled = defaults.bool(forKey: LockScreenSettings.mediaPanelKey)
         self.isChargerTemporaryActivityEnabled = defaults.bool(forKey: Keys.chargerTemporaryActivityEnabled)
         self.isLowPowerTemporaryActivityEnabled = defaults.bool(forKey: Keys.lowPowerTemporaryActivityEnabled)
@@ -241,8 +238,6 @@ final class GeneralSettingsViewModel: ObservableObject, NotchSettingsProviding {
 
     func isLiveActivityEnabled(_ preference: LiveActivityPreference) -> Bool {
         switch preference {
-        case .airDrop:
-            return isAirDropLiveActivityEnabled
         case .hotspot:
             return isHotspotLiveActivityEnabled
         case .focus:
@@ -329,7 +324,6 @@ private extension GeneralSettingsViewModel {
         static let brightnessHUDEnabled = "settings.hud.brightness"
         static let keyboardHUDEnabled = "settings.hud.keyboard"
         static let volumeHUDEnabled = "settings.hud.volume"
-        static let airDropLiveActivityEnabled = "settings.live.airdrop"
         static let hotspotLiveActivityEnabled = "settings.live.hotspot"
         static let focusLiveActivityEnabled = "settings.live.focus"
         static let nowPlayingLiveActivityEnabled = "settings.live.nowPlaying"
@@ -348,17 +342,17 @@ private extension GeneralSettingsViewModel {
         Keys.notchWidth: 0,
         Keys.notchHeight: 0,
         Keys.menuBarIcon: true,
-        Keys.notchStrokeEnabled: false,
+        Keys.notchStrokeEnabled: true,
         Keys.notchStrokeWidth: 1.5,
         Keys.displayLocation: NotchDisplayLocation.main.rawValue,
         Keys.brightnessHUDEnabled: true,
         Keys.keyboardHUDEnabled: true,
         Keys.volumeHUDEnabled: true,
-        Keys.airDropLiveActivityEnabled: true,
         Keys.hotspotLiveActivityEnabled: true,
         Keys.focusLiveActivityEnabled: true,
         Keys.nowPlayingLiveActivityEnabled: true,
         LockScreenSettings.liveActivityKey: true,
+        LockScreenSettings.soundKey: true,
         LockScreenSettings.mediaPanelKey: true,
         Keys.chargerTemporaryActivityEnabled: true,
         Keys.lowPowerTemporaryActivityEnabled: true,

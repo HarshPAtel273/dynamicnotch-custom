@@ -15,6 +15,7 @@ struct AboutAppSettingsView: View {
             logoAndDescription
             Divider().opacity(0.8)
             aboutAppDescription
+            Spacer()
         }
         .accessibilityIdentifier("settings.about.root")
     }
@@ -47,9 +48,9 @@ struct AboutAppSettingsView: View {
                     RoundedRectangle(cornerRadius: 4)
                         .fill(.orange.opacity(0.4))
                         .stroke(.orange.opacity(0.6), lineWidth: 1)
-                        .frame(width: 75, height: 18)
+                        .frame(width: 45, height: 18)
                         .overlay(
-                            Text("v.1.0.0-beta4")
+                            Text("v.1.0.0")
                                 .font(.system(size: 11))
                         )
                         .padding(3)
@@ -112,9 +113,9 @@ struct AboutAppSettingsView: View {
                 description: "When an event is triggered, a temporary activity is shown that overlays the live activity."
             )
             TextWithImage(
-                image: "airDropMode",
-                title: "Drag and drop ",
-                description: "It becomes active when the cursor with the selected file is dragged to the notch zone and sticks there a little bit."
+                image: "fullPowerMode",
+                title: "Lock screen",
+                description: "Display the notch and active player on the lock screen."
             )
         }
         .padding(20)

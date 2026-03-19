@@ -31,25 +31,30 @@ enum HudPresentationKind {
             switch level {
             case ..<1:
                 return "sun.min.fill"
-            case ..<34:
+            case ..<50:
                 return "sun.min.fill"
-            case ..<67:
-                return "sun.max.fill"
             default:
                 return "sun.max.fill"
             }
             
         case .keyboard:
-            return "light.max"
+            switch level {
+            case ..<1:
+                return "light.min"
+            default:
+                return "light.max"
+            }
             
         case .volume:
             switch level {
             case ..<1:
                 return "speaker.slash.fill"
-            case ..<34:
+            case ..<20:
                 return "speaker.fill"
-            case ..<67:
+            case ..<50:
                 return "speaker.wave.1.fill"
+            case ..<70:
+                return "speaker.wave.2.fill"
             default:
                 return "speaker.wave.3.fill"
             }
@@ -71,11 +76,7 @@ struct HudNotchContent: NotchContentProtocol {
     @MainActor
     func makeView() -> AnyView {
         AnyView(
-            HudContent(
-                image: kind.symbolName(for: level),
-                text: kind.title,
-                level: level
-            )
+            HudContent(image: kind.symbolName(for: level), text: kind.title, level: level)
         )
     }
 }
@@ -91,19 +92,23 @@ private struct HudContent: View {
         HStack {
             HStack {
                 Image(systemName: image)
+                    .font(.system(size: 18))
                 Text(text)
+                    .font(.system(size: 14))
+                    .foregroundColor(.white.opacity(0.8))
             }
             
             Spacer()
             
             HStack {
                 Text("\(level)")
+                    .font(.system(size: 14))
+                    .foregroundColor(.white.opacity(0.8))
+                
                 indicator
             }
         }
         .padding(.horizontal, 16.scaled(by: scale))
-        .font(.system(size: 14))
-        .foregroundColor(.white.opacity(0.8))
     }
     
     private var indicator: some View {

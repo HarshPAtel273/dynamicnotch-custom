@@ -90,6 +90,7 @@ private struct LockScreenNowPlayingView: View {
                             
                             EqualizerView(
                                 isPlaying: snapshot.isPlaying,
+                                palette: nowPlayingViewModel.artworkPalette,
                                 trackSeed: snapshot.waveSeed,
                                 date: context.date,
                                 width: 2.7,
@@ -277,6 +278,7 @@ private struct EqualizerView: View {
     }
     
     let isPlaying: Bool
+    let palette: NowPlayingArtworkPalette
     let trackSeed: UInt64
     let date: Date
     let width: CGFloat
@@ -288,7 +290,7 @@ private struct EqualizerView: View {
         HStack(alignment: .center, spacing: max(width, 2)) {
             ForEach(Array(profiles.indices), id: \.self) { index in
                 RoundedRectangle(cornerRadius: 3)
-                    .fill(.primary.opacity(0.6))
+                    .fill(palette.equalizerGradient)
                     .frame(width: width, height: barHeight(for: profiles[index], index: index))
                     .animation(.linear(duration: nowPlayingAnimationTick * 1.15), value: date)
             }
