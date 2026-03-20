@@ -16,6 +16,7 @@ struct DownloadModel: Equatable, Identifiable {
     let startedAt: Date
     let lastUpdatedAt: Date
     let isTemporaryFile: Bool
+    let bytesPerSecond: Int64
 
     var id: String {
         url.standardizedFileURL.path

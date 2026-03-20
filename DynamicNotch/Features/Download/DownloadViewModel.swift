@@ -78,13 +78,14 @@ final class DownloadViewModel: ObservableObject {
         return [
             DownloadModel(
                 url: URL(fileURLWithPath: "/tmp/DebugExport.mov"),
-                displayName: "DebugExport.mov",
+                displayName: "DebugExportBigNameForFile.mov",
                 directoryName: "Downloads",
                 byteCount: 148_320_256,
-                progress: 0.78,
+                progress: 0.60,
                 startedAt: now.addingTimeInterval(-24),
                 lastUpdatedAt: now,
-                isTemporaryFile: false
+                isTemporaryFile: false,
+                bytesPerSecond: 12_845_056
             ),
             DownloadModel(
                 url: URL(fileURLWithPath: "/tmp/ProjectArchive.zip"),
@@ -94,7 +95,8 @@ final class DownloadViewModel: ObservableObject {
                 progress: 0.46,
                 startedAt: now.addingTimeInterval(-31),
                 lastUpdatedAt: now.addingTimeInterval(-2),
-                isTemporaryFile: false
+                isTemporaryFile: false,
+                bytesPerSecond: 4_096_000
             )
         ]
     }

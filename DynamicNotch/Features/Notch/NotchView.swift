@@ -34,10 +34,6 @@ struct NotchView: View {
                 .onChange(of: notchViewModel.notchModel.content?.id) {
                     notchViewModel.handleStrokeVisibility()
                 }
-                .onReceive(bluetoothViewModel.objectWillChange) { _ in
-                    guard notchViewModel.notchModel.content?.id == "bluetooth.connected" else { return }
-                    notchViewModel.handleStrokeVisibility()
-                }
                 .onChange(of: generalSettingsViewModel.notchWidth) {
                     notchViewModel.updateDimensions()
                 }

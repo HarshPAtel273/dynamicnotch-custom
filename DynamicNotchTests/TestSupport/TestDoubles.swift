@@ -92,7 +92,7 @@ final class FakeNowPlayingService: NowPlayingMonitoring {
 }
 
 final class FakeFileDownloadMonitor: DownloadMonitoring {
-    var onSnapshotChange: (([DownloadSnapshot]) -> Void)?
+    var onSnapshotChange: (([DownloadModel]) -> Void)?
 
     private(set) var startCalls = 0
     private(set) var stopCalls = 0
@@ -105,7 +105,7 @@ final class FakeFileDownloadMonitor: DownloadMonitoring {
         stopCalls += 1
     }
 
-    func publish(_ transfers: [DownloadSnapshot]) {
+    func publish(_ transfers: [DownloadModel]) {
         onSnapshotChange?(transfers)
     }
 }

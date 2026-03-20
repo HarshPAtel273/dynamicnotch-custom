@@ -100,9 +100,10 @@ private func makeDownloadSnapshot(
     progress: Double = 0.5,
     startedAt: Date = .now.addingTimeInterval(-5),
     lastUpdatedAt: Date = .now,
-    isTemporaryFile: Bool = false
-) -> DownloadSnapshot {
-    DownloadSnapshot(
+    isTemporaryFile: Bool = false,
+    bytesPerSecond: Int64 = 0
+) -> DownloadModel {
+    DownloadModel(
         url: URL(fileURLWithPath: path),
         displayName: displayName,
         directoryName: directoryName,
@@ -110,6 +111,7 @@ private func makeDownloadSnapshot(
         progress: progress,
         startedAt: startedAt,
         lastUpdatedAt: lastUpdatedAt,
-        isTemporaryFile: isTemporaryFile
+        isTemporaryFile: isTemporaryFile,
+        bytesPerSecond: bytesPerSecond
     )
 }

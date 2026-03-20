@@ -28,6 +28,7 @@ final class FolderFileDownloadMonitor: DownloadMonitoring {
         var directoryName: String
         var byteCount: Int64
         var progress: Double
+        var bytesPerSecond: Int64
         var isTemporaryFile: Bool
         var firstSeenAt: Date
         var lastSeenAt: Date
@@ -138,6 +139,7 @@ private extension FolderFileDownloadMonitor {
                     previousProgress: nil,
                     isTemporaryFile: observed.isTemporaryFile
                 ),
+                bytesPerSecond: 0,
                 isTemporaryFile: observed.isTemporaryFile,
                 firstSeenAt: now,
                 lastSeenAt: now,
@@ -157,6 +159,7 @@ private extension FolderFileDownloadMonitor {
         for (path, observed) in currentFiles {
             if var tracked = trackedFiles[path] {
                 let growthDelta = max(0, observed.byteCount - tracked.byteCount)
+                let elapsedInterval = max(now.timeIntervalSince(tracked.lastSeenAt), 0.001)
 
                 if observed.byteCount > tracked.byteCount {
                     tracked.lastGrowthAt = now
@@ -174,6 +177,13 @@ private extension FolderFileDownloadMonitor {
                     previousProgress: tracked.progress,
                     isTemporaryFile: observed.isTemporaryFile
                 )
+                tracked.bytesPerSecond = estimatedBytesPerSecond(
+                    growthDelta: growthDelta,
+                    elapsedInterval: elapsedInterval,
+                    previousBytesPerSecond: tracked.bytesPerSecond,
+                    lastGrowthAt: tracked.lastGrowthAt,
+                    now: now
+                )
                 tracked.isTemporaryFile = observed.isTemporaryFile
                 tracked.lastSeenAt = now
                 trackedFiles[path] = tracked
@@ -188,6 +198,9 @@ private extension FolderFileDownloadMonitor {
                         growthDelta: observed.byteCount,
                         previousProgress: nil,
                         isTemporaryFile: observed.isTemporaryFile
+                    ),
+                    bytesPerSecond: estimatedInitialBytesPerSecond(
+                        initialByteCount: observed.byteCount
                     ),
                     isTemporaryFile: observed.isTemporaryFile,
                     firstSeenAt: now,
@@ -211,7 +224,8 @@ private extension FolderFileDownloadMonitor {
                     progress: tracked.progress,
                     startedAt: tracked.firstSeenAt,
                     lastUpdatedAt: tracked.lastGrowthAt ?? tracked.lastSeenAt,
-                    isTemporaryFile: tracked.isTemporaryFile
+                    isTemporaryFile: tracked.isTemporaryFile,
+                    bytesPerSecond: tracked.bytesPerSecond
                 )
             }
             .sorted {
@@ -332,6 +346,35 @@ private extension FolderFileDownloadMonitor {
         }
 
         return progress
+    }
+
+    private func estimatedInitialBytesPerSecond(initialByteCount: Int64) -> Int64 {
+        guard initialByteCount > 0 else { return 0 }
+        return Int64(Double(initialByteCount) / Metrics.scanInterval)
+    }
+
+    private func estimatedBytesPerSecond(
+        growthDelta: Int64,
+        elapsedInterval: TimeInterval,
+        previousBytesPerSecond: Int64,
+        lastGrowthAt: Date?,
+        now: Date
+    ) -> Int64 {
+        guard elapsedInterval > 0 else { return previousBytesPerSecond }
+
+        if growthDelta > 0 {
+            return Int64(Double(growthDelta) / elapsedInterval)
+        }
+
+        guard
+            previousBytesPerSecond > 0,
+            let lastGrowthAt,
+            now.timeIntervalSince(lastGrowthAt) <= Metrics.scanInterval * 1.2
+        else {
+            return 0
+        }
+
+        return previousBytesPerSecond
     }
 
     private func recursiveByteCount(in directory: URL) -> Int64 {

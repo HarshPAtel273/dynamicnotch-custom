@@ -131,7 +131,7 @@ final class NotchEventCoordinatorIntegrationTests: XCTestCase {
         let context = makeContext()
 
         context.downloadMonitor.publish([
-            DownloadSnapshot(
+            DownloadModel(
                 url: URL(fileURLWithPath: "/tmp/archive.zip"),
                 displayName: "archive.zip",
                 directoryName: "Downloads",
@@ -139,7 +139,8 @@ final class NotchEventCoordinatorIntegrationTests: XCTestCase {
                 progress: 0.41,
                 startedAt: .now.addingTimeInterval(-3),
                 lastUpdatedAt: .now,
-                isTemporaryFile: false
+                isTemporaryFile: false,
+                bytesPerSecond: 1_536_000
             )
         ])
 
