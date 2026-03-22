@@ -1,6 +1,6 @@
 import SwiftUI
 import Combine
-import AppKit
+internal import AppKit
 
 struct NotchView: View {
     @ObservedObject var notchViewModel: NotchViewModel
@@ -90,31 +90,17 @@ private extension NotchView {
     @ViewBuilder
     var contentOverlay: some View {
         if let content = notchViewModel.notchModel.content {
-            if notchViewModel.canExpandActiveLiveActivity {
-                renderedContentView(for: content)
-                    .id(notchViewModel.notchModel.presentationID)
-                    .transition(
-                        .blurAndFade
-                            .animation(.spring(duration: 0.5))
-                            .combined(with: .scale)
-                            .combined(with: .offset(
-                                x: notchViewModel.notchModel.offsetXTransition,
-                                y: notchViewModel.notchModel.offsetYTransition)
-                            )
-                    )
-            } else {
-                renderedContentView(for: content)
-                    .id(notchViewModel.notchModel.presentationID)
-                    .transition(
-                        .blurAndFade
-                            .animation(.spring(duration: 0.5))
-                            .combined(with: .scale)
-                            .combined(with: .offset(
-                                x: notchViewModel.notchModel.offsetXTransition,
-                                y: notchViewModel.notchModel.offsetYTransition)
-                            )
-                    )
-            }
+            renderedContentView(for: content)
+                .id(notchViewModel.notchModel.presentationID)
+                .transition(
+                    .blurAndFade
+                        .animation(.spring(duration: 0.5))
+                        .combined(with: .scale)
+                        .combined(with: .offset(
+                            x: notchViewModel.notchModel.offsetXTransition,
+                            y: notchViewModel.notchModel.offsetYTransition)
+                        )
+                )
         }
     }
     

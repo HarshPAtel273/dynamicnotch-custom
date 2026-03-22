@@ -1,5 +1,5 @@
 import SwiftUI
-import AppKit
+internal import AppKit
 
 struct NotchSwipeDismissModifier: ViewModifier {
     @ObservedObject var notchViewModel: NotchViewModel

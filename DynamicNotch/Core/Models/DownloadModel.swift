@@ -12,6 +12,7 @@ struct DownloadModel: Equatable, Identifiable {
     let displayName: String
     let directoryName: String
     let byteCount: Int64
+    let estimatedTotalByteCount: Int64
     let progress: Double
     let startedAt: Date
     let lastUpdatedAt: Date

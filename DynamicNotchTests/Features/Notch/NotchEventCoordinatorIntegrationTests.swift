@@ -136,6 +136,7 @@ final class NotchEventCoordinatorIntegrationTests: XCTestCase {
                 displayName: "archive.zip",
                 directoryName: "Downloads",
                 byteCount: 1_024_000,
+                estimatedTotalByteCount: 2_497_561,
                 progress: 0.41,
                 startedAt: .now.addingTimeInterval(-3),
                 lastUpdatedAt: .now,

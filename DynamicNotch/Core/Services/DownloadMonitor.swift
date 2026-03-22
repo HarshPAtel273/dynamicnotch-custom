@@ -27,6 +27,7 @@ final class FolderFileDownloadMonitor: DownloadMonitoring {
         var displayName: String
         var directoryName: String
         var byteCount: Int64
+        var estimatedTotalByteCount: Int64
         var progress: Double
         var bytesPerSecond: Int64
         var isTemporaryFile: Bool
@@ -128,17 +129,23 @@ private extension FolderFileDownloadMonitor {
     private func primeBaseline() {
         let now = Date()
         trackedFiles = observedFiles().reduce(into: [:]) { result, observed in
+            let progress = estimatedProgress(
+                currentByteCount: observed.byteCount,
+                growthDelta: observed.byteCount,
+                previousProgress: nil,
+                isTemporaryFile: observed.isTemporaryFile
+            )
+
             result[observed.url.standardizedFileURL.path] = TrackedFile(
                 url: observed.url,
                 displayName: observed.displayName,
                 directoryName: observed.directoryName,
                 byteCount: observed.byteCount,
-                progress: estimatedProgress(
+                estimatedTotalByteCount: estimatedTotalByteCount(
                     currentByteCount: observed.byteCount,
-                    growthDelta: observed.byteCount,
-                    previousProgress: nil,
-                    isTemporaryFile: observed.isTemporaryFile
+                    progress: progress
                 ),
+                progress: progress,
                 bytesPerSecond: 0,
                 isTemporaryFile: observed.isTemporaryFile,
                 firstSeenAt: now,
@@ -177,6 +184,10 @@ private extension FolderFileDownloadMonitor {
                     previousProgress: tracked.progress,
                     isTemporaryFile: observed.isTemporaryFile
                 )
+                tracked.estimatedTotalByteCount = max(
+                    tracked.estimatedTotalByteCount,
+                    tracked.byteCount
+                )
                 tracked.bytesPerSecond = estimatedBytesPerSecond(
                     growthDelta: growthDelta,
                     elapsedInterval: elapsedInterval,
@@ -188,17 +199,23 @@ private extension FolderFileDownloadMonitor {
                 tracked.lastSeenAt = now
                 trackedFiles[path] = tracked
             } else {
+                let progress = estimatedProgress(
+                    currentByteCount: observed.byteCount,
+                    growthDelta: observed.byteCount,
+                    previousProgress: nil,
+                    isTemporaryFile: observed.isTemporaryFile
+                )
+
                 trackedFiles[path] = TrackedFile(
                     url: observed.url,
                     displayName: observed.displayName,
                     directoryName: observed.directoryName,
                     byteCount: observed.byteCount,
-                    progress: estimatedProgress(
+                    estimatedTotalByteCount: estimatedTotalByteCount(
                         currentByteCount: observed.byteCount,
-                        growthDelta: observed.byteCount,
-                        previousProgress: nil,
-                        isTemporaryFile: observed.isTemporaryFile
+                        progress: progress
                     ),
+                    progress: progress,
                     bytesPerSecond: estimatedInitialBytesPerSecond(
                         initialByteCount: observed.byteCount
                     ),
@@ -221,6 +238,7 @@ private extension FolderFileDownloadMonitor {
                     displayName: tracked.displayName,
                     directoryName: tracked.directoryName,
                     byteCount: tracked.byteCount,
+                    estimatedTotalByteCount: tracked.estimatedTotalByteCount,
                     progress: tracked.progress,
                     startedAt: tracked.firstSeenAt,
                     lastUpdatedAt: tracked.lastGrowthAt ?? tracked.lastSeenAt,
@@ -351,6 +369,17 @@ private extension FolderFileDownloadMonitor {
     private func estimatedInitialBytesPerSecond(initialByteCount: Int64) -> Int64 {
         guard initialByteCount > 0 else { return 0 }
         return Int64(Double(initialByteCount) / Metrics.scanInterval)
+    }
+
+    private func estimatedTotalByteCount(
+        currentByteCount: Int64,
+        progress: Double
+    ) -> Int64 {
+        let clampedProgress = min(max(progress, Metrics.minimumVisibleProgress), 1)
+        guard clampedProgress > 0 else { return max(0, currentByteCount) }
+
+        let estimatedTotal = Double(max(0, currentByteCount)) / clampedProgress
+        return max(currentByteCount, Int64(estimatedTotal.rounded()))
     }
 
     private func estimatedBytesPerSecond(

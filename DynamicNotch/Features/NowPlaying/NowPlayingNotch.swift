@@ -1,5 +1,5 @@
 import SwiftUI
-import AppKit
+internal import AppKit
 
 struct NowPlayingNotchContent: NotchContentProtocol {
     let id = "nowPlaying"
@@ -7,6 +7,8 @@ struct NowPlayingNotchContent: NotchContentProtocol {
     
     var priority: Int { 81 }
     var isExpandable: Bool { true }
+    var strokeColor: Color { Color(nsColor: nowPlayingViewModel.artworkPalette.equalizerBaseColor.withAlphaComponent(0.35)) }
+    
     var expandedOffsetXTransition: CGFloat { -100 }
     var expandedOffsetYTransition: CGFloat { -90 }
     

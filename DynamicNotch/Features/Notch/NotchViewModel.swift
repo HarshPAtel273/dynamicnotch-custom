@@ -1,6 +1,6 @@
 import SwiftUI
 import Combine
-import AppKit
+internal import AppKit
 
 typealias NotchScreenMetrics = (width: CGFloat, topInset: CGFloat)
 

@@ -1,3 +1,5 @@
+internal import AppKit
+import QuickLookThumbnailing
 import SwiftUI
 
 struct DownloadNotchContent: NotchContentProtocol {
@@ -103,12 +105,6 @@ private struct DownloadExpandedNotchView: View {
         return formatter
     }()
 
-    private static let relativeDateFormatter: RelativeDateTimeFormatter = {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .short
-        return formatter
-    }()
-
     private var primaryDownload: DownloadModel? {
         downloadViewModel.primaryDownload
     }
@@ -135,19 +131,11 @@ private struct DownloadExpandedNotchView: View {
             .padding(.bottom, 25)
         }
     }
-
+        
     @ViewBuilder
     private func header(for download: DownloadModel) -> some View {
-        HStack(alignment: .top) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 11)
-                    .fill(Color.accentColor.gradient)
-                    .frame(width: 40, height: 40)
-
-                Image(systemName: "arrow.down.circle.fill")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.white)
-            }
+        HStack(alignment: .top, spacing: 2) {
+            DownloadFileThumbnailView(url: download.url)
 
             VStack(alignment: .leading, spacing: 4) {
                 MarqueeText(
@@ -169,10 +157,15 @@ private struct DownloadExpandedNotchView: View {
             
             Spacer()
             
-            Text(progressLabel(for: download.progress))
-                .font(.system(size: 14, weight: .semibold, design: .rounded))
-                .foregroundStyle(.blue.opacity(0.8).gradient)
-                .padding(.top, 10)
+            VStack(alignment: .trailing, spacing: 4) {
+                Text(progressLabel(for: download.progress))
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                Text(speedLabel(for: download))
+                    .font(.system(size: 10, weight: .semibold, design: .rounded))
+            }
+            .foregroundStyle(.blue.opacity(0.8).gradient)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
         }
     }
 
@@ -186,7 +179,7 @@ private struct DownloadExpandedNotchView: View {
 
                 Spacer(minLength: 8)
 
-                Text(speedLabel(for: download))
+                Text(totalSizeLabel(for: download))
                     .font(.system(size: 10, weight: .semibold, design: .rounded))
                     .foregroundStyle(.white.opacity(0.8))
             }
@@ -214,21 +207,79 @@ private struct DownloadExpandedNotchView: View {
         }
     }
 
-    private func progressLabel(for progress: Double) -> String {
-        "\(Int((clampedProgress(progress) * 100).rounded()))%"
-    }
-
     private func speedLabel(for download: DownloadModel) -> String {
         guard download.bytesPerSecond > 0 else { return "0 KB/s" }
         return "\(Self.byteCountFormatter.string(fromByteCount: download.bytesPerSecond))/s"
     }
 
-    private func relativeDateLabel(for date: Date, referenceDate: Date) -> String {
-        Self.relativeDateFormatter.localizedString(for: date, relativeTo: referenceDate)
+    private func totalSizeLabel(for download: DownloadModel) -> String {
+        Self.byteCountFormatter.string(fromByteCount: download.estimatedTotalByteCount)
     }
+    
+    private func progressLabel(for progress: Double) -> String {
+           "\(Int((clampedProgress(progress) * 100).rounded()))%"
+       }
 
     private func clampedProgress(_ progress: Double) -> Double {
         min(max(progress, 0), 1)
+    }
+}
+
+private struct DownloadFileThumbnailView: View {
+    let url: URL
+
+    @State private var thumbnailImage: NSImage?
+
+    private let size: CGFloat = 45
+    private let cornerRadius: CGFloat = 11
+
+    private var fallbackIcon: NSImage {
+        let icon = NSWorkspace.shared.icon(forFile: url.path)
+        icon.size = CGSize(width: size, height: size)
+        return icon
+    }
+
+    var body: some View {
+        Group {
+            if let thumbnailImage {
+                Image(nsImage: thumbnailImage)
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                Image(nsImage: fallbackIcon)
+                    .resizable()
+                    .scaledToFit()
+                    .padding(6)
+            }
+        }
+        .frame(width: size, height: size)
+        .background(
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .fill(Color.white.opacity(0.1))
+        )
+        .task(id: url.path) {
+            loadThumbnailIfNeeded()
+        }
+    }
+
+    private func loadThumbnailIfNeeded() {
+        guard thumbnailImage == nil else { return }
+
+        let scale = NSScreen.main?.backingScaleFactor ?? 2
+        let request = QLThumbnailGenerator.Request(
+            fileAt: url,
+            size: CGSize(width: size, height: size),
+            scale: scale,
+            representationTypes: .thumbnail
+        )
+
+        QLThumbnailGenerator.shared.generateBestRepresentation(for: request) { representation, _ in
+            guard let representation else { return }
+
+            DispatchQueue.main.async {
+                thumbnailImage = representation.nsImage
+            }
+        }
     }
 }
 

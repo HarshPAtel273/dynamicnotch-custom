@@ -1,7 +1,7 @@
 import Foundation
 import Dispatch
 import Darwin
-import AppKit
+internal import AppKit
 
 enum NowPlayingCommand: Equatable {
     case togglePlayPause

@@ -29,7 +29,7 @@ protocol NotchContentProtocol {
 
 extension NotchContentProtocol {
     var priority: Int { 0 }
-    var strokeColor: Color { .white.opacity(0.15) }
+    var strokeColor: Color { .white.opacity(0.2) }
     var offsetXTransition: CGFloat { 0 }
     var offsetYTransition: CGFloat { 0 }
     var isExpandable: Bool { false }

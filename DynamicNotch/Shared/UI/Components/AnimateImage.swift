@@ -7,7 +7,7 @@
 
 import SwiftUI
 import Lottie
-import AppKit
+internal import AppKit
 
 struct AnimateImage: NSViewRepresentable {
     let name: String
