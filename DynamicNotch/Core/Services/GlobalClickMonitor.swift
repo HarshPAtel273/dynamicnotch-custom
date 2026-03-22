@@ -1,4 +1,4 @@
-import AppKit
+internal import AppKit
 
 final class GlobalClickMonitor {
     private var monitor: Any?

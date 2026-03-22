@@ -1,6 +1,11 @@
-import AppKit
+internal import AppKit
 import Combine
 import SwiftUI
+
+enum NowPlayingEvent: Equatable {
+    case started
+    case stopped
+}
 
 @MainActor
 final class NowPlayingViewModel: ObservableObject {

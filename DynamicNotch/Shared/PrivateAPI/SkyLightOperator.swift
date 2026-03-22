@@ -1,4 +1,4 @@
-import AppKit
+internal import AppKit
 import Darwin
 
 enum SkyLightSpaceLevel: Int32 {

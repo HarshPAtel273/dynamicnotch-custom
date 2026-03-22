@@ -1,6 +1,6 @@
 import SwiftUI
 import Combine
-import AppKit
+internal import AppKit
 
 struct NotchView: View {
     @ObservedObject var notchViewModel: NotchViewModel
@@ -8,6 +8,7 @@ struct NotchView: View {
     @ObservedObject var powerViewModel: PowerViewModel
     @ObservedObject var bluetoothViewModel: BluetoothViewModel
     @ObservedObject var networkViewModel: NetworkViewModel
+    @ObservedObject var downloadViewModel: DownloadViewModel
     @ObservedObject var focusViewModel: FocusViewModel
     @ObservedObject var generalSettingsViewModel: GeneralSettingsViewModel
     @ObservedObject var nowPlayingViewModel: NowPlayingViewModel
@@ -23,6 +24,7 @@ struct NotchView: View {
                         powerViewModel: powerViewModel,
                         bluetoothViewModel: bluetoothViewModel,
                         networkViewModel: networkViewModel,
+                        downloadViewModel: downloadViewModel,
                         focusViewModel: focusViewModel,
                         generalSettingsViewModel: generalSettingsViewModel,
                         nowPlayingViewModel: nowPlayingViewModel,
@@ -32,16 +34,34 @@ struct NotchView: View {
                 .onChange(of: notchViewModel.notchModel.content?.id) {
                     notchViewModel.handleStrokeVisibility()
                 }
-                .onReceive(bluetoothViewModel.objectWillChange) { _ in
-                    guard notchViewModel.notchModel.content?.id == "bluetooth.connected" else { return }
-                    notchViewModel.handleStrokeVisibility()
-                }
                 .onChange(of: generalSettingsViewModel.notchWidth) {
                     notchViewModel.updateDimensions()
                 }
                 .onChange(of: generalSettingsViewModel.notchHeight) {
                     notchViewModel.updateDimensions()
                 }
+            
+            if notchViewModel.notchModel.content == nil {
+                NotchShape(
+                    topCornerRadius: notchViewModel.notchModel.cornerRadius.top,
+                    bottomCornerRadius: notchViewModel.notchModel.cornerRadius.bottom
+                )
+                .fill(Color.black)
+                .frame(
+                    width: notchViewModel.notchModel.baseWidth - 20,
+                    height: notchViewModel.notchModel.baseHeight
+                )
+                .customNotchPressable(
+                    notchViewModel: notchViewModel,
+                    isPressed: $notchViewModel.isPressed,
+                    baseSize: notchViewModel.interactiveNotchSize
+                )
+                .contextMenu {
+                    if !generalSettingsViewModel.isMenuBarIconVisible {
+                        contextMenuItem
+                    }
+                }
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
@@ -92,31 +112,17 @@ private extension NotchView {
     @ViewBuilder
     var contentOverlay: some View {
         if let content = notchViewModel.notchModel.content {
-            if notchViewModel.canExpandActiveLiveActivity {
-                renderedContentView(for: content)
-                    .id(notchViewModel.notchModel.presentationID)
-                    .transition(
-                        .blurAndFade
-                            .animation(.spring(duration: 0.5))
-                            .combined(with: .scale)
-                            .combined(with: .offset(
-                                x: notchViewModel.notchModel.offsetXTransition,
-                                y: notchViewModel.notchModel.offsetYTransition)
-                            )
-                    )
-            } else {
-                renderedContentView(for: content)
-                    .id(notchViewModel.notchModel.presentationID)
-                    .transition(
-                        .blurAndFade
-                            .animation(.spring(duration: 0.5))
-                            .combined(with: .scale)
-                            .combined(with: .offset(
-                                x: notchViewModel.notchModel.offsetXTransition,
-                                y: notchViewModel.notchModel.offsetYTransition)
-                            )
-                    )
-            }
+            renderedContentView(for: content)
+                .id(notchViewModel.notchModel.presentationID)
+                .transition(
+                    .blurAndFade
+                        .animation(.spring(duration: 0.5))
+                        .combined(with: .scale)
+                        .combined(with: .offset(
+                            x: notchViewModel.notchModel.offsetXTransition,
+                            y: notchViewModel.notchModel.offsetYTransition)
+                        )
+                )
         }
     }
     
@@ -150,6 +156,7 @@ private struct NotchEventHandlersView: View {
     let powerViewModel: PowerViewModel
     let bluetoothViewModel: BluetoothViewModel
     let networkViewModel: NetworkViewModel
+    let downloadViewModel: DownloadViewModel
     let focusViewModel: FocusViewModel
     let generalSettingsViewModel: GeneralSettingsViewModel
     let nowPlayingViewModel: NowPlayingViewModel
@@ -165,6 +172,9 @@ private struct NotchEventHandlersView: View {
             }
             .onReceive(networkViewModel.$networkEvent.compactMap { $0 }) { event in
                 notchEventCoordinator.handleNetworkEvent(event)
+            }
+            .onReceive(downloadViewModel.$event.compactMap { $0 }) { event in
+                notchEventCoordinator.handleDownloadEvent(event)
             }
             .onReceive(focusViewModel.$focusEvent.compactMap { $0 }) { event in
                 notchEventCoordinator.handleFocusEvent(event)

@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 import Combine
-import AppKit
+internal import AppKit
 
 final class FocusService {
     var onEvent: ((FocusEvent) -> Void)?

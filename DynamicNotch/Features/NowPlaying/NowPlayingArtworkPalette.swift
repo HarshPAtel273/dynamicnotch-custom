@@ -1,4 +1,4 @@
-import AppKit
+internal import AppKit
 import CoreImage
 import SwiftUI
 
@@ -7,8 +7,8 @@ struct NowPlayingArtworkPalette: Equatable {
     let equalizerHighlightColor: NSColor
 
     static let fallback = Self(
-        equalizerBaseColor: NSColor.white.withAlphaComponent(0.66),
-        equalizerHighlightColor: NSColor.white.withAlphaComponent(0.9)
+        equalizerBaseColor: NSColor.gray.withAlphaComponent(0.36),
+        equalizerHighlightColor: NSColor.gray.withAlphaComponent(0.6)
     )
 
     var equalizerGradient: LinearGradient {

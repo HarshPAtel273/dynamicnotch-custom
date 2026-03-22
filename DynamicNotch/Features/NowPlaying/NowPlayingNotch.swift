@@ -1,5 +1,5 @@
 import SwiftUI
-import AppKit
+internal import AppKit
 
 struct NowPlayingNotchContent: NotchContentProtocol {
     let id = "nowPlaying"
@@ -7,6 +7,9 @@ struct NowPlayingNotchContent: NotchContentProtocol {
     
     var priority: Int { 81 }
     var isExpandable: Bool { true }
+    var strokeColor: Color { Color(nsColor: nowPlayingViewModel.artworkPalette.equalizerBaseColor.withAlphaComponent(0.35)) }
+    
+    var offsetXTransition: CGFloat { -100 }
     var expandedOffsetXTransition: CGFloat { -100 }
     var expandedOffsetYTransition: CGFloat { -90 }
     
@@ -266,7 +269,7 @@ private struct ArtworkView: View {
                     .overlay {
                         Image(systemName: "music.note")
                             .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.white.opacity(0.6))
                     }
             }
         }

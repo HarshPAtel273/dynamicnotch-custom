@@ -7,12 +7,17 @@
 
 import SwiftUI
 
+enum OnboardingEvent: Equatable {
+    case onboarding
+}
+
 struct OnboardingNotchContent : NotchContentProtocol {
     let id = "onboarding"
     let notchEventCoordinator: NotchEventCoordinator
     
     var priority: Int { 100 }
-    var offsetXTransition: CGFloat { -30 }
+    
+    var offsetXTransition: CGFloat { -50 }
     var offsetYTransition: CGFloat { -90 }
     
     func size(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
