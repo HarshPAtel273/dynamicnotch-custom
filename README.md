@@ -16,14 +16,6 @@
 </p>
 
 <p align="center">
-  <a href="assets/video/charger.mp4">Charger Demo</a>
-  ·
-  <a href="assets/video/lowBattery.mp4">Low Battery Demo</a>
-  ·
-  <a href="assets/video/fullCharger.mp4">Full Charge Demo</a>
-</p>
-
-<p align="center">
   ⚡ Minimal • 🎯 Native • 🖥️ Notch-first • ✨ Animated
 </p>
 
