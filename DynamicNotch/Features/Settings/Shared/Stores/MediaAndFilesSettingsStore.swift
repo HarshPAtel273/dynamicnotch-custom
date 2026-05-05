@@ -124,6 +124,7 @@ final class MediaAndFilesSettingsStore: SettingsStoreBase {
     }
 
     override init(defaults: UserDefaults) {
+        defaults.register(defaults: GeneralSettingsStorage.defaultValues)
         self.isNowPlayingLiveActivityEnabled = defaults.bool(forKey: GeneralSettingsStorage.Keys.nowPlayingLiveActivityEnabled)
         self.isNowPlayingFavoriteButtonVisible = defaults.bool(forKey: GeneralSettingsStorage.Keys.nowPlayingFavoriteButtonVisible)
         self.isNowPlayingOutputDeviceButtonVisible = defaults.bool(forKey: GeneralSettingsStorage.Keys.nowPlayingOutputDeviceButtonVisible)

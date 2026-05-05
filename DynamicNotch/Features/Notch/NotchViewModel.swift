@@ -78,6 +78,10 @@ final class NotchViewModel: ObservableObject {
         displayedNotchModel.isPresentingExpandedLiveActivity
     }
 
+    var shouldRenderStroke: Bool {
+        displayedContent != nil || isHoldingStrokeAfterContentHide
+    }
+
     var presentedNotchSize: CGSize {
         let size = interactiveNotchSize
 
@@ -404,6 +408,12 @@ final class NotchViewModel: ObservableObject {
     
     private var easedSwipeStretchProgress: CGFloat {
         1 - pow(1 - swipeStretchProgress, 2)
+    }
+
+    private var isHoldingStrokeAfterContentHide: Bool {
+        showNotch &&
+        displayedContent == nil &&
+        notchModel.content == nil
     }
 
     private var displayedNotchModel: NotchModel {

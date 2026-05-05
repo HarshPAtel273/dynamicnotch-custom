@@ -223,6 +223,60 @@ final class NotchViewModelIntegrationTests: XCTestCase {
     }
 
     @MainActor
+    func testStrokeRemainsVisibleUntilCloseAnimationFinishes() async {
+        let animations = NotchAnimations(
+            contentUpdate: .linear(duration: 0.01),
+            contentHide: .linear(duration: 0.01),
+            contentShow: .linear(duration: 0.01),
+            openContentTransition: .linear(duration: 0.01),
+            expandLiveActivity: .linear(duration: 0.01),
+            expandLiveActivityContentTransition: .linear(duration: 0.01),
+            stretchReset: .linear(duration: 0.01),
+            strokeVisibility: .linear(duration: 0.01),
+            notchVisibility: .linear(duration: 0.01),
+            hideShowDelay: 0.01,
+            queuePacingDelay: 0
+        )
+
+        let viewModel = NotchViewModel(
+            settings: TestNotchSettings(),
+            animations: animations,
+            queueDelay: 0
+        )
+        TestLifetime.retain(viewModel)
+
+        viewModel.send(.showLiveActivity(TestNotchContent(id: "live", priority: 10)))
+        await assertEventually {
+            await MainActor.run { viewModel.notchModel.liveActivityContent?.id == "live" }
+        }
+
+        viewModel.handleStrokeVisibility()
+        XCTAssertTrue(viewModel.showNotch)
+        XCTAssertTrue(viewModel.shouldRenderStroke)
+
+        viewModel.send(.hideLiveActivity(id: "live"))
+
+        await assertEventually {
+            await MainActor.run { viewModel.notchModel.content == nil }
+        }
+
+        viewModel.handleStrokeVisibility()
+        XCTAssertTrue(viewModel.showNotch)
+        XCTAssertTrue(viewModel.shouldRenderStroke)
+
+        try? await Task.sleep(nanoseconds: 50_000_000)
+
+        XCTAssertTrue(viewModel.showNotch)
+        XCTAssertTrue(viewModel.shouldRenderStroke)
+
+        await assertEventually(timeout: 1.0) {
+            await MainActor.run {
+                viewModel.showNotch == false && viewModel.shouldRenderStroke == false
+            }
+        }
+    }
+
+    @MainActor
     func testHidingCurrentLiveActivityRestoresNextHighestPriorityActivity() async {
         let viewModel = NotchViewModel(
             settings: TestNotchSettings(),

@@ -82,6 +82,7 @@ final class HUDSettingsStore: SettingsStoreBase {
     }
 
     override init(defaults: UserDefaults) {
+        defaults.register(defaults: GeneralSettingsStorage.defaultValues)
         self.isBrightnessHUDEnabled = defaults.bool(forKey: GeneralSettingsStorage.Keys.brightnessHUDEnabled)
         self.brightnessHUDDuration = Self.clampTemporaryActivityDuration(
             defaults.object(forKey: GeneralSettingsStorage.Keys.brightnessHUDDuration) as? Int ??
