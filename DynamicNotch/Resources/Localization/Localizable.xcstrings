@@ -3037,6 +3037,9 @@
         }
       }
     },
+    "Choose whether Tray keeps file references or moves originals into Tray storage." : {
+
+    },
     "Choose which background will be displayed when playing media." : {
 
     },
@@ -3841,6 +3844,9 @@
           }
         }
       }
+    },
+    "Copy" : {
+
     },
     "Coral" : {
       "extractionState" : "stale",
@@ -6800,6 +6806,9 @@
           }
         }
       }
+    },
+    "Move originals" : {
+
     },
     "Network activity" : {
       "localizations" : {
@@ -15424,6 +15433,9 @@
           }
         }
       }
+    },
+    "Tray usage" : {
+
     },
     "Trigger Events" : {
       "localizations" : {

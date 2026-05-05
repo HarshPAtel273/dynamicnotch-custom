@@ -61,7 +61,10 @@ struct NotchView: View {
                                     return false
                                 }
                                 
-                                return airDropController.handleTrayDrop(pasteboard)
+                                return airDropController.handleTrayDrop(
+                                    pasteboard,
+                                    mode: settingsViewModel.mediaAndFiles.fileTrayUsageMode
+                                )
                             }
                         }
                     )

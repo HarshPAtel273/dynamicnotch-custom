@@ -12,6 +12,7 @@ struct DropSettingsView: View {
         SettingsPageScrollView {
             dragAndDropActivity
             dragAndDropMode
+            tray
         }
     }
     
@@ -94,6 +95,19 @@ struct DropSettingsView: View {
                 color: .pink,
                 isOn: $mediaSettings.isDropMotionAnimationEnabled,
                 accessibilityIdentifier: "settings.activities.live.drop.motionAnimation"
+            )
+        }
+    }
+    
+    private var tray: some View {
+        SettingsCard(title: "Tray") {
+            SettingsMenuRow(
+                title: "Tray usage",
+                description: "Choose whether Tray keeps file references or moves originals into Tray storage.",
+                options: Array(FileTrayUsageMode.allCases),
+                optionTitle: { $0.title },
+                accessibilityIdentifier: "settings.activities.live.drop.trayUsage",
+                selection: $mediaSettings.fileTrayUsageMode
             )
         }
     }

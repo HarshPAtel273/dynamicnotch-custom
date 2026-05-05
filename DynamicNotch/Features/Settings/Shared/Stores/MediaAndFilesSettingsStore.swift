@@ -104,6 +104,12 @@ final class MediaAndFilesSettingsStore: SettingsStoreBase {
             persist(isTrayLiveActivityEnabled, for: GeneralSettingsStorage.Keys.trayLiveActivityEnabled)
         }
     }
+    
+    @Published var fileTrayUsageMode: FileTrayUsageMode {
+        didSet {
+            persist(fileTrayUsageMode.rawValue, for: GeneralSettingsStorage.Keys.fileTrayUsageMode)
+        }
+    }
 
     @Published var dragAndDropActivityMode: DragAndDropActivityMode {
         didSet {
@@ -162,6 +168,9 @@ final class MediaAndFilesSettingsStore: SettingsStoreBase {
             defaults: defaults,
             key: GeneralSettingsStorage.Keys.trayLiveActivityEnabled
         )
+        self.fileTrayUsageMode = FileTrayUsageMode.resolved(
+            defaults.string(forKey: GeneralSettingsStorage.Keys.fileTrayUsageMode)
+        )
         self.dragAndDropActivityMode = DragAndDropActivityMode.resolved(
             defaults.string(forKey: GeneralSettingsStorage.Keys.dragAndDropActivityMode)
         )
@@ -202,6 +211,9 @@ final class MediaAndFilesSettingsStore: SettingsStoreBase {
         isTrayLiveActivityEnabled = defaultBool(for: GeneralSettingsStorage.Keys.trayLiveActivityEnabled)
         dragAndDropActivityMode = DragAndDropActivityMode.resolved(
             defaultString(for: GeneralSettingsStorage.Keys.dragAndDropActivityMode)
+        )
+        fileTrayUsageMode = FileTrayUsageMode.resolved(
+            defaultString(for: GeneralSettingsStorage.Keys.fileTrayUsageMode)
         )
     }
 
