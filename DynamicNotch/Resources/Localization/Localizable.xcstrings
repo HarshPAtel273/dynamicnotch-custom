@@ -409,7 +409,36 @@
         }
       }
     },
+    "Adjust how quickly press-and-hold and hover expansion trigger." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adjust how quickly press-and-hold and hover expansion trigger."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajusta la rapidez con la que se activan la expansión al mantener pulsado y al pasar el cursor."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройте, как быстро срабатывает раскрытие при удержании и наведении."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "调整按住和悬停展开的触发速度。"
+          }
+        }
+      }
+    },
     "Adjust how quickly the notch press peaks and hold-to-expand triggers." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2811,30 +2840,30 @@
         }
       }
     },
-    "Choose whether expanded content opens on click or after holding the notch." : {
+    "Choose whether expanded content opens on click, after holding the notch, or after hovering over it." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Choose whether expanded content opens on click or after holding the notch."
+            "value" : "Choose whether expanded content opens on click, after holding the notch, or after hovering over it."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Elige si el contenido expandido se abre con un clic o al mantener pulsada la muesca."
+            "value" : "Elige si el contenido expandido se abre con un clic, al mantener pulsada la muesca o al pasar el cursor sobre ella."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Выберите, открывать расширенный контент нажатием или после удержания выреза."
+            "value" : "Выберите, открывать расширенный контент нажатием, после удержания выреза или после наведения на него."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "选择展开内容是点击打开，还是按住刘海后打开。"
+            "value" : "选择展开内容是点击打开、按住刘海后打开，还是悬停在其上方后打开。"
           }
         }
       }
@@ -5418,7 +5447,6 @@
       }
     },
     "Hover" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

@@ -116,7 +116,17 @@ final class NotchViewModel: ObservableObject {
         canExpandActiveLiveActivity
     }
 
+    var shouldExpandActiveContentOnHover: Bool {
+        settings.isNotchTapToExpandEnabled &&
+        settings.notchExpandInteraction == .hover &&
+        canExpandActiveLiveActivity
+    }
+
     var notchPressHoldDuration: TimeInterval {
+        settings.notchPressHoldDuration
+    }
+
+    var notchHoverExpandDelay: TimeInterval {
         settings.notchPressHoldDuration
     }
     

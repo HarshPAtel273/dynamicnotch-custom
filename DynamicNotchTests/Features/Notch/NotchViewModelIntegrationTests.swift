@@ -277,6 +277,50 @@ final class NotchViewModelIntegrationTests: XCTestCase {
     }
 
     @MainActor
+    func testHoverExpandInteractionBecomesAvailableForExpandableLiveActivity() async {
+        let hoverDelay: TimeInterval = 0.41
+        let viewModel = NotchViewModel(
+            settings: TestNotchSettings(
+                notchExpandInteraction: .hover,
+                notchPressHoldDuration: hoverDelay
+            ),
+            hideDelay: 0.01,
+            queueDelay: 0
+        )
+        TestLifetime.retain(viewModel)
+
+        viewModel.send(
+            .showLiveActivity(
+                TestNotchContent(
+                    id: "hover-expand",
+                    priority: 10,
+                    isExpandable: true,
+                    expandedWidthOffset: 120,
+                    expandedHeightOffset: 60
+                )
+            )
+        )
+
+        await assertEventually {
+            await MainActor.run { viewModel.notchModel.liveActivityContent?.id == "hover-expand" }
+        }
+
+        let state = await MainActor.run {
+            (
+                hover: viewModel.shouldExpandActiveContentOnHover,
+                click: viewModel.shouldExpandActiveContentOnClick,
+                pressAndHold: viewModel.shouldExpandActiveContentOnPressAndHold,
+                delay: viewModel.notchHoverExpandDelay
+            )
+        }
+
+        XCTAssertTrue(state.hover)
+        XCTAssertFalse(state.click)
+        XCTAssertFalse(state.pressAndHold)
+        XCTAssertEqual(state.delay, hoverDelay, accuracy: 0.001)
+    }
+
+    @MainActor
     func testHidingCurrentLiveActivityRestoresNextHighestPriorityActivity() async {
         let viewModel = NotchViewModel(
             settings: TestNotchSettings(),
