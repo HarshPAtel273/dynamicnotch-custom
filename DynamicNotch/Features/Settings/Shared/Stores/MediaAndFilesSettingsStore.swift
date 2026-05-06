@@ -111,6 +111,12 @@ final class MediaAndFilesSettingsStore: SettingsStoreBase {
         }
     }
 
+    @Published var fileTrayScrollDirection: FileTrayScrollDirection {
+        didSet {
+            persist(fileTrayScrollDirection.rawValue, for: GeneralSettingsStorage.Keys.fileTrayScrollDirection)
+        }
+    }
+
     @Published var dragAndDropActivityMode: DragAndDropActivityMode {
         didSet {
             persist(dragAndDropActivityMode.rawValue, for: GeneralSettingsStorage.Keys.dragAndDropActivityMode)
@@ -171,6 +177,9 @@ final class MediaAndFilesSettingsStore: SettingsStoreBase {
         self.fileTrayUsageMode = FileTrayUsageMode.resolved(
             defaults.string(forKey: GeneralSettingsStorage.Keys.fileTrayUsageMode)
         )
+        self.fileTrayScrollDirection = FileTrayScrollDirection.resolved(
+            defaults.string(forKey: GeneralSettingsStorage.Keys.fileTrayScrollDirection)
+        )
         self.dragAndDropActivityMode = DragAndDropActivityMode.resolved(
             defaults.string(forKey: GeneralSettingsStorage.Keys.dragAndDropActivityMode)
         )
@@ -214,6 +223,9 @@ final class MediaAndFilesSettingsStore: SettingsStoreBase {
         )
         fileTrayUsageMode = FileTrayUsageMode.resolved(
             defaultString(for: GeneralSettingsStorage.Keys.fileTrayUsageMode)
+        )
+        fileTrayScrollDirection = FileTrayScrollDirection.resolved(
+            defaultString(for: GeneralSettingsStorage.Keys.fileTrayScrollDirection)
         )
     }
 

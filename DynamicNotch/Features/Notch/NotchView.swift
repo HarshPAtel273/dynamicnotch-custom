@@ -191,8 +191,10 @@ private extension NotchView {
     @ViewBuilder
     var contextMenuItem: some View {
         Button {
-            openWindow(id: WindowsScene.settings)
-            SettingsWindowCoordinator.activate()
+            if !SettingsWindowCoordinator.activateExisting() {
+                openWindow(id: WindowsScene.settings)
+                SettingsWindowCoordinator.activate()
+            }
         } label: {
             Image(systemName: "gearshape")
             Text(verbatim: "Settings")

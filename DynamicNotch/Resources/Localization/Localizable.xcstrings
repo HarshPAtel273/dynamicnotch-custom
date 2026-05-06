@@ -1960,6 +1960,9 @@
         }
       }
     },
+    "Choose how files scroll inside the expanded Tray." : {
+
+    },
     "Choose how hardware HUD feedback is laid out inside the notch." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -5396,6 +5399,9 @@
         }
       }
     },
+    "Horizontal" : {
+
+    },
     "Hotspot Active" : {
       "localizations" : {
         "en" : {
@@ -5707,6 +5713,9 @@
           }
         }
       }
+    },
+    "If the original is moved to the tray and deleted from there, you can restore it in the system trash." : {
+
     },
     "Indigo" : {
       "extractionState" : "stale",
@@ -8506,6 +8515,9 @@
           }
         }
       }
+    },
+    "Scroll direction" : {
+
     },
     "Set a global motion parameter that controls the speed of the animation." : {
       "localizations" : {
@@ -15406,6 +15418,9 @@
         }
       }
     },
+    "Tray appearance" : {
+
+    },
     "Tray live activity" : {
       "localizations" : {
         "en" : {
@@ -16117,6 +16132,9 @@
           }
         }
       }
+    },
+    "Vertical" : {
+
     },
     "Volume" : {
       "extractionState" : "stale",
