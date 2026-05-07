@@ -176,6 +176,7 @@ enum GeneralSettingsStorage {
         LockScreenSettings.widgetTintStyleKey: LockScreenWidgetTintStyle.neutral.rawValue,
         LockScreenSettings.widgetBackgroundBrightnessKey: 1.0,
         LockScreenSettings.mediaPanelBackgroundStyleKey: LockScreenMediaPanelBackgroundStyle.animatedArtwork.rawValue,
+        LockScreenSettings.mediaPanelVerticalOffsetKey: 0.0,
         Keys.chargerTemporaryActivityEnabled: true,
         Keys.temporaryActivityDurationScale: 1.0,
         Keys.chargerTemporaryActivityDuration: 4,

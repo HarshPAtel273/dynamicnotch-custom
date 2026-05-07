@@ -7247,6 +7247,34 @@
         }
       }
     },
+    "Media panel position" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Media panel position"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Posición del panel multimedia"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Позиция медиапанели"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "媒体面板位置"
+          }
+        }
+      }
+    },
     "Midnight Echoes" : {
       "localizations" : {
         "en" : {
@@ -7383,6 +7411,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "移动原件"
+          }
+        }
+      }
+    },
+    "Move the lock-screen media panel up or down." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move the lock-screen media panel up or down."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mueve el panel multimedia de la pantalla de bloqueo hacia arriba o abajo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перемещает медиапанель экрана блокировки вверх или вниз."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "向上或向下移动锁屏媒体面板。"
           }
         }
       }
