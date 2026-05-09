@@ -18,7 +18,7 @@ struct FileConverterActiveNotchContent: NotchContentProtocol {
     var isExpandable: Bool { true }
 
     func size(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
-        return .init(width: baseWidth + 70, height: baseHeight)
+        return .init(width: baseWidth + 65, height: baseHeight)
     }
 
     func expandedSize(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {

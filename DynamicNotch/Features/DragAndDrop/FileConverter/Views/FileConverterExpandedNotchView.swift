@@ -54,7 +54,7 @@ struct FileConverterExpandedActiveNotchView: View {
                 Spacer()
 
                 Menu {
-                    ForEach(FileConverterOutputFormat.allCases) { format in
+                    ForEach(fileConverterViewModel.availableFormats) { format in
                         Button(format.title) {
                             fileConverterViewModel.selectedFormat = format
                         }
@@ -79,7 +79,7 @@ struct FileConverterExpandedActiveNotchView: View {
                 .menuStyle(.button)
                 .buttonStyle(.plain)
                 .disabled(fileConverterViewModel.isConverting)
-                
+
                 Spacer()
             }
         }
