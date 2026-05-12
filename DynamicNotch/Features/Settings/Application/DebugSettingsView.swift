@@ -237,6 +237,26 @@ struct DebugSettingsView: View {
             debugDivider
 
             DebugActionRow(
+                title: "Converter Converting",
+                description: "Show the converter collapsed converting state.",
+                systemImage: "arrow.triangle.2.circlepath",
+                color: .accentColor,
+                action: viewModel.triggerFileConverterConvertingPreview
+            )
+
+            debugDivider
+
+            DebugActionRow(
+                title: "Converter Failed",
+                description: "Show the converter collapsed failed state.",
+                systemImage: "exclamationmark.triangle.fill",
+                color: .yellow,
+                action: viewModel.triggerFileConverterFailedPreview
+            )
+
+            debugDivider
+
+            DebugActionRow(
                 title: "Converter Success",
                 description: "Show the converter collapsed success state.",
                 systemImage: "checkmark.seal.fill",

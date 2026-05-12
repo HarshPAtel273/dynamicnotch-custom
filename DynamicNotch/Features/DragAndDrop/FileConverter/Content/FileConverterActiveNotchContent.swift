@@ -17,12 +17,20 @@ struct FileConverterActiveNotchContent: NotchContentProtocol {
     var priority: Int { NotchContentRegistry.DragAndDrop.fileConverterActive.priority }
     var isExpandable: Bool { true }
 
+    var windowLink: (@MainActor () -> Void)? {
+        guard fileConverterViewModel.isConverted else { return nil }
+
+        return {
+            fileConverterViewModel.revealConvertedFile()
+        }
+    }
+
     func size(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
         return .init(width: baseWidth + 65, height: baseHeight)
     }
 
     func expandedSize(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
-        return .init(width: baseWidth + 150, height: baseHeight + 150)
+        return .init(width: baseWidth + 150, height: baseHeight + 165)
     }
 
     func expandedCornerRadius(baseRadius: CGFloat) -> (top: CGFloat, bottom: CGFloat) {

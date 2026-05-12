@@ -36,9 +36,9 @@ struct FileConverterActiveNotchView: View {
                 .font(.system(size: 18, weight: .semibold))
 
         case .converting:
-            ProgressView()
-                .controlSize(.small)
-                .scaleEffect(0.6)
+            FileConverterConvertingIndicator()
+                .frame(width: 18, height: 18)
+                .padding(.trailing, 2.scaled(by: scale))
 
         case .converted:
             Image(systemName: "checkmark.circle.fill")

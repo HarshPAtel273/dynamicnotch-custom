@@ -276,24 +276,20 @@ final class DebugSettingsViewModel: ObservableObject {
     }
 
     func triggerFileConverterConvertedPreview() {
-        if isFileConverterPreviewEnabled {
-            isFileConverterPreviewEnabled = false
-        }
-
-        do {
-            try prepareFileConverterPreviewItem()
+        showFileConverterStatusPreview {
             fileConverterPreviewViewModel.convert()
-            notchViewModel.send(
-                .showLiveActivity(
-                    makeSequenceContent(
-                        makeFileConverterActivePreviewContent(),
-                        id: Self.sequenceFileConverterActiveID,
-                        priorityBoost: 1_000
-                    )
-                )
-            )
-        } catch {
-            fileConverterPreviewViewModel.clear()
+        }
+    }
+
+    func triggerFileConverterConvertingPreview() {
+        showFileConverterStatusPreview {
+            fileConverterPreviewViewModel.showDebugConvertingStatus()
+        }
+    }
+
+    func triggerFileConverterFailedPreview() {
+        showFileConverterStatusPreview {
+            fileConverterPreviewViewModel.showDebugFailedStatus()
         }
     }
 
@@ -477,6 +473,8 @@ final class DebugSettingsViewModel: ObservableObject {
                 try await self.playCombinedDragAndDropPreview()
                 try await self.playFileTrayActivePreview()
                 try await self.playFileConverterActivePreview()
+                try await self.playFileConverterConvertingPreview()
+                try await self.playFileConverterFailedPreview()
                 try await self.playFileConverterConvertedPreview()
                 try await self.playBluetoothPreview()
                 try await self.playTemporaryPreview(
@@ -662,6 +660,28 @@ final class DebugSettingsViewModel: ObservableObject {
         }
     }
 
+    private func showFileConverterStatusPreview(_ configureStatus: () -> Void) {
+        if isFileConverterPreviewEnabled {
+            isFileConverterPreviewEnabled = false
+        }
+
+        do {
+            try prepareFileConverterPreviewItem()
+            configureStatus()
+            notchViewModel.send(
+                .showLiveActivity(
+                    makeSequenceContent(
+                        makeFileConverterActivePreviewContent(),
+                        id: Self.sequenceFileConverterActiveID,
+                        priorityBoost: 1_000
+                    )
+                )
+            )
+        } catch {
+            fileConverterPreviewViewModel.clear()
+        }
+    }
+
     private func makeFileConverterActivePreviewContent() -> FileConverterActiveNotchContent {
         FileConverterActiveNotchContent(
             fileConverterViewModel: fileConverterPreviewViewModel,
@@ -827,6 +847,28 @@ final class DebugSettingsViewModel: ObservableObject {
         try await playLivePreview(
             makeFileConverterActivePreviewContent(),
             id: Self.sequenceFileConverterActiveID
+        )
+        fileConverterPreviewViewModel.clear()
+    }
+
+    private func playFileConverterConvertingPreview() async throws {
+        try prepareFileConverterPreviewItem()
+        fileConverterPreviewViewModel.showDebugConvertingStatus()
+        try await playLivePreview(
+            makeFileConverterActivePreviewContent(),
+            id: Self.sequenceFileConverterActiveID,
+            duration: 3
+        )
+        fileConverterPreviewViewModel.clear()
+    }
+
+    private func playFileConverterFailedPreview() async throws {
+        try prepareFileConverterPreviewItem()
+        fileConverterPreviewViewModel.showDebugFailedStatus()
+        try await playLivePreview(
+            makeFileConverterActivePreviewContent(),
+            id: Self.sequenceFileConverterActiveID,
+            duration: 3
         )
         fileConverterPreviewViewModel.clear()
     }

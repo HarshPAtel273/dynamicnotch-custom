@@ -4213,6 +4213,12 @@
         }
       }
     },
+    "Converter Converting" : {
+
+    },
+    "Converter Failed" : {
+
+    },
     "Converter Success" : {
 
     },
@@ -15112,6 +15118,12 @@
           }
         }
       }
+    },
+    "Show the converter collapsed converting state." : {
+
+    },
+    "Show the converter collapsed failed state." : {
+
     },
     "Show the converter collapsed success state." : {
 
