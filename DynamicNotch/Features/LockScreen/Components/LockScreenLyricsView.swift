@@ -71,7 +71,7 @@ struct LockScreenLyricsView: View {
         let activeIndex = lyrics.activeLineIndex(at: elapsedTime) ?? 0
         let visibleLines = visibleSyncedLines(lyrics.lines, activeIndex: activeIndex)
         
-        return VStack(alignment: .leading, spacing: 24) {
+        return VStack(alignment: .leading, spacing: 20) {
             ForEach(visibleLines) { line in
                 LockScreenLyricLineView(
                     line: line,
@@ -85,7 +85,7 @@ struct LockScreenLyricsView: View {
                 )
             }
         }
-        .frame(width: width, height: height, alignment: .center)
+        .frame(width: width, height: height)
         .animation(.spring(response: 0.4, dampingFraction: 0.88), value: activeIndex)
     }
     
@@ -162,7 +162,7 @@ private struct LockScreenLyricLineView: View {
         Text(line.text)
             .font(.system(size: isActive ? 34 : 30, weight: .bold, design: .rounded))
             .foregroundStyle(.white.opacity(lineOpacity))
-            .minimumScaleFactor(0.78)
+            .lineLimit(3)
             .multilineTextAlignment(.leading)
             .blur(radius: blurRadius)
             .scaleEffect(lineScale, anchor: .leading)

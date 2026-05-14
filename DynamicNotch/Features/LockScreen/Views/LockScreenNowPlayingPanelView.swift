@@ -129,7 +129,7 @@ struct LockScreenNowPlayingPanelView: View {
                 width: Self.expandedArtworkSize,
                 height: Self.expandedArtworkSize,
                 cornerRadius: 30,
-                usesFlipAnimation: false
+                usesFlipAnimation: true
             )
             .shadow(color: .black.opacity(0.45), radius: 24, x: 0, y: 16)
         }

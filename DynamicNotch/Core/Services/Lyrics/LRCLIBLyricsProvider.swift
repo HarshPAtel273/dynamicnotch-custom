@@ -1,60 +1,5 @@
 import Foundation
 
-enum NowPlayingLyricsState: Equatable, Sendable {
-    case idle
-    case loading(trackKey: String)
-    case loaded(TrackLyrics)
-    case notFound(trackKey: String)
-    case failed(trackKey: String)
-
-    var trackKey: String? {
-        switch self {
-        case .idle:
-            return nil
-        case .loading(let trackKey),
-             .notFound(let trackKey),
-             .failed(let trackKey):
-            return trackKey
-        case .loaded(let lyrics):
-            return lyrics.trackKey
-        }
-    }
-}
-
-struct TrackLyrics: Equatable, Sendable {
-    let trackKey: String
-    let lines: [LyricLine]
-    let isSynced: Bool
-
-    func activeLineIndex(at elapsedTime: TimeInterval) -> Int? {
-        guard isSynced, lines.isEmpty == false else { return nil }
-
-        let playbackPosition = elapsedTime + 0.18
-        return lines.lastIndex { line in
-            guard let startTime = line.startTime else { return false }
-            return startTime <= playbackPosition
-        } ?? 0
-    }
-}
-
-struct LyricLine: Identifiable, Equatable, Sendable {
-    let id: Int
-    let startTime: TimeInterval?
-    let text: String
-}
-
-@MainActor
-protocol LyricsProviding: AnyObject {
-    func lyrics(for snapshot: NowPlayingSnapshot) async throws -> TrackLyrics?
-}
-
-@MainActor
-final class InactiveLyricsProvider: LyricsProviding {
-    func lyrics(for snapshot: NowPlayingSnapshot) async throws -> TrackLyrics? {
-        nil
-    }
-}
-
 @MainActor
 final class LRCLIBLyricsProvider: LyricsProviding {
     private enum CacheEntry {
@@ -113,10 +58,7 @@ final class LRCLIBLyricsProvider: LyricsProviding {
         return searchedLyrics
     }
 
-    private func fetchExactLyrics(
-        for snapshot: NowPlayingSnapshot,
-        trackKey: String
-    ) async throws -> TrackLyrics? {
+    private func fetchExactLyrics(for snapshot: NowPlayingSnapshot, trackKey: String) async throws -> TrackLyrics? {
         guard let url = makeURL(
             endpoint: "get",
             queryItems: queryItems(for: snapshot, includeAlbum: true, includeDuration: true)
@@ -131,10 +73,7 @@ final class LRCLIBLyricsProvider: LyricsProviding {
         return makeTrackLyrics(from: response, trackKey: trackKey)
     }
 
-    private func searchLyrics(
-        for snapshot: NowPlayingSnapshot,
-        trackKey: String
-    ) async throws -> TrackLyrics? {
+    private func searchLyrics(for snapshot: NowPlayingSnapshot, trackKey: String) async throws -> TrackLyrics? {
         let searchAttempts = [
             queryItems(for: snapshot, includeAlbum: false, includeDuration: true),
             queryItems(for: snapshot, includeAlbum: false, includeDuration: false),
@@ -167,10 +106,7 @@ final class LRCLIBLyricsProvider: LyricsProviding {
         return nil
     }
 
-    private func makeURL(
-        endpoint: String,
-        queryItems: [URLQueryItem]
-    ) -> URL? {
+    private func makeURL(endpoint: String, queryItems: [URLQueryItem]) -> URL? {
         var components = URLComponents(
             url: Self.baseURL.appendingPathComponent(endpoint),
             resolvingAgainstBaseURL: false
@@ -179,11 +115,7 @@ final class LRCLIBLyricsProvider: LyricsProviding {
         return components?.url
     }
 
-    private func queryItems(
-        for snapshot: NowPlayingSnapshot,
-        includeAlbum: Bool,
-        includeDuration: Bool
-    ) -> [URLQueryItem] {
+    private func queryItems(for snapshot: NowPlayingSnapshot, includeAlbum: Bool, includeDuration: Bool) -> [URLQueryItem] {
         var items = [
             URLQueryItem(name: "track_name", value: snapshot.title.trimmed),
             URLQueryItem(name: "artist_name", value: snapshot.artist.trimmed)
@@ -222,10 +154,7 @@ final class LRCLIBLyricsProvider: LyricsProviding {
         }
     }
 
-    private func bestResponse(
-        from responses: [Response],
-        for snapshot: NowPlayingSnapshot
-    ) -> Response? {
+    private func bestResponse(from responses: [Response], for snapshot: NowPlayingSnapshot) -> Response? {
         responses
             .filter { response in
                 response.instrumental == true ||
@@ -261,10 +190,7 @@ final class LRCLIBLyricsProvider: LyricsProviding {
         return score
     }
 
-    private func makeTrackLyrics(
-        from response: Response,
-        trackKey: String
-    ) -> TrackLyrics? {
+    private func makeTrackLyrics(from response: Response, trackKey: String) -> TrackLyrics? {
         if response.instrumental == true {
             return TrackLyrics(
                 trackKey: trackKey,
@@ -331,10 +257,7 @@ final class LRCLIBLyricsProvider: LyricsProviding {
             }
     }
 
-    private static func startTime(
-        from match: NSTextCheckingResult,
-        line: NSString
-    ) -> TimeInterval? {
+    private static func startTime(from match: NSTextCheckingResult, line: NSString) -> TimeInterval? {
         guard
             let minutes = integerValue(in: match.range(at: 1), line: line),
             let seconds = integerValue(in: match.range(at: 2), line: line)
