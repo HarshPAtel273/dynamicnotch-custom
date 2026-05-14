@@ -21,6 +21,7 @@ struct LockScreenSettingsView: View {
         SettingsPageScrollView {
             lockScreenActivity
             notchAppearance
+            artworkAppearance
             widgetAppearance
         }
     }
@@ -91,20 +92,17 @@ struct LockScreenSettingsView: View {
         }
     }
     
-    private var widgetAppearance: some View {
-        SettingsCard(title: "Widget appearance") {
-            CustomPicker(
-                selection: $settings.widgetAppearanceStyle,
-                options: LockScreenWidgetAppearanceStyle.availableOptions,
-                title: { $0.title },
-                itemHeight: 128,
-                lightBackgroundImage: Image("backgroundLight"),
-                darkBackgroundImage: Image("backgroundDark")
-            ) { style, isSelected in
-                widgetAppearancePickerContent(for: style, isSelected: isSelected)
-            }
-            .accessibilityIdentifier("settings.activities.lockScreen.widgetAppearance")
-            
+    private var artworkAppearance: some View {
+        SettingsCard(title: "Artwork appearance") {
+            SettingsToggleRow(
+                title: "Lock screen lyrics",
+                description: "Show synced lyrics next to the track cover when artwork is opened.",
+                systemImage: "text.quote",
+                color: .purple,
+                isOn: $settings.isLockScreenLyricsEnabled,
+                accessibilityIdentifier: "settings.activities.lockScreen.lyrics"
+            )
+
             Divider().opacity(0.6)
             
             SettingsMenuRow(
@@ -116,6 +114,22 @@ struct LockScreenSettingsView: View {
                 selection: $settings.mediaPanelBackgroundStyle
             )
             .accessibilityIdentifier("settings.activities.lockScreen.mediaPanelBackground")
+        }
+    }
+
+    private var widgetAppearance: some View {
+        SettingsCard(title: "Widget appearance") {
+            CustomPicker(
+                selection: $settings.widgetAppearanceStyle,
+                options: LockScreenWidgetAppearanceStyle.availableOptions,
+                title: { $0.title },
+                itemHeight: 128,
+                lightBackgroundImage: Image("backgroundLight"),
+                darkBackgroundImage: Image("backgroundDark"),
+            ) { style, isSelected in
+                widgetAppearancePickerContent(for: style, isSelected: isSelected)
+            }
+            .accessibilityIdentifier("settings.activities.lockScreen.widgetAppearance")
             
             Divider().opacity(0.6)
 

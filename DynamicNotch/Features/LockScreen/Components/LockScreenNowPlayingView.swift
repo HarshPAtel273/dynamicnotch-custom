@@ -1,22 +1,19 @@
 //
-//  NowPlayingExpandedNotchView.swift
+//  LockScreenNowPlayingView.swift
 //  DynamicNotch
 //
-//  Created by Евгений Петрукович on 4/14/26.
+//  Created by Евгений Петрукович on 5/13/26.
 //
 
 import SwiftUI
 
-struct NowPlayingExpandedNotchView: View {
+struct LockScreenNowPlayingView: View {
     @Environment(\.notchScale) var scale
     @ObservedObject var nowPlayingViewModel: NowPlayingViewModel
-    @ObservedObject var settings: MediaAndFilesSettingsStore
-    @ObservedObject var applicationSettings: ApplicationSettingsStore
-    
-    let onOpenPlaybackSource: @MainActor () -> Void
+    @ObservedObject var mediaSettings: MediaAndFilesSettingsStore
+    @Binding var onTapArtwork: Bool
     
     @State private var scrubProgress: CGFloat?
-    private let detailedPresentationSource = "nowPlaying.notch.expanded"
     
     private var resolvedSnapshot: NowPlayingSnapshot {
         nowPlayingViewModel.snapshot ?? NowPlayingSnapshot(
@@ -33,24 +30,12 @@ struct NowPlayingExpandedNotchView: View {
     
     var body: some View {
         let snapshot = resolvedSnapshot
-
+        
         return TimelineView(.periodic(from: .now, by: progressTick(for: snapshot))) { context in
             timelineContent(snapshot: snapshot, at: context.date)
         }
-        .onAppear {
-            nowPlayingViewModel.setDetailedPresentationActive(
-                true,
-                source: detailedPresentationSource
-            )
-        }
-        .onDisappear {
-            nowPlayingViewModel.setDetailedPresentationActive(
-                false,
-                source: detailedPresentationSource
-            )
-        }
     }
-
+    
     private func timelineContent(snapshot: NowPlayingSnapshot, at date: Date) -> some View {
         let elapsedTime = nowPlayingViewModel.snapshot != nil ?
         nowPlayingViewModel.elapsedTime(at: date) :
@@ -60,31 +45,32 @@ struct NowPlayingExpandedNotchView: View {
         let displayedElapsedTime = snapshot.duration > 0 ?
         TimeInterval(displayedProgress) * snapshot.duration :
         elapsedTime
-        let appearance = settings.resolvedNowPlayingAppearanceOptions(
-            isDefaultActivityStrokeEnabled: applicationSettings.isDefaultActivityStrokeEnabled
-        )
-
+        let appearance = mediaSettings.nowPlayingAppearanceOptions
+        
         return VStack {
-            Spacer()
-
             HStack(spacing: 15) {
-                Button(action: {
-                    openPlaybackSource()
-                }) {
-                    ArtworkView(
-                        nowPlayingViewModel: nowPlayingViewModel,
-                        width: 60,
-                        height: 60,
-                        cornerRadius: 10,
-                        usesFlipAnimation: appearance.usesArtwork3DEffect
-                    )
+                if onTapArtwork == false {
+                    Button(action: {
+                        withAnimation(.spring(response: 0.6)) {
+                            onTapArtwork = true
+                        }
+                    }) {
+                        ArtworkView(
+                            nowPlayingViewModel: nowPlayingViewModel,
+                            width: 60,
+                            height: 60,
+                            cornerRadius: 10,
+                            usesFlipAnimation: false
+                        )
+                    }
+                    .buttonStyle(PlaybackSourceButtonStyle())
                 }
-                .buttonStyle(PlaybackSourceButtonStyle())
-                .disabled(!nowPlayingViewModel.canOpenPlaybackSource)
-
+                
                 HStack(alignment: .top, spacing: 10) {
                     Button(action: {
-                        openPlaybackSource()
+                        withAnimation(.spring(response: 0.6)) {
+                            onTapArtwork.toggle()
+                        }
                     }) {
                         VStack(alignment: .leading, spacing: 2) {
                             MarqueeText(
@@ -94,7 +80,7 @@ struct NowPlayingExpandedNotchView: View {
                                 textColor: .white.opacity(0.8),
                                 backgroundColor: .clear,
                                 minDuration: 2.0,
-                                frameWidth: 170.scaled(by: scale)
+                                frameWidth: onTapArtwork ? 260.scaled(by: scale) : 180.scaled(by: scale)
                             )
 
                             MarqueeText(
@@ -104,26 +90,25 @@ struct NowPlayingExpandedNotchView: View {
                                 textColor: .white.opacity(0.5),
                                 backgroundColor: .clear,
                                 minDuration: 3.0,
-                                frameWidth: 170.scaled(by: scale)
+                                frameWidth: onTapArtwork ? 260.scaled(by: scale) : 180.scaled(by: scale)
                             )
                         }
                     }
                     .buttonStyle(PlaybackSourceButtonStyle())
-                    .disabled(!nowPlayingViewModel.canOpenPlaybackSource)
 
                     Spacer(minLength: 0)
-
+                    
                     LightweightNowPlayingEqualizerView(
                         isPlaying: snapshot.isPlaying,
                         color: nowPlayingViewModel.artworkPalette.equalizerBaseColor,
-                        barHeight: 23,
+                        barHeight: onTapArtwork ? 18 : 23,
                         barWidth: 2.7
                     )
                     .frame(width: 23, height: 18)
                 }
             }
             Spacer()
-
+            
             PlayerProgressBar(
                 progress: displayedProgress,
                 displayedElapsedTime: displayedElapsedTime,
@@ -140,42 +125,39 @@ struct NowPlayingExpandedNotchView: View {
                     scrubProgress = nil
                 }
             )
-
+            
             Spacer()
-
+            
             ZStack {
                 HStack(spacing: 25) {
                     PlayerControlButton(
                         systemImage: "backward.fill",
                         fontSize: 22,
                         width: 42,
-                        height: 42,
-                        feedbackStyle: .backward
+                        height: 42
                     ) {
                         nowPlayingViewModel.previousTrack()
                     }
-
+                    
                     PlayerControlButton(
                         systemImage: snapshot.isPlaying ? "pause.fill" : "play.fill",
                         fontSize: 32,
                         width: 42,
-                        height: 42,
-                        feedbackStyle: .playPause
+                        height: 42
                     ) {
                         nowPlayingViewModel.togglePlayPause()
                     }
-
+                    
                     PlayerControlButton(
                         systemImage: "forward.fill",
                         fontSize: 22,
                         width: 42,
-                        height: 42,
-                        feedbackStyle: .forward
+                        height: 42
                     ) {
                         nowPlayingViewModel.nextTrack()
                     }
                 }
-
+                
                 HStack {
                     if appearance.showsFavoriteButton {
                         FavoriteTrackButton(
@@ -185,9 +167,9 @@ struct NowPlayingExpandedNotchView: View {
                             fontSize: 21
                         )
                     }
-
+                    
                     Spacer()
-
+                    
                     if appearance.showsOutputDeviceButton {
                         AudioOutputRoutePickerButton(
                             nowPlayingViewModel: nowPlayingViewModel,
@@ -201,9 +183,7 @@ struct NowPlayingExpandedNotchView: View {
             }
             .frame(maxWidth: .infinity)
         }
-        .padding(.horizontal, 55)
-        .padding(.top, 25)
-        .padding(.bottom, 15)
+        .padding(18)
     }
     
     private func displayTitle(for snapshot: NowPlayingSnapshot) -> String {
@@ -240,7 +220,7 @@ struct NowPlayingExpandedNotchView: View {
 
     private func progressTimeColor(isPrimary: Bool, appearance: NowPlayingAppearanceOptions) -> Color {
         guard appearance.usesArtworkTint else {
-            return .white.opacity(0.4)
+            return .secondary
         }
 
         let nsColor = isPrimary ?
@@ -248,6 +228,10 @@ struct NowPlayingExpandedNotchView: View {
         nowPlayingViewModel.artworkPalette.equalizerBaseColor
 
         return Color(nsColor: nsColor)
+    }
+    
+    private func progressTick(for snapshot: NowPlayingSnapshot) -> TimeInterval {
+        snapshot.isPlaying ? 1.0 : 30.0
     }
     
     private func playbackStatusColor(for snapshot: NowPlayingSnapshot) -> Color {
@@ -258,16 +242,5 @@ struct NowPlayingExpandedNotchView: View {
         return snapshot.isPlaying ?
         Color(red: 0.97, green: 0.73, blue: 0.32) :
             .white.opacity(0.48)
-    }
-
-    private func progressTick(for snapshot: NowPlayingSnapshot) -> TimeInterval {
-        snapshot.isPlaying ? 1.0 : 30.0
-    }
-
-    private func openPlaybackSource() {
-        guard nowPlayingViewModel.canOpenPlaybackSource else { return }
-
-        nowPlayingViewModel.openPlaybackSource()
-        onOpenPlaybackSource()
     }
 }

@@ -25,6 +25,8 @@ final class NotchEventCoordinator: ObservableObject {
     private let connectivityHandler: NotchConnectivityEventsHandler
     private let powerHandler: NotchPowerEventsHandler
     private let mediaHandler: NotchMediaEventsHandler
+    private let downloadHandler: NotchDownloadEventsHandler
+    private let dragAndDropHandler: NotchDragAndDropEventsHandler
     private let timerHandler: NotchTimerEventsHandler
     private var cancellables = Set<AnyCancellable>()
     private var fileConverterExpansionTask: Task<Void, Never>?
@@ -95,10 +97,18 @@ final class NotchEventCoordinator: ObservableObject {
         )
         self.mediaHandler = NotchMediaEventsHandler(
             notchViewModel: notchViewModel,
-            downloadViewModel: downloadViewModel,
-            airDropViewModel: airDropViewModel,
             settingsViewModel: settingsViewModel,
             nowPlayingViewModel: nowPlayingViewModel
+        )
+        self.downloadHandler = NotchDownloadEventsHandler(
+            notchViewModel: notchViewModel,
+            downloadViewModel: downloadViewModel,
+            settingsViewModel: settingsViewModel
+        )
+        self.dragAndDropHandler = NotchDragAndDropEventsHandler(
+            notchViewModel: notchViewModel,
+            airDropViewModel: airDropViewModel,
+            settingsViewModel: settingsViewModel
         )
         self.timerHandler = NotchTimerEventsHandler(
             notchViewModel: notchViewModel,
@@ -278,13 +288,13 @@ final class NotchEventCoordinator: ObservableObject {
         guard !isOnboardingActive else { return }
         guard !isLockScreenTransitionActive else { return }
 
-        mediaHandler.handleDownload(event)
+        downloadHandler.handleDownload(event)
     }
 
     func handleAirDropEvent(_ event: AirDropEvent) {
         guard !isLockScreenTransitionActive else { return }
 
-        mediaHandler.handleAirDrop(event)
+        dragAndDropHandler.handleAirDrop(event)
     }
     
     func handleNowPlayingEvent(_ event: NowPlayingEvent) {
@@ -511,7 +521,7 @@ final class NotchEventCoordinator: ObservableObject {
 
                 if isEnabled {
                     if self.downloadViewModel.hasActiveDownloads {
-                        self.mediaHandler.handleDownload(.started)
+                        self.downloadHandler.handleDownload(.started)
                     }
                 } else {
                     self.notchViewModel.send(.hideLiveActivity(id: NotchContentRegistry.Media.download.id))
@@ -525,7 +535,7 @@ final class NotchEventCoordinator: ObservableObject {
                 guard let self else { return }
 
                 if isEnabled {
-                    self.mediaHandler.refreshDragAndDropPresentation()
+                    self.dragAndDropHandler.refreshDragAndDropPresentation()
                     self.syncFileTrayLiveActivity()
                     self.syncFileConverterLiveActivity()
                 } else {
@@ -541,7 +551,7 @@ final class NotchEventCoordinator: ObservableObject {
         settingsViewModel.mediaAndFiles.$dragAndDropActivityMode
             .removeDuplicates()
             .sink { [weak self] _ in
-                self?.mediaHandler.refreshDragAndDropPresentation()
+                self?.dragAndDropHandler.refreshDragAndDropPresentation()
                 self?.syncFileTrayLiveActivity()
                 self?.syncFileConverterLiveActivity()
             }
@@ -550,7 +560,7 @@ final class NotchEventCoordinator: ObservableObject {
         settingsViewModel.mediaAndFiles.$dragAndDropTargetColorStyle
             .removeDuplicates()
             .sink { [weak self] _ in
-                self?.mediaHandler.refreshDragAndDropPresentation()
+                self?.dragAndDropHandler.refreshDragAndDropPresentation()
                 self?.syncFileConverterLiveActivity()
             }
             .store(in: &cancellables)
@@ -588,7 +598,7 @@ final class NotchEventCoordinator: ObservableObject {
         settingsViewModel.mediaAndFiles.$isDropMotionAnimationEnabled
             .removeDuplicates()
             .sink { [weak self] _ in
-                self?.mediaHandler.refreshDragAndDropPresentation()
+                self?.dragAndDropHandler.refreshDragAndDropPresentation()
             }
             .store(in: &cancellables)
 
