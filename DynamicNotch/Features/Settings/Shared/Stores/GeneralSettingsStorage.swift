@@ -109,6 +109,8 @@ enum GeneralSettingsStorage {
         static let hotspotDefaultStrokeEnabled = "settings.live.hotspot.defaultStroke"
         static let lowPowerDefaultStrokeEnabled = "settings.battery.lowPower.defaultStroke"
         static let fullPowerDefaultStrokeEnabled = "settings.battery.fullPower.defaultStroke"
+        static let lowBatterySound = "settings.battery.lowBatterySound"
+        static let fullBatterySound = "settings.battery.fullBatterySound"
     }
 
     static let defaultValues: [String: Any] = [
@@ -232,6 +234,8 @@ enum GeneralSettingsStorage {
         Keys.focusDefaultStrokeEnabled: false,
         Keys.hotspotDefaultStrokeEnabled: false,
         Keys.lowPowerDefaultStrokeEnabled: false,
-        Keys.fullPowerDefaultStrokeEnabled: false
+        Keys.fullPowerDefaultStrokeEnabled: false,
+        Keys.lowBatterySound: true,
+        Keys.fullBatterySound: true
     ]
 }

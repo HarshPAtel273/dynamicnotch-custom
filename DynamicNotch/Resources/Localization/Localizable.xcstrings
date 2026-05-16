@@ -6079,6 +6079,34 @@
         }
       }
     },
+    "Full battery sound" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Full battery sound"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Batería completa de sonido"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Звук при полной зарядке аккумулятора"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全电池声音"
+          }
+        }
+      }
+    },
     "Full battery style" : {
       "localizations" : {
         "en" : {
@@ -7825,6 +7853,34 @@
         }
       }
     },
+    "Low battery sound" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Low battery sound"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sonido de batería baja"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Звук разряженной батареи"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低电池声音"
+          }
+        }
+      }
+    },
     "Low battery style" : {
       "localizations" : {
         "en" : {
@@ -9326,6 +9382,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "将文件悬停在区域上方时播放单元格移动动画。"
+          }
+        }
+      }
+    },
+    "Play audio when the battery is fully charged." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play audio when the battery is fully charged."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reproduzca audio cuando la batería esté completamente cargada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Воспроизводите звук, когда аккумулятор полностью заряжен."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当电池充满电时播放音频。"
+          }
+        }
+      }
+    },
+    "Play audio when the battery is low." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play audio when the battery is low."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reproduzca audio cuando la batería esté baja."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Воспроизводите звук при низком заряде батареи."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "电池电量不足时播放音频。"
           }
         }
       }
