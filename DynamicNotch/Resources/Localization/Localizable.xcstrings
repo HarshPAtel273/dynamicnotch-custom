@@ -12834,6 +12834,34 @@
         }
       }
     },
+    "settings.notch.priorities.row.fileConverterActive" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File converter"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Convertidor de archivos"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Конвертер файлов"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文件转换器"
+          }
+        }
+      }
+    },
     "settings.notch.priorities.row.focus" : {
       "localizations" : {
         "en" : {
@@ -12979,25 +13007,25 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tray active"
+            "value" : "Tray"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bandeja activa"
+            "value" : "Bandeja"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Трей активен"
+            "value" : "Трей"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "托盘活跃"
+            "value" : "托盘"
           }
         }
       }
