@@ -24,7 +24,9 @@ extension SettingsRootViewModel {
         downloadViewModel: DownloadViewModel?,
         nowPlayingViewModel: NowPlayingViewModel?,
         timerViewModel: TimerViewModel?,
-        lockScreenManager: LockScreenManager?
+        lockScreenManager: LockScreenManager?,
+        homePageViewModel: HomePageViewModel?
+        
     ) -> DebugSettingsViewModel {
         let dependencies = resolveDebugDependencies(
             settingsViewModel: settingsViewModel,
@@ -36,7 +38,8 @@ extension SettingsRootViewModel {
             downloadViewModel: downloadViewModel,
             nowPlayingViewModel: nowPlayingViewModel,
             timerViewModel: timerViewModel,
-            lockScreenManager: lockScreenManager
+            lockScreenManager: lockScreenManager,
+            homePageViewModel: homePageViewModel
         )
 
         return DebugSettingsViewModel(
@@ -63,7 +66,8 @@ extension SettingsRootViewModel {
         downloadViewModel: DownloadViewModel?,
         nowPlayingViewModel: NowPlayingViewModel?,
         timerViewModel: TimerViewModel?,
-        lockScreenManager: LockScreenManager?
+        lockScreenManager: LockScreenManager?,
+        homePageViewModel: HomePageViewModel?
     ) -> SettingsRootDebugDependencies {
         let resolvedNotchViewModel = notchViewModel ?? NotchViewModel(
             settings: settingsViewModel.application
@@ -89,6 +93,7 @@ extension SettingsRootViewModel {
             service: InactiveLockScreenMonitoringService(),
             soundPlayer: InactiveLockScreenSoundPlayer()
         )
+        let resolvedHomePageViewModel = homePageViewModel ?? HomePageViewModel()
         let resolvedCoordinator = notchEventCoordinator ?? NotchEventCoordinator(
             notchViewModel: resolvedNotchViewModel,
             bluetoothViewModel: resolvedBluetoothViewModel,
@@ -101,7 +106,8 @@ extension SettingsRootViewModel {
             settingsViewModel: settingsViewModel,
             nowPlayingViewModel: resolvedNowPlayingViewModel,
             timerViewModel: resolvedTimerViewModel,
-            lockScreenManager: resolvedLockScreenManager
+            lockScreenManager: resolvedLockScreenManager,
+            homePageViewModel: resolvedHomePageViewModel
         )
 
         return SettingsRootDebugDependencies(

@@ -28,6 +28,7 @@ final class NotchEventCoordinator: ObservableObject {
     private let downloadHandler: NotchDownloadEventsHandler
     private let dragAndDropHandler: NotchDragAndDropEventsHandler
     private let timerHandler: NotchTimerEventsHandler
+    private let homePageHandler: NotchHomePageEventsHandler
     private var cancellables = Set<AnyCancellable>()
     private var fileConverterExpansionTask: Task<Void, Never>?
     
@@ -61,7 +62,8 @@ final class NotchEventCoordinator: ObservableObject {
         settingsViewModel: SettingsViewModel,
         nowPlayingViewModel: NowPlayingViewModel,
         timerViewModel: TimerViewModel,
-        lockScreenManager: LockScreenManager
+        lockScreenManager: LockScreenManager,
+        homePageViewModel: HomePageViewModel
     ) {
         self.notchViewModel = notchViewModel
         self.networkViewModel = networkViewModel
@@ -115,6 +117,10 @@ final class NotchEventCoordinator: ObservableObject {
             timerViewModel: timerViewModel,
             settingsViewModel: settingsViewModel
         )
+        self.homePageHandler = NotchHomePageEventsHandler(
+            notchViewModel: notchViewModel,
+            settingsViewModel: settingsViewModel
+        )
         self.fileTrayViewModel.onItemsChange = { [weak notchViewModel, weak settingsViewModel, weak fileTrayViewModel] items in
             guard let notchViewModel, let settingsViewModel, let fileTrayViewModel else {
                 return
@@ -166,9 +172,14 @@ final class NotchEventCoordinator: ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 self.handleOnboardingEvent(.onboarding)
             }
-        } else if nowPlayingViewModel.hasActiveSession &&
-                    settingsViewModel.isLiveActivityEnabled(.nowPlaying) {
-            mediaHandler.handleNowPlaying(.started)
+        } else {
+            if nowPlayingViewModel.hasActiveSession &&
+                settingsViewModel.isLiveActivityEnabled(.nowPlaying) {
+                mediaHandler.handleNowPlaying(.started)
+            }
+            if settingsViewModel.isLiveActivityEnabled(.homePage) {
+                homePageHandler.handleHomePage(.homePageOn)
+            }
         }
     }
     
@@ -187,10 +198,14 @@ final class NotchEventCoordinator: ObservableObject {
         }
         #endif
 
-        if markAsSeen &&
-            nowPlayingViewModel.hasActiveSession &&
-            settingsViewModel.isLiveActivityEnabled(.nowPlaying) {
-            mediaHandler.handleNowPlaying(.started)
+        if markAsSeen {
+            if nowPlayingViewModel.hasActiveSession &&
+                settingsViewModel.isLiveActivityEnabled(.nowPlaying) {
+                mediaHandler.handleNowPlaying(.started)
+            }
+            if settingsViewModel.isLiveActivityEnabled(.homePage) {
+                homePageHandler.handleHomePage(.homePageOn)
+            }
         }
     }
     
@@ -308,6 +323,13 @@ final class NotchEventCoordinator: ObservableObject {
         guard !isLockScreenTransitionActive else { return }
 
         timerHandler.handleTimer(event)
+    }
+    
+    func handleHomePageEvent(_ event: HomePageEvent) {
+        guard !isOnboardingActive else { return }
+        guard !isLockScreenTransitionActive else { return }
+        
+        homePageHandler.handleHomePage(event)
     }
 
     func handleScreenRecordingEvent(_ event: ScreenRecordingEvent) {
@@ -669,6 +691,19 @@ final class NotchEventCoordinator: ObservableObject {
                         )
                     )
                 )
+            }
+            .store(in: &cancellables)
+
+        settingsViewModel.homePage.$isHomePageLiveActivityEnabled
+            .removeDuplicates()
+            .sink { [weak self] isEnabled in
+                guard let self else { return }
+
+                if isEnabled {
+                    self.handleHomePageEvent(.homePageOn)
+                } else {
+                    self.handleHomePageEvent(.homePageOff)
+                }
             }
             .store(in: &cancellables)
     }

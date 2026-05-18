@@ -1,217 +1,11 @@
+//
+//  NotchContentRegistry.swift
+//  DynamicNotch
+//
+//  Created by Евгений Петрукович on 5/18/26.
+//
+
 import Foundation
-import SwiftUI
-
-struct NotchContentDescriptor: Equatable {
-    let id: String
-    let stackID: String
-    let defaultPriority: Int
-    let priorityKey: NotchContentPriority.Key?
-
-    var priority: Int {
-        guard let priorityKey else {
-            return defaultPriority
-        }
-
-        return NotchContentPriority.resolvedValue(for: priorityKey)
-    }
-
-    init(
-        id: String,
-        stackID: String? = nil,
-        priority: Int = NotchContentPriority.default,
-        priorityKey: NotchContentPriority.Key? = nil
-    ) {
-        self.id = id
-        self.stackID = stackID ?? id
-        self.defaultPriority = priority
-        self.priorityKey = priorityKey
-    }
-
-    init(
-        id: String,
-        stackID: String? = nil,
-        priorityKey: NotchContentPriority.Key
-    ) {
-        self.init(
-            id: id,
-            stackID: stackID,
-            priority: priorityKey.defaultValue,
-            priorityKey: priorityKey
-        )
-    }
-}
-
-enum NotchContentPriority {
-    enum Key: String, CaseIterable, Identifiable {
-        case focus
-        case hotspot
-        case download
-        case trayActive
-        case fileConverterActive
-        case nowPlaying
-        case timer
-        case screenRecording
-
-        var id: String { rawValue }
-
-        var defaultValue: Int {
-            switch self {
-            case .focus:
-                NotchContentPriority.focus
-            case .hotspot:
-                NotchContentPriority.hotspot
-            case .download:
-                NotchContentPriority.download
-            case .trayActive:
-                NotchContentPriority.trayActive
-            case .fileConverterActive:
-                NotchContentPriority.fileConverterActive
-            case .nowPlaying:
-                NotchContentPriority.nowPlaying
-            case .timer:
-                NotchContentPriority.timer
-            case .screenRecording:
-                NotchContentPriority.screenRecording
-            }
-        }
-        
-        var titleKey: LocalizedStringKey {
-            switch self {
-            case .focus:
-                "settings.notch.priorities.row.focus"
-            case .hotspot:
-                "settings.notch.priorities.row.hotspot"
-            case .download:
-                "settings.notch.priorities.row.downloads"
-            case .trayActive:
-                "settings.notch.priorities.row.trayActive"
-            case .nowPlaying:
-                "settings.notch.priorities.row.nowPlaying"
-            case .timer:
-                "settings.notch.priorities.row.timer"
-            case .screenRecording:
-                "settings.notch.priorities.row.screenRecording"
-            case .fileConverterActive:
-                "settings.notch.priorities.row.fileConverterActive"
-            }
-        }
-        
-        var image: String {
-            switch self {
-            case .focus:
-                return "moon.fill"
-            case .hotspot:
-                return "personalhotspot"
-            case .download:
-                return "arrow.down.document.fill"
-            case .trayActive:
-                return "tray.full.fill"
-            case .fileConverterActive:
-                return "arrow.trianglehead.2.counterclockwise.rotate.90"
-            case .nowPlaying:
-                return "music.note"
-            case .timer:
-                return "timer"
-            case .screenRecording:
-                return "record.circle"
-            }
-        }
-        
-        var color: Color {
-            switch self {
-            case .focus:
-                    .indigo
-            case .hotspot:
-                    .green
-            case .download:
-                    .purple
-            case .trayActive:
-                    .black
-            case .fileConverterActive:
-                    .green
-            case .nowPlaying:
-                    .pink
-            case .timer:
-                    .orange
-            case .screenRecording:
-                    .red
-            }
-        }
-    }
-
-    static let overrideStorageKey = "settings.notch.priorityOverrides"
-    static let priorityRange: ClosedRange<Int> = 0...20
-    static let configurableKeys: [Key] = [
-        .focus,
-        .hotspot,
-        .download,
-        .trayActive,
-        .fileConverterActive,
-        .nowPlaying,
-        .timer,
-        .screenRecording
-    ]
-
-    static let `default` = 0
-    static let focus = 1
-    static let hotspot = 2
-    static let download = 3
-    static let trayActive = 4
-    static let fileConverterActive = 5
-    static let nowPlaying = 6
-    static let timer = 7
-    static let screenRecording = 8
-
-    static let notchSizeWidth = 1000
-    static let notchSizeHeight = 1001
-    static let dragAndDrop = 1002
-    static let lockScreen = 1003
-    static let onboarding = 1004
-
-    static func resolvedValue(for key: Key, defaults: UserDefaults = .standard) -> Int {
-        overrideValues(defaults: defaults)[key.rawValue] ?? key.defaultValue
-    }
-
-    static func overrideValues(defaults: UserDefaults = .standard) -> [String: Int] {
-        guard let storedValues = defaults.dictionary(forKey: overrideStorageKey) else {
-            return [:]
-        }
-
-        return sanitizedOverrides(
-            storedValues.compactMapValues { value in
-                if let intValue = value as? Int {
-                    return intValue
-                }
-
-                if let numberValue = value as? NSNumber {
-                    return numberValue.intValue
-                }
-
-                return nil
-            }
-        )
-    }
-
-    static func sanitizedOverrides(_ overrides: [String: Int]) -> [String: Int] {
-        overrides.reduce(into: [:]) { result, pair in
-            guard let key = Key(rawValue: pair.key) else { return }
-            let clampedValue = clamped(pair.value)
-
-            guard clampedValue != key.defaultValue else { return }
-            result[key.rawValue] = clampedValue
-        }
-    }
-
-    static func clamped(_ priority: Int) -> Int {
-        min(max(priority, priorityRange.lowerBound), priorityRange.upperBound)
-    }
-}
-
-extension Notification.Name {
-    static let notchContentPrioritiesDidChange = Notification.Name(
-        "DynamicNotch.notchContentPrioritiesDidChange"
-    )
-}
 
 enum NotchContentRegistry {
     enum HUD {
@@ -231,6 +25,14 @@ enum NotchContentRegistry {
             priorityKey: .focus
         )
         static let inactive = NotchContentDescriptor(id: "focus.off")
+    }
+    
+    enum HomePage {
+        static let active = NotchContentDescriptor(
+            id: "home.active",
+            priorityKey: .homePage
+        )
+        static let inactive = NotchContentDescriptor(id: "home.inactive")
     }
 
     enum ScreenRecording {

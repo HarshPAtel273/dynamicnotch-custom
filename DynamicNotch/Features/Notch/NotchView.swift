@@ -19,6 +19,7 @@ struct NotchView: View {
     @ObservedObject var timerViewModel: TimerViewModel
     @ObservedObject var screenRecordingViewModel: ScreenRecordingViewModel
     @ObservedObject var lockScreenManager: LockScreenManager
+    @ObservedObject var homePageViewModel: HomePageViewModel
     
     var body: some View {
         ZStack(alignment: .top) {
@@ -37,7 +38,8 @@ struct NotchView: View {
                         nowPlayingViewModel: nowPlayingViewModel,
                         timerViewModel: timerViewModel,
                         screenRecordingViewModel: screenRecordingViewModel,
-                        lockScreenManager: lockScreenManager
+                        lockScreenManager: lockScreenManager,
+                        homePageViewModel: homePageViewModel
                     )
                 )
                 .overlay {
@@ -233,6 +235,7 @@ private struct NotchEventHandlersView: View {
     let timerViewModel: TimerViewModel
     let screenRecordingViewModel: ScreenRecordingViewModel
     let lockScreenManager: LockScreenManager
+    let homePageViewModel: HomePageViewModel
     
     var body: some View {
         Color.clear
@@ -268,6 +271,9 @@ private struct NotchEventHandlersView: View {
             }
             .onReceive(lockScreenManager.$event.compactMap { $0 }) { event in
                 notchEventCoordinator.handleLockScreenEvent(event)
+            }
+            .onReceive(homePageViewModel.$event.compactMap { $0 }) { event in
+                notchEventCoordinator.handleHomePageEvent(event)
             }
     }
 }

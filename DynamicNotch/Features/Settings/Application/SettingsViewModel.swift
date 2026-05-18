@@ -6,6 +6,7 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
     enum ResetGroup {
         case general
         case notch
+        case homePage
         case nowPlaying
         case downloads
         case drop
@@ -20,6 +21,7 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
     }
 
     enum LiveActivityPreference {
+        case homePage
         case hotspot
         case focus
         case nowPlaying
@@ -48,6 +50,7 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
     }
 
     let application: ApplicationSettingsStore
+    let homePage: HomePageSettingsStore
     let mediaAndFiles: MediaAndFilesSettingsStore
     let connectivity: ConnectivitySettingsStore
     let battery: BatterySettingsStore
@@ -61,6 +64,7 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         self.application = ApplicationSettingsStore(defaults: defaults)
+        self.homePage = HomePageSettingsStore(defaults: defaults)
         self.mediaAndFiles = MediaAndFilesSettingsStore(defaults: defaults)
         self.connectivity = ConnectivitySettingsStore(defaults: defaults)
         self.battery = BatterySettingsStore(defaults: defaults)
@@ -310,6 +314,8 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
 
     func isLiveActivityEnabled(_ preference: LiveActivityPreference) -> Bool {
         switch preference {
+        case .homePage:
+            return homePage.isHomePageLiveActivityEnabled
         case .hotspot:
             return connectivity.isHotspotLiveActivityEnabled
         case .focus:
@@ -409,6 +415,8 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
             application.resetGeneral()
         case .notch:
             application.resetNotch()
+        case .homePage:
+            homePage.resetHomePage()
         case .nowPlaying:
             mediaAndFiles.resetNowPlaying()
         case .downloads:

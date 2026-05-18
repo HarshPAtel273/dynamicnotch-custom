@@ -143,7 +143,8 @@ final class NotchViewModel: ObservableObject {
         settings.isNotchMouseDragGesturesEnabled &&
         settings.isNotchSwipeDismissEnabled &&
         !isActivityPresentationHidden &&
-        notchModel.content != nil
+        notchModel.content != nil &&
+        notchModel.content?.id != NotchContentRegistry.HomePage.active.id
     }
     
     var canRestoreWithMouseDrag: Bool {
@@ -156,7 +157,8 @@ final class NotchViewModel: ObservableObject {
         settings.isNotchTrackpadSwipeGesturesEnabled &&
         settings.isNotchSwipeDismissEnabled &&
         !isActivityPresentationHidden &&
-        notchModel.content != nil
+        notchModel.content != nil &&
+        notchModel.content?.id != NotchContentRegistry.HomePage.active.id
     }
     
     var canRestoreWithTrackpadSwipe: Bool {
