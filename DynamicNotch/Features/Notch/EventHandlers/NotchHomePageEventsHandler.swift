@@ -28,8 +28,7 @@ final class NotchHomePageEventsHandler {
     func handleHomePage(_ event: HomePageEvent) {
         switch event {
         case .homePageOn:
-            guard settingsViewModel.isLiveActivityEnabled(.homePage) else { return }
-            notchViewModel.send(.showLiveActivity(HomePageNotchContent(notchViewModel: notchViewModel)))
+            notchViewModel.send(.showLiveActivity(HomePageNotchContent(notchViewModel: notchViewModel, homePages: .camera)))
             
         case .homePageOff:
             notchViewModel.send(.hideLiveActivity(id: NotchContentRegistry.HomePage.active.id))

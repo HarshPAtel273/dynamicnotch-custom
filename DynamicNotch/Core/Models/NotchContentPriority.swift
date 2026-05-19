@@ -111,7 +111,6 @@ enum NotchContentPriority {
     static let overrideStorageKey = "settings.notch.priorityOverrides"
     static let priorityRange: ClosedRange<Int> = 0...20
     static let configurableKeys: [Key] = [
-        .homePage,
         .focus,
         .hotspot,
         .download,
@@ -123,16 +122,16 @@ enum NotchContentPriority {
     ]
 
     static let `default` = 0
-    static let homePage = 1
-    static let focus = 2
-    static let hotspot = 3
-    static let download = 4
-    static let trayActive = 5
-    static let fileConverterActive = 6
-    static let nowPlaying = 7
-    static let timer = 8
-    static let screenRecording = 9
+    static let focus = 1
+    static let hotspot = 2
+    static let download = 3
+    static let trayActive = 4
+    static let fileConverterActive = 5
+    static let nowPlaying = 6
+    static let timer = 7
+    static let screenRecording = 8
 
+    static let homePage = -10000
     static let notchSizeWidth = 10000
     static let notchSizeHeight = 10001
     static let dragAndDrop = 10002

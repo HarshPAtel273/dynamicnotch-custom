@@ -224,6 +224,10 @@ final class NotchEngine: ObservableObject {
     }
 
     func handleOutsideClick() {
+        if UserDefaults.standard.bool(forKey: "isNotchLocked") {
+            return
+        }
+        
         guard notchModel.isLiveActivityExpanded,
               let liveActivityContent = notchModel.liveActivityContent else { return }
 

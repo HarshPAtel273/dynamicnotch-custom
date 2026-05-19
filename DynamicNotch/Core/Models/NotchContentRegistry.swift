@@ -26,14 +26,6 @@ enum NotchContentRegistry {
         )
         static let inactive = NotchContentDescriptor(id: "focus.off")
     }
-    
-    enum HomePage {
-        static let active = NotchContentDescriptor(
-            id: "home.active",
-            priorityKey: .homePage
-        )
-        static let inactive = NotchContentDescriptor(id: "home.inactive")
-    }
 
     enum ScreenRecording {
         static let active = NotchContentDescriptor(
@@ -66,6 +58,13 @@ enum NotchContentRegistry {
         static let timer = NotchContentDescriptor(
             id: "clock.timer",
             priorityKey: .timer
+        )
+    }
+    
+    enum HomePage {
+        static let active = NotchContentDescriptor(
+            id: "home.active",
+            priorityKey: .homePage
         )
     }
 

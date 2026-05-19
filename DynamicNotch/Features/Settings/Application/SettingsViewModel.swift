@@ -444,6 +444,7 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
 
     private func bindStores() {
         bind(store: application)
+        bind(store: homePage)
         bind(store: mediaAndFiles)
         bind(store: connectivity)
         bind(store: battery)

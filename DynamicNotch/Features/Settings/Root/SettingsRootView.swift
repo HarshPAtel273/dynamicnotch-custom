@@ -324,7 +324,7 @@ struct SettingsRootView: View {
         case .homePage:
             detailContainer(for: section) {
                 HomePageSettingsView(
-                    
+                    settings: settingsViewModel.homePage
                 )
             }
 

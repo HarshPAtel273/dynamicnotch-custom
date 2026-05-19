@@ -37,19 +37,6 @@ enum OnboardingSteps: String, Equatable, CaseIterable {
     }
     #endif
     
-    var offsetXTransition: CGFloat {
-        switch self {
-        case .first:
-            return -50
-        case .second:
-            return -80
-        case .third:
-            return -80
-        case .fourth:
-            return -80
-        }
-    }
-    
     func notchSize(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
         switch self {
         case .first:

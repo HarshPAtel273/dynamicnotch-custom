@@ -2018,6 +2018,9 @@
         }
       }
     },
+    "Camera is unavailable" : {
+
+    },
     "Carry notch context and media playback into the lock screen transition for a more cohesive experience." : {
       "localizations" : {
         "en" : {
@@ -6603,6 +6606,64 @@
         }
       }
     },
+    "Home Page activity" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Home Page activity"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actividad de la página de inicio"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Активность домашней страницы"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主页活动"
+          }
+        }
+      }
+    },
+    "Home Page live activity" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Home Page live activity"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actividad en vivo de la página de inicio"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live Activity домашней страницы"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主页实时活动"
+          }
+        }
+      }
+    },
     "Horizontal" : {
       "localizations" : {
         "en" : {
@@ -8670,6 +8731,9 @@
         }
       }
     },
+    "notes" : {
+
+    },
     "Nothing Playing" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -10363,6 +10427,7 @@
       }
     },
     "Settings" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13775,6 +13840,40 @@
         }
       }
     },
+    "settings.permissions.camera.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow Camera access to display a camera preview in the notch."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разрешите доступ к камере для отображения превью в вырезе."
+          }
+        }
+      }
+    },
+    "settings.permissions.camera.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Камера"
+          }
+        }
+      }
+    },
     "settings.permissions.card.title" : {
       "localizations" : {
         "en" : {
@@ -16351,6 +16450,35 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "使用当前设置显示高度调整大小助手。"
+          }
+        }
+      }
+    },
+    "Show the Home Page in the notch." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show the Home Page in the notch."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muestra la página de inicio en la muesca."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывать домашнюю страницу в вырезе."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在刘海中显示主页。"
           }
         }
       }

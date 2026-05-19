@@ -10,9 +10,9 @@ import SwiftUI
 struct HomePageNotchContent: NotchContentProtocol {
     let id = NotchContentRegistry.HomePage.active.id
     let notchViewModel: NotchViewModel
+    let homePages: HomePages
     
     var priority: Int { NotchContentRegistry.HomePage.active.priority }
-    
     var isExpandable: Bool { true }
     
     var strokeColor: Color {
@@ -23,20 +23,40 @@ struct HomePageNotchContent: NotchContentProtocol {
     }
     
     func expandedCornerRadius(baseRadius: CGFloat) -> (top: CGFloat, bottom: CGFloat) {
-        (top: 24, bottom: 34)
+        switch homePages {
+        case .camera:
+            return (top: 34, bottom: 44)
+        case .notes:
+            return (top: 24, bottom: 34)
+        }
     }
     
     func size(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
-        .init(width: baseWidth, height: baseHeight)
+        switch homePages {
+        case .camera:
+            return .init(width: baseWidth, height: baseHeight)
+        case .notes:
+            return .init(width: baseWidth, height: baseHeight)
+        }
     }
     
     func expandedSize(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
-        .init(width: baseWidth + 150, height: baseHeight + 200)
+        switch homePages {
+        case .camera:
+            let isLarge = UserDefaults.standard.bool(forKey: "isCameraLarge")
+            if isLarge {
+                return .init(width: baseWidth + 250, height: baseHeight + 220)
+            } else {
+                return .init(width: baseWidth + 180, height: baseHeight + 180)
+            }
+        case .notes:
+            return .init(width: baseWidth + 150, height: baseHeight + 200)
+        }
     }
     
     @MainActor
     func makeExpandedView() -> AnyView {
-        AnyView(HomePageNotchView())
+        AnyView(HomePageNotchView(notchViewModel: notchViewModel, initialPage: homePages))
     }
     
     @MainActor
