@@ -45,6 +45,7 @@ final class NotchViewModel: ObservableObject {
     @Published private(set) var isExpandingLiveActivityTransition = false
     @Published private(set) var isActivityPresentationHidden = false
     
+    @Published var isHoveringScrollableContent = false
     @Published var showNotch = false
     @Published var isPressed = false
     @Published var cachedStrokeColor: Color = .clear

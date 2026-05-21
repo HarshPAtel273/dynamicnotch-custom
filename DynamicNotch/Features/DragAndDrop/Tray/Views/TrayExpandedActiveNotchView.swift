@@ -31,7 +31,7 @@ struct TrayExpandedActiveNotchView: View {
                 }
                 .frame(maxHeight: 100)
                 .mask {
-                    FileTrayScrollFadeMask()
+                    ScrollFadeMask(cornerRadius: 24, maskType: .all)
                 }
             }
             .padding(.horizontal, 34)

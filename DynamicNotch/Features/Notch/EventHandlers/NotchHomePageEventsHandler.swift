@@ -34,9 +34,12 @@ final class NotchHomePageEventsHandler {
     func handleHomePage(_ event: HomePageEvent) {
         switch event {
         case .homePageOn:
+            let activePages = settingsViewModel.homePage.homePageOrder.filter { !settingsViewModel.homePage.homePageDisabled.contains($0) }
+            let activePage = activePages.first ?? .camera
             notchViewModel.send(.showLiveActivity(HomePageNotchContent(
                 notchViewModel: notchViewModel,
-                homePages: .camera,
+                settings: settingsViewModel.homePage,
+                homePages: activePage,
                 localTimerViewModel: localTimerViewModel,
                 calendarViewModel: calendarViewModel
             )))

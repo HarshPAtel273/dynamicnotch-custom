@@ -3,6 +3,7 @@ internal import EventKit
 
 struct CalendarNotchView: View {
     @ObservedObject var calendarViewModel: CalendarViewModel
+    @ObservedObject var notchViewModel: NotchViewModel
     
     var body: some View {
         ZStack {
@@ -22,15 +23,21 @@ struct CalendarNotchView: View {
             Spacer()
             
             ScrollView(showsIndicators: false) {
-                LazyVStack(spacing: 8) {
+                VStack(spacing: 8) {
                     ForEach(calendarViewModel.events, id: \.eventIdentifier) { event in
                         CalendarEventRow(event: event)
                     }
                 }
+                .padding(.vertical, 5)
             }
-            .frame(height: 100)
+            .frame(height: 115)
+            .mask {
+                ScrollFadeMask(cornerRadius: 20, maskType: .verticalFade)
+            }
+            .onHover { hovering in
+                notchViewModel.isHoveringScrollableContent = hovering
+            }
         }
-        .padding(.bottom, 5)
         .padding(.horizontal, 5)
     }
     

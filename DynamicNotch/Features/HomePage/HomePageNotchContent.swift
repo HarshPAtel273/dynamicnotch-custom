@@ -11,6 +11,7 @@ internal import EventKit
 struct HomePageNotchContent: NotchContentProtocol {
     let id = NotchContentRegistry.HomePage.active.id
     let notchViewModel: NotchViewModel
+    let settings: HomePageSettingsStore
     let homePages: HomePages
     let localTimerViewModel: LocalTimerViewModel
     let calendarViewModel: CalendarViewModel
@@ -88,7 +89,7 @@ struct HomePageNotchContent: NotchContentProtocol {
             } else if calendarViewModel.events.isEmpty {
                 return .init(width: baseWidth + 60, height: baseHeight + 125)
             } else {
-                return .init(width: baseWidth + 130, height: baseHeight + 150)
+                return .init(width: baseWidth + 130, height: baseHeight + 125)
             }
         }
     }
@@ -98,6 +99,7 @@ struct HomePageNotchContent: NotchContentProtocol {
         AnyView(
             HomePageNotchView(
                 notchViewModel: notchViewModel,
+                settings: settings,
                 localTimerViewModel: localTimerViewModel,
                 calendarViewModel: calendarViewModel,
                 initialPage: homePages

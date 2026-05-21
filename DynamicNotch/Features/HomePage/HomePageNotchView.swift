@@ -7,21 +7,57 @@
 
 import SwiftUI
 
-enum HomePages: CaseIterable, Hashable {
+enum HomePages: String, CaseIterable, Hashable, Codable, Identifiable {
     case camera
     case localTimer
     case calendar
+    
+    var id: String { rawValue }
+    
+    var title: LocalizedStringKey {
+        switch self {
+        case .camera: return "Camera"
+        case .localTimer: return "Timer"
+        case .calendar: return "Calendar"
+        }
+    }
+    
+    var subtitle: LocalizedStringKey {
+        switch self {
+        case .camera: return "Quickly access the camera."
+        case .localTimer: return "Set a quick timer."
+        case .calendar: return "View upcoming events."
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .camera: return "camera.fill"
+        case .localTimer: return "timer"
+        case .calendar: return "calendar"
+        }
+    }
+    
+    var tint: Color {
+        switch self {
+        case .camera: return .blue
+        case .localTimer: return .orange
+        case .calendar: return .red
+        }
+    }
 }
 
 struct HomePageNotchView: View {
     let notchViewModel: NotchViewModel
+    let settings: HomePageSettingsStore
     let localTimerViewModel: LocalTimerViewModel
     let calendarViewModel: CalendarViewModel
     
     @State private var currentPage: HomePages?
     
-    init(notchViewModel: NotchViewModel, localTimerViewModel: LocalTimerViewModel, calendarViewModel: CalendarViewModel, initialPage: HomePages) {
+    init(notchViewModel: NotchViewModel, settings: HomePageSettingsStore, localTimerViewModel: LocalTimerViewModel, calendarViewModel: CalendarViewModel, initialPage: HomePages) {
         self.notchViewModel = notchViewModel
+        self.settings = settings
         self.localTimerViewModel = localTimerViewModel
         self.calendarViewModel = calendarViewModel
         self._currentPage = State(initialValue: initialPage)
@@ -33,7 +69,8 @@ struct HomePageNotchView: View {
             
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 30) {
-                    ForEach(HomePages.allCases, id: \.self) { page in
+                    let activePages = settings.homePageOrder.filter { !settings.homePageDisabled.contains($0) }
+                    ForEach(activePages, id: \.self) { page in
                         pageView(for: page)
                             .clipped()
                             .containerRelativeFrame(.horizontal)
@@ -49,6 +86,7 @@ struct HomePageNotchView: View {
                     .showLiveActivity(
                         HomePageNotchContent(
                             notchViewModel: notchViewModel,
+                            settings: settings,
                             homePages: newPage,
                             localTimerViewModel: localTimerViewModel,
                             calendarViewModel: calendarViewModel
@@ -61,11 +99,13 @@ struct HomePageNotchView: View {
         .padding(.horizontal, horizontalPadding)
         .padding(.bottom, bottomPadding)
         .onDisappear {
+            let activePages = settings.homePageOrder.filter { !settings.homePageDisabled.contains($0) }
             notchViewModel.send(
                 .showLiveActivity(
                     HomePageNotchContent(
                         notchViewModel: notchViewModel,
-                        homePages: .camera,
+                        settings: settings,
+                        homePages: activePages.first ?? .camera,
                         localTimerViewModel: localTimerViewModel,
                         calendarViewModel: calendarViewModel
                     )
@@ -78,11 +118,11 @@ struct HomePageNotchView: View {
     private func pageView(for page: HomePages) -> some View {
         switch page {
         case .camera:
-            CameraNotchView(notchViewModel: notchViewModel, localTimerViewModel: localTimerViewModel, calendarViewModel: calendarViewModel)
+            CameraNotchView(notchViewModel: notchViewModel, settings: settings, localTimerViewModel: localTimerViewModel, calendarViewModel: calendarViewModel)
         case .localTimer:
             LocalTimerSetupNotchView(localTimerViewModel: localTimerViewModel)
         case .calendar:
-            CalendarNotchView(calendarViewModel: calendarViewModel)
+            CalendarNotchView(calendarViewModel: calendarViewModel, notchViewModel: notchViewModel)
         }
     }
     

@@ -11,6 +11,7 @@ struct NotchSwipeDismissModifier: ViewModifier {
             NotchSwipeDismissMonitorRepresentable(
                 canSwipeUp: isEnabled && notchViewModel.canDismissWithTrackpadSwipe,
                 canSwipeDown: isEnabled && notchViewModel.canRestoreWithTrackpadSwipe,
+                isHoveringScrollableContent: notchViewModel.isHoveringScrollableContent,
                 onSwipeUp: {
                     notchViewModel.dismissActiveContent()
                 },
@@ -31,6 +32,7 @@ struct NotchSwipeDismissModifier: ViewModifier {
 private struct NotchSwipeDismissMonitorRepresentable: NSViewRepresentable {
     let canSwipeUp: Bool
     let canSwipeDown: Bool
+    let isHoveringScrollableContent: Bool
     let onSwipeUp: () -> Void
     let onSwipeDown: () -> Void
     let onSwipeStretchChanged: (NotchSwipeInteraction, CGFloat) -> Void
@@ -41,6 +43,7 @@ private struct NotchSwipeDismissMonitorRepresentable: NSViewRepresentable {
         view.update(
             canSwipeUp: canSwipeUp,
             canSwipeDown: canSwipeDown,
+            isHoveringScrollableContent: isHoveringScrollableContent,
             onSwipeUp: onSwipeUp,
             onSwipeDown: onSwipeDown,
             onSwipeStretchChanged: onSwipeStretchChanged,
@@ -53,6 +56,7 @@ private struct NotchSwipeDismissMonitorRepresentable: NSViewRepresentable {
         nsView.update(
             canSwipeUp: canSwipeUp,
             canSwipeDown: canSwipeDown,
+            isHoveringScrollableContent: isHoveringScrollableContent,
             onSwipeUp: onSwipeUp,
             onSwipeDown: onSwipeDown,
             onSwipeStretchChanged: onSwipeStretchChanged,
@@ -83,6 +87,7 @@ private final class NotchSwipeDismissMonitorView: NSView {
 
     private var canSwipeUp = false
     private var canSwipeDown = false
+    private var isHoveringScrollableContent = false
     private var onSwipeUp: (() -> Void)?
     private var onSwipeDown: (() -> Void)?
     private var onSwipeStretchChanged: ((NotchSwipeInteraction, CGFloat) -> Void)?
@@ -117,6 +122,7 @@ private final class NotchSwipeDismissMonitorView: NSView {
     func update(
         canSwipeUp: Bool,
         canSwipeDown: Bool,
+        isHoveringScrollableContent: Bool,
         onSwipeUp: @escaping () -> Void,
         onSwipeDown: @escaping () -> Void,
         onSwipeStretchChanged: @escaping (NotchSwipeInteraction, CGFloat) -> Void,
@@ -124,6 +130,7 @@ private final class NotchSwipeDismissMonitorView: NSView {
     ) {
         self.canSwipeUp = canSwipeUp
         self.canSwipeDown = canSwipeDown
+        self.isHoveringScrollableContent = isHoveringScrollableContent
         self.onSwipeUp = onSwipeUp
         self.onSwipeDown = onSwipeDown
         self.onSwipeStretchChanged = onSwipeStretchChanged
@@ -286,6 +293,7 @@ private extension NotchSwipeDismissMonitorView {
     }
 
     func shouldTrackSwipe(for event: NSEvent) -> Bool {
+        guard !isHoveringScrollableContent else { return false }
         guard canSwipeUp || canSwipeDown else { return false }
         guard window != nil else { return false }
         guard event.hasPreciseScrollingDeltas else { return false }

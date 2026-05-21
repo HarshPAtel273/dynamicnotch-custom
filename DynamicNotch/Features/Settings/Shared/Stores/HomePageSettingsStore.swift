@@ -16,6 +16,23 @@ final class HomePageSettingsStore: SettingsStoreBase {
         }
     }
     
+    @Published var homePageOrder: [HomePages] {
+        didSet {
+            persist(homePageOrder.map { $0.rawValue }, for: GeneralSettingsStorage.Keys.homePageOrder)
+        }
+    }
+    
+    @Published var homePageDisabled: Set<HomePages> {
+        didSet {
+            persist(Array(homePageDisabled).map { $0.rawValue }, for: GeneralSettingsStorage.Keys.homePageDisabled)
+            if homePageDisabled.count == HomePages.allCases.count {
+                isHomePageLiveActivityEnabled = false
+            } else if !isHomePageLiveActivityEnabled && oldValue.count == HomePages.allCases.count {
+                isHomePageLiveActivityEnabled = true
+            }
+        }
+    }
+    
     func resetHomePage() {
         
     }
@@ -26,10 +43,19 @@ final class HomePageSettingsStore: SettingsStoreBase {
             defaults: defaults,
             key: GeneralSettingsStorage.Keys.homePageLiveActivity
         )
-        self.isHomePageLiveActivityEnabled = Self.resolvedBool(
-            defaults: defaults,
-            key: GeneralSettingsStorage.Keys.homePageLiveActivity
-        )
+        
+        let savedOrder = (defaults.array(forKey: GeneralSettingsStorage.Keys.homePageOrder) as? [String]) ?? 
+            ((GeneralSettingsStorage.defaultValues[GeneralSettingsStorage.Keys.homePageOrder] as? [String]) ?? [])
+        var parsedOrder = savedOrder.compactMap { HomePages(rawValue: $0) }
+        if parsedOrder.isEmpty {
+            parsedOrder = HomePages.allCases
+        }
+        self.homePageOrder = parsedOrder
+        
+        let savedDisabled = (defaults.array(forKey: GeneralSettingsStorage.Keys.homePageDisabled) as? [String]) ??
+            ((GeneralSettingsStorage.defaultValues[GeneralSettingsStorage.Keys.homePageDisabled] as? [String]) ?? [])
+        self.homePageDisabled = Set(savedDisabled.compactMap { HomePages(rawValue: $0) })
+        
         super.init(defaults: defaults)
     }
     

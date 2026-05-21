@@ -10,6 +10,7 @@ import AVFoundation
 
 struct CameraNotchView: View {
     let notchViewModel: NotchViewModel
+    let settings: HomePageSettingsStore
     let localTimerViewModel: LocalTimerViewModel
     let calendarViewModel: CalendarViewModel
     
@@ -90,6 +91,7 @@ struct CameraNotchView: View {
                             notchViewModel.send(.showLiveActivity(
                                 HomePageNotchContent(
                                     notchViewModel: notchViewModel,
+                                    settings: settings,
                                     homePages: .camera,
                                     localTimerViewModel: localTimerViewModel,
                                     calendarViewModel: calendarViewModel
@@ -144,6 +146,7 @@ struct CameraNotchView: View {
                 notchViewModel.send(.showLiveActivity(
                     HomePageNotchContent(
                         notchViewModel: notchViewModel,
+                        settings: settings,
                         homePages: .camera,
                         localTimerViewModel: localTimerViewModel,
                         calendarViewModel: calendarViewModel

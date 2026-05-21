@@ -1,10 +1,30 @@
 import SwiftUI
 
-struct FileTrayScrollFadeMask: View {
+enum ScrollFadeMaskType {
+    case verticalFade
+    case horizontalFade
+    case all
+}
+
+struct ScrollFadeMask: View {
+    var cornerRadius: CGFloat
+    var maskType: ScrollFadeMaskType
+    
     var body: some View {
-        RoundedRectangle(cornerRadius: 24)
-            .mask(horizontalFade)
-            .mask(verticalFade)
+        switch maskType {
+        case .verticalFade:
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .mask(verticalFade)
+            
+        case .horizontalFade:
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .mask(horizontalFade)
+            
+        case .all:
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .mask(horizontalFade)
+                .mask(verticalFade)
+        }
     }
 
     private var horizontalFade: some View {
