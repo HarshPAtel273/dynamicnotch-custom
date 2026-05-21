@@ -48,6 +48,7 @@ extension SettingsRootViewModel {
         case notch
         case nowPlaying
         case homePage
+        case calendar
         case downloads
         case drop
         case timer
@@ -282,6 +283,23 @@ private enum SettingsSectionCatalog {
                 tint: .blue,
                 resetGroup: .homePage
             )
+            
+        case .calendar:
+            return .init(
+                sidebarGroup: .homePage,
+                titleKey: "settings.section.calendar.title",
+                fallbackTitle: "Calendar",
+                subtitleKey: "settings.section.calendar.subtitle",
+                fallbackSubtitle: "Upcoming events",
+                searchKeywords: [
+                    "Calendar",
+                    "Events"
+                ],
+                systemImage: "calendar",
+                imageName: nil,
+                tint: .red,
+                resetGroup: .calendar
+            )
 
         case .downloads:
             return .init(
@@ -330,7 +348,7 @@ private enum SettingsSectionCatalog {
 
         case .timer:
             return .init(
-                sidebarGroup: .system,
+                sidebarGroup: .homePage,
                 titleKey: "settings.section.timer.title",
                 fallbackTitle: "Timer",
                 subtitleKey: "settings.section.timer.subtitle",

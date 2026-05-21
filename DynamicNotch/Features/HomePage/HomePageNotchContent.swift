@@ -6,12 +6,14 @@
 //
 
 import SwiftUI
+internal import EventKit
 
 struct HomePageNotchContent: NotchContentProtocol {
     let id = NotchContentRegistry.HomePage.active.id
     let notchViewModel: NotchViewModel
     let homePages: HomePages
     let localTimerViewModel: LocalTimerViewModel
+    let calendarViewModel: CalendarViewModel
     
     var priority: Int { NotchContentRegistry.HomePage.active.priority }
     var isExpandable: Bool { true }
@@ -27,10 +29,12 @@ struct HomePageNotchContent: NotchContentProtocol {
         switch homePages {
         case .camera:
             return (top: 24, bottom: 44)
+            
         case .localTimer:
             return (top: 24, bottom: 44)
-        case .notes:
-            return (top: 30, bottom: 40)
+            
+        case .calendar:
+            return (top: 24, bottom: 44)
         }
     }
     
@@ -38,9 +42,11 @@ struct HomePageNotchContent: NotchContentProtocol {
         switch homePages {
         case .camera:
             return .init(width: baseWidth, height: baseHeight)
+            
         case .localTimer:
             return .init(width: baseWidth, height: baseHeight)
-        case .notes:
+            
+        case .calendar:
             return .init(width: baseWidth, height: baseHeight)
         }
     }
@@ -49,19 +55,41 @@ struct HomePageNotchContent: NotchContentProtocol {
         switch homePages {
         case .camera:
             let isStarted = UserDefaults.standard.bool(forKey: "isCameraStarted")
+            let isLarge = UserDefaults.standard.bool(forKey: "isCameraLarge")
+            
             if !isStarted {
                 return .init(width: baseWidth + 65, height: baseHeight + 125)
             }
-            let isLarge = UserDefaults.standard.bool(forKey: "isCameraLarge")
             if isLarge {
                 return .init(width: baseWidth + 250, height: baseHeight + 220)
             } else {
                 return .init(width: baseWidth + 180, height: baseHeight + 180)
             }
+            
         case .localTimer:
             return .init(width: baseWidth + 100, height: baseHeight + 125)
-        case .notes:
-            return .init(width: baseWidth + 150, height: baseHeight + 200)
+            
+        case .calendar:
+            if calendarViewModel.authorizationStatus != .fullAccess {
+                switch calendarViewModel.authorizationStatus {
+                case .notDetermined:
+                    return .init(width: baseWidth + 60, height: baseHeight + 125)
+                case .restricted:
+                    return .init(width: baseWidth + 60, height: baseHeight + 125)
+                case .denied:
+                    return .init(width: baseWidth + 60, height: baseHeight + 125)
+                case .fullAccess:
+                    return .init(width: baseWidth + 60, height: baseHeight + 125)
+                case .writeOnly:
+                    return .init(width: baseWidth + 60, height: baseHeight + 125)
+                @unknown default:
+                    return .init(width: baseWidth + 60, height: baseHeight + 125)
+                }
+            } else if calendarViewModel.events.isEmpty {
+                return .init(width: baseWidth + 60, height: baseHeight + 125)
+            } else {
+                return .init(width: baseWidth + 130, height: baseHeight + 150)
+            }
         }
     }
     
@@ -71,6 +99,7 @@ struct HomePageNotchContent: NotchContentProtocol {
             HomePageNotchView(
                 notchViewModel: notchViewModel,
                 localTimerViewModel: localTimerViewModel,
+                calendarViewModel: calendarViewModel,
                 initialPage: homePages
             )
         )

@@ -20,6 +20,7 @@ final class NotchEventCoordinator: ObservableObject {
     private let timerViewModel: TimerViewModel
     private let localTimerViewModel: LocalTimerViewModel
     private let homePageViewModel: HomePageViewModel
+    private let calendarViewModel: CalendarViewModel
     private let lockScreenManager: LockScreenManager
     private let systemHandler: NotchSystemEventsHandler
     private let focusHandler: NotchFocusEventsHandler
@@ -32,6 +33,7 @@ final class NotchEventCoordinator: ObservableObject {
     private let timerHandler: NotchTimerEventsHandler
     private let homePageHandler: NotchHomePageEventsHandler
     private let localTimerHandler: NotchLocalTimerEventsHandler
+    private let calendarHandler: NotchCalendarEventsHandler
     private var cancellables = Set<AnyCancellable>()
     private var fileConverterExpansionTask: Task<Void, Never>?
     
@@ -67,7 +69,8 @@ final class NotchEventCoordinator: ObservableObject {
         timerViewModel: TimerViewModel,
         lockScreenManager: LockScreenManager,
         homePageViewModel: HomePageViewModel,
-        localTimerViewModel: LocalTimerViewModel
+        localTimerViewModel: LocalTimerViewModel,
+        calendarViewModel: CalendarViewModel
     ) {
         self.notchViewModel = notchViewModel
         self.networkViewModel = networkViewModel
@@ -79,6 +82,7 @@ final class NotchEventCoordinator: ObservableObject {
         self.timerViewModel = timerViewModel
         self.localTimerViewModel = localTimerViewModel
         self.homePageViewModel = homePageViewModel
+        self.calendarViewModel = calendarViewModel
         self.lockScreenManager = lockScreenManager
         self.systemHandler = NotchSystemEventsHandler(
             notchViewModel: notchViewModel,
@@ -127,7 +131,13 @@ final class NotchEventCoordinator: ObservableObject {
         self.homePageHandler = NotchHomePageEventsHandler(
             notchViewModel: notchViewModel,
             settingsViewModel: settingsViewModel,
-            localTimerViewModel: localTimerViewModel
+            localTimerViewModel: localTimerViewModel,
+            calendarViewModel: calendarViewModel
+        )
+        self.calendarHandler = NotchCalendarEventsHandler(
+            notchViewModel: notchViewModel,
+            calendarViewModel: calendarViewModel,
+            settingsViewModel: settingsViewModel
         )
         self.localTimerHandler = NotchLocalTimerEventsHandler(
             notchViewModel: notchViewModel,
@@ -175,6 +185,7 @@ final class NotchEventCoordinator: ObservableObject {
             self.scheduleFileConverterExpansion()
         }
 
+        observeCalendarEvents()
         observeSettingsChanges()
     }
     
@@ -480,6 +491,24 @@ final class NotchEventCoordinator: ObservableObject {
         notchViewModel.expandActiveLiveActivity()
         fileConverterExpansionTask = nil
         return true
+    }
+    
+    private func observeCalendarEvents() {
+        calendarViewModel.$events
+            .map { _ in self.calendarViewModel.hasUpcomingEvent }
+            .removeDuplicates()
+            .sink { [weak self] hasUpcoming in
+                self?.calendarHandler.handleCalendarEvent(hasUpcoming)
+            }
+            .store(in: &cancellables)
+            
+        settingsViewModel.calendar.$isCalendarLiveActivityEnabled
+            .removeDuplicates()
+            .sink { [weak self] isEnabled in
+                guard let self else { return }
+                self.calendarHandler.handleCalendarEvent(isEnabled && self.calendarViewModel.hasUpcomingEvent)
+            }
+            .store(in: &cancellables)
     }
 
     private func observeSettingsChanges() {

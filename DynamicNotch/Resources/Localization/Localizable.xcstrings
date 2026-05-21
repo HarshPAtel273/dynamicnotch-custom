@@ -96,6 +96,9 @@
     "%lld" : {
 
     },
+    "%lld " : {
+
+    },
     "%lld%%" : {
       "localizations" : {
         "en" : {
@@ -704,6 +707,9 @@
           }
         }
       }
+    },
+    "All Day" : {
+
     },
     "Allow gestures to bring back the most recently dismissed activity." : {
       "localizations" : {
@@ -5348,6 +5354,9 @@
         }
       }
     },
+    "Enjoy your free time!" : {
+
+    },
     "Enlarged" : {
       "localizations" : {
         "en" : {
@@ -7154,6 +7163,12 @@
         }
       }
     },
+    "Join" : {
+
+    },
+    "Join Meeting" : {
+
+    },
     "Keep Now Playing visible in the notch while playback is paused." : {
       "localizations" : {
         "en" : {
@@ -8483,6 +8498,9 @@
         }
       }
     },
+    "Next Event" : {
+
+    },
     "No audio outputs available" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -8511,6 +8529,9 @@
           }
         }
       }
+    },
+    "No events today" : {
+
     },
     "No Internet Connection" : {
       "localizations" : {
@@ -8596,6 +8617,9 @@
           }
         }
       }
+    },
+    "No upcoming events" : {
+
     },
     "Notch appearance" : {
       "localizations" : {
@@ -10744,6 +10768,316 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "开启"
+          }
+        }
+      }
+    },
+    "settings.activities.calendar.access" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendar Access"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acceso al Calendario"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доступ к календарю"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日历访问权限"
+          }
+        }
+      }
+    },
+    "settings.activities.calendar.allDay" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show all-day events"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar eventos de todo el día"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывать события на весь день"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示全天活动"
+          }
+        }
+      }
+    },
+    "settings.activities.calendar.allDay.desc" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Include events that last the entire day."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incluir eventos que duran todo el día."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Включить события, которые длятся весь день."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "包括持续一整天的活动。"
+          }
+        }
+      }
+    },
+    "settings.activities.calendar.days" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "days"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "días"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "дней"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "天"
+          }
+        }
+      }
+    },
+    "settings.activities.calendar.daysToShow" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Days to show"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Días a mostrar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Количество дней"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示天数"
+          }
+        }
+      }
+    },
+    "settings.activities.calendar.daysToShow.desc" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How many days ahead to look for events."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuántos días de anticipación para buscar eventos."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На сколько дней вперед искать события."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "向前查找活动的天数。"
+          }
+        }
+      }
+    },
+    "settings.activities.calendar.liveActivity" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendar live activity"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actividad en vivo del calendario"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live Activity календаря"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日历实时活动"
+          }
+        }
+      }
+    },
+    "settings.activities.calendar.liveActivity.desc" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show your next upcoming event in the notch."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar tu próximo evento en el notch."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывать ваше следующее предстоящее событие в вырезе."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在刘海屏中显示您的下一个即将举行的活动。"
+          }
+        }
+      }
+    },
+    "settings.activities.calendar.permissions" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permisos"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разрешения"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "权限"
+          }
+        }
+      }
+    },
+    "settings.activities.calendar.preferences" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preferences"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preferencias"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предпочтения"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "偏好设置"
+          }
+        }
+      }
+    },
+    "settings.activities.calendar.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendar activity"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actividad del calendario"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Активность календаря"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日历活动"
           }
         }
       }
@@ -13041,6 +13375,34 @@
         }
       }
     },
+    "settings.notch.priorities.row.calendar" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendar"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendario"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Календарь"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日历"
+          }
+        }
+      }
+    },
     "settings.notch.priorities.row.default" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -13843,6 +14205,64 @@
         }
       }
     },
+    "settings.permissions.calendar.description" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow Calendar access to display your upcoming events."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permitir acceso al Calendario para mostrar sus próximos eventos."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разрешите доступ к календарю для отображения предстоящих событий."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "允许日历访问以显示您即将举行的活动。"
+          }
+        }
+      }
+    },
+    "settings.permissions.calendar.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendar"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendario"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Календарь"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日历"
+          }
+        }
+      }
+    },
     "settings.permissions.camera.description" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -14021,6 +14441,35 @@
         }
       }
     },
+    "settings.permissions.status.denied.desc" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Access denied. Please enable in System Settings."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acceso denegado. Habilite en Configuración del sistema."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доступ запрещен. Пожалуйста, включите в Системных настройках."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "访问被拒绝。请在系统设置中启用。"
+          }
+        }
+      }
+    },
     "settings.permissions.status.granted" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -14050,6 +14499,35 @@
         }
       }
     },
+    "settings.permissions.status.granted.desc" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DynamicNotch has access to your calendar."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DynamicNotch tiene acceso a su calendario."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DynamicNotch имеет доступ к вашему календарю."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DynamicNotch有权访问您的日历。"
+          }
+        }
+      }
+    },
     "settings.permissions.status.needsAccess" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -14075,6 +14553,64 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "需要授权"
+          }
+        }
+      }
+    },
+    "settings.permissions.status.needsAccess.desc" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DynamicNotch needs access to show events."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DynamicNotch necesita acceso para mostrar eventos."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DynamicNotch требуется доступ для показа событий."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DynamicNotch需要访问权限才能显示活动。"
+          }
+        }
+      }
+    },
+    "settings.permissions.status.unknown.desc" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown permission status."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estado de permiso desconocido."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Неизвестный статус разрешения."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未知权限状态。"
           }
         }
       }
@@ -14481,6 +15017,64 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "蓝牙"
+          }
+        }
+      }
+    },
+    "settings.section.calendar.subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upcoming events"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Próximos eventos"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предстоящие события"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "即将举行的活动"
+          }
+        }
+      }
+    },
+    "settings.section.calendar.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendar"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendario"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Календарь"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日历"
           }
         }
       }

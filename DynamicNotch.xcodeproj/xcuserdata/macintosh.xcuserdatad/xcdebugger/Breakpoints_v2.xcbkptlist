@@ -14,12 +14,11 @@
             symbolName = "*0x1920edd4c">
             <Locations>
                <Location
-                  uuid = "AEFBC119-E5CB-4712-BFCB-7C770BAC2773 - be1b7abc1272bbba"
+                  uuid = "AEFBC119-E5CB-4712-BFCB-7C770BAC2773 - d2e49c6403cb486e"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "__C.NSDecimal.encode(to: Swift.Encoder) throws -&gt; ()"
-                  moduleName = "Foundation"
+                  symbolName = "*0x1920edd4c"
                   usesParentBreakpointCondition = "Yes">
                </Location>
             </Locations>

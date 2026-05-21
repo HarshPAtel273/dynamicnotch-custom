@@ -10,18 +10,20 @@ import SwiftUI
 enum HomePages: CaseIterable, Hashable {
     case camera
     case localTimer
-    case notes
+    case calendar
 }
 
 struct HomePageNotchView: View {
     let notchViewModel: NotchViewModel
     let localTimerViewModel: LocalTimerViewModel
+    let calendarViewModel: CalendarViewModel
     
     @State private var currentPage: HomePages?
     
-    init(notchViewModel: NotchViewModel, localTimerViewModel: LocalTimerViewModel, initialPage: HomePages) {
+    init(notchViewModel: NotchViewModel, localTimerViewModel: LocalTimerViewModel, calendarViewModel: CalendarViewModel, initialPage: HomePages) {
         self.notchViewModel = notchViewModel
         self.localTimerViewModel = localTimerViewModel
+        self.calendarViewModel = calendarViewModel
         self._currentPage = State(initialValue: initialPage)
     }
     
@@ -48,7 +50,8 @@ struct HomePageNotchView: View {
                         HomePageNotchContent(
                             notchViewModel: notchViewModel,
                             homePages: newPage,
-                            localTimerViewModel: localTimerViewModel
+                            localTimerViewModel: localTimerViewModel,
+                            calendarViewModel: calendarViewModel
                         )
                     )
                 )
@@ -63,7 +66,8 @@ struct HomePageNotchView: View {
                     HomePageNotchContent(
                         notchViewModel: notchViewModel,
                         homePages: .camera,
-                        localTimerViewModel: localTimerViewModel
+                        localTimerViewModel: localTimerViewModel,
+                        calendarViewModel: calendarViewModel
                     )
                 )
             )
@@ -74,11 +78,11 @@ struct HomePageNotchView: View {
     private func pageView(for page: HomePages) -> some View {
         switch page {
         case .camera:
-            CameraNotchView(notchViewModel: notchViewModel, localTimerViewModel: localTimerViewModel)
+            CameraNotchView(notchViewModel: notchViewModel, localTimerViewModel: localTimerViewModel, calendarViewModel: calendarViewModel)
         case .localTimer:
             LocalTimerSetupNotchView(localTimerViewModel: localTimerViewModel)
-        case .notes:
-            NotesNotchView()
+        case .calendar:
+            CalendarNotchView(calendarViewModel: calendarViewModel)
         }
     }
     
@@ -88,8 +92,8 @@ struct HomePageNotchView: View {
             35
         case .localTimer:
             35
-        case .notes:
-            40
+        case .calendar:
+            35
         case .none:
             0
         }
@@ -101,8 +105,8 @@ struct HomePageNotchView: View {
             10
         case .localTimer:
             10
-        case .notes:
-            13
+        case .calendar:
+            10
         case .none:
             0
         }

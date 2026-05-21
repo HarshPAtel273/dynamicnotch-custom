@@ -11,12 +11,13 @@ import AVFoundation
 struct CameraNotchView: View {
     let notchViewModel: NotchViewModel
     let localTimerViewModel: LocalTimerViewModel
+    let calendarViewModel: CalendarViewModel
     
     @StateObject private var cameraViewModel = CameraViewModel()
     @State private var isHovering: Bool = false
     @State private var previewID = UUID()
-    @AppStorage("isCameraStarted") private var isCameraStarted = false
     
+    @AppStorage("isCameraStarted") private var isCameraStarted = false
     @AppStorage("isNotchLocked") private var isNotchLocked = false
     @AppStorage("isCameraMirrored") private var isCameraMirrored = false
     @AppStorage("isCameraLarge") private var isCameraLarge = false
@@ -86,7 +87,14 @@ struct CameraNotchView: View {
                             withAnimation {
                                 isCameraLarge.toggle()
                             }
-                            notchViewModel.send(.showLiveActivity(HomePageNotchContent(notchViewModel: notchViewModel, homePages: .camera, localTimerViewModel: localTimerViewModel)))
+                            notchViewModel.send(.showLiveActivity(
+                                HomePageNotchContent(
+                                    notchViewModel: notchViewModel,
+                                    homePages: .camera,
+                                    localTimerViewModel: localTimerViewModel,
+                                    calendarViewModel: calendarViewModel
+                                )
+                            ))
                         }) {
                             ZStack {
                                 Image(systemName: isCameraLarge ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
@@ -133,7 +141,14 @@ struct CameraNotchView: View {
                     isCameraStarted = true
                 }
                 cameraViewModel.startSession()
-                notchViewModel.send(.showLiveActivity(HomePageNotchContent(notchViewModel: notchViewModel, homePages: .camera, localTimerViewModel: localTimerViewModel)))
+                notchViewModel.send(.showLiveActivity(
+                    HomePageNotchContent(
+                        notchViewModel: notchViewModel,
+                        homePages: .camera,
+                        localTimerViewModel: localTimerViewModel,
+                        calendarViewModel: calendarViewModel
+                    )
+                ))
             }) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 26)

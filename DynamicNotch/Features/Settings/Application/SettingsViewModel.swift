@@ -18,6 +18,7 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
         case hud
         case lockScreen
         case screenRecording
+        case calendar
     }
 
     enum LiveActivityPreference {
@@ -30,6 +31,7 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
         case drop
         case timer
         case screenRecording
+        case calendar
     }
 
     enum TemporaryActivityPreference {
@@ -57,6 +59,7 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
     let hud: HUDSettingsStore
     let lockScreen: LockScreenFeatureSettingsStore
     let screenRecording: ScreenRecordingSettingsStore
+    let calendar: CalendarSettingsStore
     private let defaults: UserDefaults
 
     private var cancellables = Set<AnyCancellable>()
@@ -71,6 +74,7 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
         self.hud = HUDSettingsStore(defaults: defaults)
         self.lockScreen = LockScreenFeatureSettingsStore(defaults: defaults)
         self.screenRecording = ScreenRecordingSettingsStore(defaults: defaults)
+        self.calendar = CalendarSettingsStore(defaults: defaults)
         bindStores()
     }
 
@@ -332,6 +336,8 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
             return mediaAndFiles.isTimerLiveActivityEnabled
         case .screenRecording:
             return screenRecording.isScreenRecordingLiveActivityEnabled
+        case .calendar:
+            return calendar.isCalendarLiveActivityEnabled
         }
     }
 
@@ -439,6 +445,8 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
             lockScreen.reset()
         case .screenRecording:
             screenRecording.reset()
+        case .calendar:
+            calendar.resetCalendar()
         }
     }
 
@@ -451,6 +459,7 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
         bind(store: hud)
         bind(store: lockScreen)
         bind(store: screenRecording)
+        bind(store: calendar)
     }
 
     private func bind<Object: ObservableObject>(store: Object)

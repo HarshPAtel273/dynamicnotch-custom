@@ -25,8 +25,9 @@ extension SettingsRootViewModel {
         nowPlayingViewModel: NowPlayingViewModel?,
         timerViewModel: TimerViewModel?,
         lockScreenManager: LockScreenManager?,
-        homePageViewModel: HomePageViewModel?
-        
+        homePageViewModel: HomePageViewModel?,
+        localTimerViewModel: LocalTimerViewModel?,
+        calendarViewModel: CalendarViewModel?
     ) -> DebugSettingsViewModel {
         let dependencies = resolveDebugDependencies(
             settingsViewModel: settingsViewModel,
@@ -39,7 +40,9 @@ extension SettingsRootViewModel {
             nowPlayingViewModel: nowPlayingViewModel,
             timerViewModel: timerViewModel,
             lockScreenManager: lockScreenManager,
-            homePageViewModel: homePageViewModel
+            homePageViewModel: homePageViewModel,
+            localTimerViewModel: localTimerViewModel,
+            calendarViewModel: calendarViewModel
         )
 
         return DebugSettingsViewModel(
@@ -67,7 +70,9 @@ extension SettingsRootViewModel {
         nowPlayingViewModel: NowPlayingViewModel?,
         timerViewModel: TimerViewModel?,
         lockScreenManager: LockScreenManager?,
-        homePageViewModel: HomePageViewModel?
+        homePageViewModel: HomePageViewModel?,
+        localTimerViewModel: LocalTimerViewModel?,
+        calendarViewModel: CalendarViewModel?
     ) -> SettingsRootDebugDependencies {
         let resolvedNotchViewModel = notchViewModel ?? NotchViewModel(
             settings: settingsViewModel.application
@@ -94,7 +99,8 @@ extension SettingsRootViewModel {
             soundPlayer: InactiveLockScreenSoundPlayer()
         )
         let resolvedHomePageViewModel = homePageViewModel ?? HomePageViewModel()
-        let resolvedLocalTimerViewModel = LocalTimerViewModel()
+        let resolvedLocalTimerViewModel = localTimerViewModel ?? LocalTimerViewModel()
+        let resolvedCalendarViewModel = calendarViewModel ?? CalendarViewModel()
         let resolvedCoordinator = notchEventCoordinator ?? NotchEventCoordinator(
             notchViewModel: resolvedNotchViewModel,
             bluetoothViewModel: resolvedBluetoothViewModel,
@@ -109,7 +115,8 @@ extension SettingsRootViewModel {
             timerViewModel: resolvedTimerViewModel,
             lockScreenManager: resolvedLockScreenManager,
             homePageViewModel: resolvedHomePageViewModel,
-            localTimerViewModel: resolvedLocalTimerViewModel
+            localTimerViewModel: resolvedLocalTimerViewModel,
+            calendarViewModel: resolvedCalendarViewModel
         )
 
         return SettingsRootDebugDependencies(

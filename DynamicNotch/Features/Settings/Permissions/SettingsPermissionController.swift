@@ -4,6 +4,7 @@ import Foundation
 internal import AppKit
 import SwiftUI
 import AVFoundation
+internal import EventKit
 
 #if canImport(ApplicationServices)
 import ApplicationServices
@@ -14,6 +15,7 @@ enum Kind: String {
     case bluetooth
     case mediaControls
     case camera
+    case calendar
 }
 
 struct PermissionItem: Identifiable {
@@ -39,10 +41,12 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
     @Published private(set) var bluetoothAuthorization: CBManagerAuthorization
     @Published private(set) var canPostMediaKeyEvents: Bool
     @Published private(set) var cameraAuthorization: AVAuthorizationStatus
+    @Published private(set) var calendarAuthorization: EKAuthorizationStatus
 
     private var didPromptForAccessibility = false
     private var didPromptForPostEventAccess = false
     private var didPromptForCameraAccess = false
+    private var didPromptForCalendarAccess = false
     private var bluetoothPermissionRequester: CBCentralManager?
     private var cancellables = Set<AnyCancellable>()
 
@@ -55,12 +59,16 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
     private static let cameraPrivacySettingsURL = URL(
         string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera"
     )
+    private static let calendarPrivacySettingsURL = URL(
+        string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars"
+    )
 
     init(notificationCenter: NotificationCenter = .default) {
         self.bluetoothAuthorization = Self.currentBluetoothAuthorizationStatus()
         self.isAccessibilityTrusted = Self.currentAccessibilityTrustState()
         self.canPostMediaKeyEvents = Self.currentPostEventAccessState()
         self.cameraAuthorization = AVCaptureDevice.authorizationStatus(for: .video)
+        self.calendarAuthorization = EKEventStore.authorizationStatus(for: .event)
 
         super.init()
 
@@ -77,6 +85,7 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
         isAccessibilityTrusted = Self.currentAccessibilityTrustState()
         canPostMediaKeyEvents = Self.currentPostEventAccessState()
         cameraAuthorization = AVCaptureDevice.authorizationStatus(for: .video)
+        calendarAuthorization = EKEventStore.authorizationStatus(for: .event)
     }
 
     var permissionItems: [PermissionItem] {
@@ -148,6 +157,20 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
                 actionTitleKey: cameraActionTitleKey,
                 fallbackActionTitle: cameraFallbackActionTitle,
                 accessibilityIdentifier: "settings.permissions.camera"
+            ),
+            PermissionItem(
+                kind: .calendar,
+                titleKey: "settings.permissions.calendar.title",
+                fallbackTitle: "Calendar",
+                descriptionKey: "settings.permissions.calendar.description",
+                fallbackDescription: "Allow Calendar access to display your upcoming events.",
+                assetImageName: nil,
+                systemImage: "calendar",
+                tintColor: .red,
+                isGranted: calendarAuthorization == .fullAccess,
+                actionTitleKey: calendarActionTitleKey,
+                fallbackActionTitle: calendarFallbackActionTitle,
+                accessibilityIdentifier: "settings.permissions.calendar"
             )
         ]
     }
@@ -162,6 +185,8 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
             requestPostEventAccess()
         case .camera:
             requestCameraAccess()
+        case .calendar:
+            requestCalendarAccess()
         }
     }
 
@@ -261,6 +286,32 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
         }
     }
 
+    private var calendarActionTitleKey: String? {
+        switch calendarAuthorization {
+        case .fullAccess, .writeOnly:
+            return nil
+        case .notDetermined:
+            return "settings.permissions.action.grantAccess"
+        case .restricted, .denied:
+            return "settings.permissions.action.openPrivacySettings"
+        @unknown default:
+            return "settings.permissions.action.openPrivacySettings"
+        }
+    }
+
+    private var calendarFallbackActionTitle: String? {
+        switch calendarAuthorization {
+        case .fullAccess, .writeOnly:
+            return nil
+        case .notDetermined:
+            return "Grant Access"
+        case .restricted, .denied:
+            return "Open Privacy Settings"
+        @unknown default:
+            return "Open Privacy Settings"
+        }
+    }
+
     private func requestCameraAccess() {
         switch cameraAuthorization {
         case .authorized:
@@ -275,6 +326,32 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
             Self.openCameraPrivacySettings()
         @unknown default:
             Self.openCameraPrivacySettings()
+        }
+    }
+
+    private func requestCalendarAccess() {
+        switch calendarAuthorization {
+        case .fullAccess, .writeOnly:
+            refresh()
+        case .notDetermined:
+            let store = EKEventStore()
+            if #available(macOS 14.0, *) {
+                store.requestFullAccessToEvents { [weak self] _, _ in
+                    DispatchQueue.main.async {
+                        self?.refresh()
+                    }
+                }
+            } else {
+                store.requestAccess(to: .event) { [weak self] _, _ in
+                    DispatchQueue.main.async {
+                        self?.refresh()
+                    }
+                }
+            }
+        case .restricted, .denied:
+            Self.openCalendarPrivacySettings()
+        @unknown default:
+            Self.openCalendarPrivacySettings()
         }
     }
 
@@ -310,6 +387,11 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
     private static func openCameraPrivacySettings() {
         guard let cameraPrivacySettingsURL else { return }
         NSWorkspace.shared.open(cameraPrivacySettingsURL)
+    }
+
+    private static func openCalendarPrivacySettings() {
+        guard let calendarPrivacySettingsURL else { return }
+        NSWorkspace.shared.open(calendarPrivacySettingsURL)
     }
 
     private static func currentAccessibilityTrustState() -> Bool {

@@ -70,6 +70,10 @@ enum NotchContentRegistry {
             id: "home.active",
             priorityKey: .homePage
         )
+        static let calendar = NotchContentDescriptor(
+            id: "calendar.upcoming",
+            priorityKey: .calendar
+        )
     }
 
     enum DragAndDrop {

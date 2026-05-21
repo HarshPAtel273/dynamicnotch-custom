@@ -112,6 +112,9 @@ enum GeneralSettingsStorage {
         static let lowBatterySound = "settings.battery.lowBatterySound"
         static let fullBatterySound = "settings.battery.fullBatterySound"
         static let homePageLiveActivity = "settings.homePage.liveActivity"
+        static let calendarLiveActivity = "settings.calendar.liveActivity"
+        static let calendarShowAllDay = "settings.calendar.showAllDay"
+        static let calendarDaysToShow = "settings.calendar.daysToShow"
     }
 
     static let defaultValues: [String: Any] = [
@@ -238,6 +241,9 @@ enum GeneralSettingsStorage {
         Keys.fullPowerDefaultStrokeEnabled: false,
         Keys.lowBatterySound: true,
         Keys.fullBatterySound: true,
-        Keys.homePageLiveActivity: true
+        Keys.homePageLiveActivity: true,
+        Keys.calendarLiveActivity: true,
+        Keys.calendarShowAllDay: true,
+        Keys.calendarDaysToShow: 7
     ]
 }

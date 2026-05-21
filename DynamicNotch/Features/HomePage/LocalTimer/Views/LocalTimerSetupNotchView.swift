@@ -30,9 +30,17 @@ struct LocalTimerSetupNotchView: View {
     private var setupView: some View {
         HStack(spacing: 15) {
             timeInputField(title: "HR", value: $hours, maxVal: 23)
-            Text(":").font(.system(size: 32, weight: .semibold, design: .rounded)).foregroundColor(.gray)
+            
+            Text(":")
+                .font(.system(size: 32, weight: .semibold, design: .rounded)).foregroundColor(.gray)
+                .padding(.top, 10)
+            
             timeInputField(title: "MIN", value: $minutes, maxVal: 59)
-            Text(":").font(.system(size: 32, weight: .semibold, design: .rounded)).foregroundColor(.gray)
+            
+            Text(":")
+                .font(.system(size: 32, weight: .semibold, design: .rounded)).foregroundColor(.gray)
+                .padding(.top, 10)
+            
             timeInputField(title: "SEC", value: $seconds, maxVal: 59)
         }
     }

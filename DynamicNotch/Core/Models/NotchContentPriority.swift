@@ -11,6 +11,7 @@ enum NotchContentPriority {
         case fileConverterActive
         case nowPlaying
         case timer
+        case calendar
         case screenRecording
 
         var id: String { rawValue }
@@ -35,6 +36,8 @@ enum NotchContentPriority {
                 NotchContentPriority.timer
             case .screenRecording:
                 NotchContentPriority.screenRecording
+            case .calendar:
+                NotchContentPriority.calendar
             }
         }
         
@@ -58,6 +61,8 @@ enum NotchContentPriority {
                 "settings.notch.priorities.row.screenRecording"
             case .fileConverterActive:
                 "settings.notch.priorities.row.fileConverterActive"
+            case .calendar:
+                "settings.notch.priorities.row.calendar"
             }
         }
         
@@ -81,6 +86,8 @@ enum NotchContentPriority {
                 return "timer"
             case .screenRecording:
                 return "record.circle"
+            case .calendar:
+                return "calendar"
             }
         }
         
@@ -104,6 +111,8 @@ enum NotchContentPriority {
                     .orange
             case .screenRecording:
                     .red
+            case .calendar:
+                    .blue
             }
         }
     }
@@ -118,7 +127,8 @@ enum NotchContentPriority {
         .fileConverterActive,
         .nowPlaying,
         .timer,
-        .screenRecording
+        .calendar,
+        .screenRecording,
     ]
 
     static let `default` = 0
@@ -129,7 +139,8 @@ enum NotchContentPriority {
     static let fileConverterActive = 5
     static let nowPlaying = 6
     static let timer = 7
-    static let screenRecording = 8
+    static let calendar = 8
+    static let screenRecording = 9
 
     static let homePage = -10000
     static let notchSizeWidth = 10000
