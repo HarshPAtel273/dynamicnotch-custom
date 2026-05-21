@@ -18,6 +18,9 @@ final class NotchEventCoordinator: ObservableObject {
     private let fileTrayViewModel: FileTrayViewModel
     private let fileConverterViewModel: FileConverterViewModel
     private let timerViewModel: TimerViewModel
+    private let localTimerViewModel: LocalTimerViewModel
+    private let homePageViewModel: HomePageViewModel
+    private let calendarViewModel: CalendarViewModel
     private let lockScreenManager: LockScreenManager
     private let systemHandler: NotchSystemEventsHandler
     private let focusHandler: NotchFocusEventsHandler
@@ -28,6 +31,9 @@ final class NotchEventCoordinator: ObservableObject {
     private let downloadHandler: NotchDownloadEventsHandler
     private let dragAndDropHandler: NotchDragAndDropEventsHandler
     private let timerHandler: NotchTimerEventsHandler
+    private let homePageHandler: NotchHomePageEventsHandler
+    private let localTimerHandler: NotchLocalTimerEventsHandler
+    private let calendarHandler: NotchCalendarEventsHandler
     private var cancellables = Set<AnyCancellable>()
     private var fileConverterExpansionTask: Task<Void, Never>?
     
@@ -61,7 +67,10 @@ final class NotchEventCoordinator: ObservableObject {
         settingsViewModel: SettingsViewModel,
         nowPlayingViewModel: NowPlayingViewModel,
         timerViewModel: TimerViewModel,
-        lockScreenManager: LockScreenManager
+        lockScreenManager: LockScreenManager,
+        homePageViewModel: HomePageViewModel,
+        localTimerViewModel: LocalTimerViewModel,
+        calendarViewModel: CalendarViewModel
     ) {
         self.notchViewModel = notchViewModel
         self.networkViewModel = networkViewModel
@@ -71,6 +80,9 @@ final class NotchEventCoordinator: ObservableObject {
         self.fileTrayViewModel = fileTrayViewModel
         self.fileConverterViewModel = fileConverterViewModel
         self.timerViewModel = timerViewModel
+        self.localTimerViewModel = localTimerViewModel
+        self.homePageViewModel = homePageViewModel
+        self.calendarViewModel = calendarViewModel
         self.lockScreenManager = lockScreenManager
         self.systemHandler = NotchSystemEventsHandler(
             notchViewModel: notchViewModel,
@@ -113,7 +125,24 @@ final class NotchEventCoordinator: ObservableObject {
         self.timerHandler = NotchTimerEventsHandler(
             notchViewModel: notchViewModel,
             timerViewModel: timerViewModel,
+            settingsViewModel: settingsViewModel,
+            localTimerViewModel: localTimerViewModel
+        )
+        self.homePageHandler = NotchHomePageEventsHandler(
+            notchViewModel: notchViewModel,
+            settingsViewModel: settingsViewModel,
+            localTimerViewModel: localTimerViewModel,
+            calendarViewModel: calendarViewModel
+        )
+        self.calendarHandler = NotchCalendarEventsHandler(
+            notchViewModel: notchViewModel,
+            calendarViewModel: calendarViewModel,
             settingsViewModel: settingsViewModel
+        )
+        self.localTimerHandler = NotchLocalTimerEventsHandler(
+            notchViewModel: notchViewModel,
+            localTimerViewModel: localTimerViewModel,
+            timerViewModel: timerViewModel
         )
         self.fileTrayViewModel.onItemsChange = { [weak notchViewModel, weak settingsViewModel, weak fileTrayViewModel] items in
             guard let notchViewModel, let settingsViewModel, let fileTrayViewModel else {
@@ -156,6 +185,7 @@ final class NotchEventCoordinator: ObservableObject {
             self.scheduleFileConverterExpansion()
         }
 
+        observeCalendarEvents()
         observeSettingsChanges()
     }
     
@@ -166,9 +196,14 @@ final class NotchEventCoordinator: ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 self.handleOnboardingEvent(.onboarding)
             }
-        } else if nowPlayingViewModel.hasActiveSession &&
-                    settingsViewModel.isLiveActivityEnabled(.nowPlaying) {
-            mediaHandler.handleNowPlaying(.started)
+        } else {
+            if nowPlayingViewModel.hasActiveSession &&
+                settingsViewModel.isLiveActivityEnabled(.nowPlaying) {
+                mediaHandler.handleNowPlaying(.started)
+            }
+            if settingsViewModel.isLiveActivityEnabled(.homePage) {
+                homePageHandler.handleHomePage(.homePageOn)
+            }
         }
     }
     
@@ -187,10 +222,14 @@ final class NotchEventCoordinator: ObservableObject {
         }
         #endif
 
-        if markAsSeen &&
-            nowPlayingViewModel.hasActiveSession &&
-            settingsViewModel.isLiveActivityEnabled(.nowPlaying) {
-            mediaHandler.handleNowPlaying(.started)
+        if markAsSeen {
+            if nowPlayingViewModel.hasActiveSession &&
+                settingsViewModel.isLiveActivityEnabled(.nowPlaying) {
+                mediaHandler.handleNowPlaying(.started)
+            }
+            if settingsViewModel.isLiveActivityEnabled(.homePage) {
+                homePageHandler.handleHomePage(.homePageOn)
+            }
         }
     }
     
@@ -308,6 +347,13 @@ final class NotchEventCoordinator: ObservableObject {
         guard !isLockScreenTransitionActive else { return }
 
         timerHandler.handleTimer(event)
+    }
+    
+    func handleHomePageEvent(_ event: HomePageEvent) {
+        guard !isOnboardingActive else { return }
+        guard !isLockScreenTransitionActive else { return }
+        
+        homePageHandler.handleHomePage(event)
     }
 
     func handleScreenRecordingEvent(_ event: ScreenRecordingEvent) {
@@ -445,6 +491,24 @@ final class NotchEventCoordinator: ObservableObject {
         notchViewModel.expandActiveLiveActivity()
         fileConverterExpansionTask = nil
         return true
+    }
+    
+    private func observeCalendarEvents() {
+        calendarViewModel.$events
+            .map { _ in self.calendarViewModel.hasUpcomingEvent }
+            .removeDuplicates()
+            .sink { [weak self] hasUpcoming in
+                self?.calendarHandler.handleCalendarEvent(hasUpcoming)
+            }
+            .store(in: &cancellables)
+            
+        settingsViewModel.calendar.$isCalendarLiveActivityEnabled
+            .removeDuplicates()
+            .sink { [weak self] isEnabled in
+                guard let self else { return }
+                self.calendarHandler.handleCalendarEvent(isEnabled && self.calendarViewModel.hasUpcomingEvent)
+            }
+            .store(in: &cancellables)
     }
 
     private func observeSettingsChanges() {
@@ -669,6 +733,23 @@ final class NotchEventCoordinator: ObservableObject {
                         )
                     )
                 )
+            }
+            .store(in: &cancellables)
+
+        settingsViewModel.homePage.$isHomePageLiveActivityEnabled
+            .sink { [weak self] isEnabled in
+                if isEnabled {
+                    self?.homePageHandler.handleHomePage(.homePageOn)
+                } else {
+                    self?.homePageHandler.handleHomePage(.homePageOff)
+                }
+            }
+            .store(in: &cancellables)
+        
+        localTimerViewModel.$state
+            .dropFirst()
+            .sink { [weak self] state in
+                self?.localTimerHandler.handleLocalTimerStateChanged(state)
             }
             .store(in: &cancellables)
     }

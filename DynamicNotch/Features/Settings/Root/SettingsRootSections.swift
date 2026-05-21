@@ -21,6 +21,7 @@ private struct SettingsSectionDescriptor {
 extension SettingsRootViewModel {
     enum SidebarGroup: String, CaseIterable, Identifiable {
         case app
+        case homePage
         case media
         case connectivity
         case system
@@ -46,6 +47,8 @@ extension SettingsRootViewModel {
         case permissions
         case notch
         case nowPlaying
+        case homePage
+        case calendar
         case downloads
         case drop
         case timer
@@ -117,6 +120,8 @@ extension SettingsRootViewModel {
                 return .general
             case "permissions":
                 return .permissions
+            case "homePage", "homeScreen":
+                return .homePage
             case "activities", "liveActivity":
                 return .nowPlaying
             case "airDrop", "dragAndDrop":
@@ -137,14 +142,17 @@ extension SettingsRootViewModel {
 }
 
 private enum SettingsSectionCatalog {
-    static func sidebarGroupDescriptor(
-        for group: SettingsRootViewModel.SidebarGroup
-    ) -> SettingsSidebarGroupDescriptor {
+    static func sidebarGroupDescriptor(for group: SettingsRootViewModel.SidebarGroup) -> SettingsSidebarGroupDescriptor {
         switch group {
         case .app:
             return .init(
                 titleKey: "settings.group.application",
                 fallbackTitle: "Application"
+            )
+        case .homePage:
+            return .init(
+                titleKey: "settings.group.homePage",
+                fallbackTitle: "Home Page"
             )
         case .media:
             return .init(
@@ -169,9 +177,7 @@ private enum SettingsSectionCatalog {
         }
     }
 
-    static func sectionDescriptor(
-        for section: SettingsRootViewModel.Section
-    ) -> SettingsSectionDescriptor {
+    static func sectionDescriptor(for section: SettingsRootViewModel.Section) -> SettingsSectionDescriptor {
         switch section {
         case .general:
             return .init(
@@ -261,6 +267,39 @@ private enum SettingsSectionCatalog {
                 tint: .red,
                 resetGroup: .nowPlaying
             )
+            
+        case .homePage:
+            return .init(
+                sidebarGroup: .homePage,
+                titleKey: "settings.section.homePage.title",
+                fallbackTitle: "Home Page",
+                subtitleKey: "settings.section.homePage.subtitle",
+                fallbackSubtitle: "Home Page ",
+                searchKeywords: [
+                    "Home Page"
+                ],
+                systemImage: "house.fill",
+                imageName: nil,
+                tint: .blue,
+                resetGroup: .homePage
+            )
+            
+        case .calendar:
+            return .init(
+                sidebarGroup: .homePage,
+                titleKey: "settings.section.calendar.title",
+                fallbackTitle: "Calendar",
+                subtitleKey: "settings.section.calendar.subtitle",
+                fallbackSubtitle: "Upcoming events",
+                searchKeywords: [
+                    "Calendar",
+                    "Events"
+                ],
+                systemImage: "calendar",
+                imageName: nil,
+                tint: .red,
+                resetGroup: .calendar
+            )
 
         case .downloads:
             return .init(
@@ -309,7 +348,7 @@ private enum SettingsSectionCatalog {
 
         case .timer:
             return .init(
-                sidebarGroup: .system,
+                sidebarGroup: .homePage,
                 titleKey: "settings.section.timer.title",
                 fallbackTitle: "Timer",
                 subtitleKey: "settings.section.timer.subtitle",

@@ -3,6 +3,8 @@ import CoreBluetooth
 import Foundation
 internal import AppKit
 import SwiftUI
+import AVFoundation
+internal import EventKit
 
 #if canImport(ApplicationServices)
 import ApplicationServices
@@ -12,7 +14,8 @@ enum Kind: String {
     case accessibility
     case bluetooth
     case mediaControls
-    case screenRecording
+    case camera
+    case calendar
 }
 
 struct PermissionItem: Identifiable {
@@ -37,11 +40,13 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
     @Published private(set) var isAccessibilityTrusted: Bool
     @Published private(set) var bluetoothAuthorization: CBManagerAuthorization
     @Published private(set) var canPostMediaKeyEvents: Bool
-    @Published private(set) var canCaptureScreenAudio: Bool
+    @Published private(set) var cameraAuthorization: AVAuthorizationStatus
+    @Published private(set) var calendarAuthorization: EKAuthorizationStatus
 
     private var didPromptForAccessibility = false
     private var didPromptForPostEventAccess = false
-    private var didPromptForScreenCaptureAccess = false
+    private var didPromptForCameraAccess = false
+    private var didPromptForCalendarAccess = false
     private var bluetoothPermissionRequester: CBCentralManager?
     private var cancellables = Set<AnyCancellable>()
 
@@ -51,15 +56,19 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
     private static let bluetoothPrivacySettingsURL = URL(
         string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Bluetooth"
     )
-    private static let screenCapturePrivacySettingsURL = URL(
-        string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture"
+    private static let cameraPrivacySettingsURL = URL(
+        string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera"
+    )
+    private static let calendarPrivacySettingsURL = URL(
+        string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars"
     )
 
     init(notificationCenter: NotificationCenter = .default) {
         self.bluetoothAuthorization = Self.currentBluetoothAuthorizationStatus()
         self.isAccessibilityTrusted = Self.currentAccessibilityTrustState()
         self.canPostMediaKeyEvents = Self.currentPostEventAccessState()
-        self.canCaptureScreenAudio = Self.currentScreenCaptureAccessState()
+        self.cameraAuthorization = AVCaptureDevice.authorizationStatus(for: .video)
+        self.calendarAuthorization = EKEventStore.authorizationStatus(for: .event)
 
         super.init()
 
@@ -75,7 +84,8 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
         bluetoothAuthorization = Self.currentBluetoothAuthorizationStatus()
         isAccessibilityTrusted = Self.currentAccessibilityTrustState()
         canPostMediaKeyEvents = Self.currentPostEventAccessState()
-        canCaptureScreenAudio = Self.currentScreenCaptureAccessState()
+        cameraAuthorization = AVCaptureDevice.authorizationStatus(for: .video)
+        calendarAuthorization = EKEventStore.authorizationStatus(for: .event)
     }
 
     var permissionItems: [PermissionItem] {
@@ -135,24 +145,32 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
                 accessibilityIdentifier: "settings.permissions.mediaControls"
             ),
             PermissionItem(
-                kind: .screenRecording,
-                titleKey: "settings.permissions.screenRecording.title",
-                fallbackTitle: "Screen Recording",
-                descriptionKey: "settings.permissions.screenRecording.description",
-                fallbackDescription: "Allow Screen Recording access so the audio-reactive Now Playing equalizer can listen to system audio.",
+                kind: .camera,
+                titleKey: "settings.permissions.camera.title",
+                fallbackTitle: "Camera",
+                descriptionKey: "settings.permissions.camera.description",
+                fallbackDescription: "Allow Camera access to display a camera preview in the notch.",
                 assetImageName: nil,
-                systemImage: "record.circle",
+                systemImage: "camera.fill",
+                tintColor: .green,
+                isGranted: cameraAuthorization == .authorized,
+                actionTitleKey: cameraActionTitleKey,
+                fallbackActionTitle: cameraFallbackActionTitle,
+                accessibilityIdentifier: "settings.permissions.camera"
+            ),
+            PermissionItem(
+                kind: .calendar,
+                titleKey: "settings.permissions.calendar.title",
+                fallbackTitle: "Calendar",
+                descriptionKey: "settings.permissions.calendar.description",
+                fallbackDescription: "Allow Calendar access to display your upcoming events.",
+                assetImageName: nil,
+                systemImage: "calendar",
                 tintColor: .red,
-                isGranted: canCaptureScreenAudio,
-                actionTitleKey: canCaptureScreenAudio ? nil : (
-                    didPromptForScreenCaptureAccess ?
-                    "settings.permissions.action.openPrivacySettings" :
-                    "settings.permissions.action.grantAccess"
-                ),
-                fallbackActionTitle: canCaptureScreenAudio ? nil : (
-                    didPromptForScreenCaptureAccess ? "Open Privacy Settings" : "Grant Access"
-                ),
-                accessibilityIdentifier: "settings.permissions.screenRecording"
+                isGranted: calendarAuthorization == .fullAccess,
+                actionTitleKey: calendarActionTitleKey,
+                fallbackActionTitle: calendarFallbackActionTitle,
+                accessibilityIdentifier: "settings.permissions.calendar"
             )
         ]
     }
@@ -165,8 +183,10 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
             requestBluetoothAccess()
         case .mediaControls:
             requestPostEventAccess()
-        case .screenRecording:
-            requestScreenCaptureAccess()
+        case .camera:
+            requestCameraAccess()
+        case .calendar:
+            requestCalendarAccess()
         }
     }
 
@@ -214,25 +234,6 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
         refresh()
     }
 
-    private func requestScreenCaptureAccess() {
-        guard !Self.currentScreenCaptureAccessState() else {
-            refresh()
-            return
-        }
-
-        if !didPromptForScreenCaptureAccess {
-            didPromptForScreenCaptureAccess = true
-
-            #if canImport(ApplicationServices)
-            _ = CGRequestScreenCaptureAccess()
-            #endif
-        } else {
-            Self.openScreenCapturePrivacySettings()
-        }
-
-        refresh()
-    }
-
     private var bluetoothActionTitleKey: String? {
         switch bluetoothAuthorization {
         case .allowedAlways:
@@ -256,6 +257,101 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
                 return "Open Privacy Settings"
             @unknown default:
                 return "Open Privacy Settings"
+        }
+    }
+
+    private var cameraActionTitleKey: String? {
+        switch cameraAuthorization {
+        case .authorized:
+            return nil
+        case .notDetermined:
+            return "settings.permissions.action.grantAccess"
+        case .restricted, .denied:
+            return "settings.permissions.action.openPrivacySettings"
+        @unknown default:
+            return "settings.permissions.action.openPrivacySettings"
+        }
+    }
+
+    private var cameraFallbackActionTitle: String? {
+        switch cameraAuthorization {
+        case .authorized:
+            return nil
+        case .notDetermined:
+            return "Grant Access"
+        case .restricted, .denied:
+            return "Open Privacy Settings"
+        @unknown default:
+            return "Open Privacy Settings"
+        }
+    }
+
+    private var calendarActionTitleKey: String? {
+        switch calendarAuthorization {
+        case .fullAccess, .writeOnly:
+            return nil
+        case .notDetermined:
+            return "settings.permissions.action.grantAccess"
+        case .restricted, .denied:
+            return "settings.permissions.action.openPrivacySettings"
+        @unknown default:
+            return "settings.permissions.action.openPrivacySettings"
+        }
+    }
+
+    private var calendarFallbackActionTitle: String? {
+        switch calendarAuthorization {
+        case .fullAccess, .writeOnly:
+            return nil
+        case .notDetermined:
+            return "Grant Access"
+        case .restricted, .denied:
+            return "Open Privacy Settings"
+        @unknown default:
+            return "Open Privacy Settings"
+        }
+    }
+
+    private func requestCameraAccess() {
+        switch cameraAuthorization {
+        case .authorized:
+            refresh()
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { [weak self] _ in
+                DispatchQueue.main.async {
+                    self?.refresh()
+                }
+            }
+        case .restricted, .denied:
+            Self.openCameraPrivacySettings()
+        @unknown default:
+            Self.openCameraPrivacySettings()
+        }
+    }
+
+    private func requestCalendarAccess() {
+        switch calendarAuthorization {
+        case .fullAccess, .writeOnly:
+            refresh()
+        case .notDetermined:
+            let store = EKEventStore()
+            if #available(macOS 14.0, *) {
+                store.requestFullAccessToEvents { [weak self] _, _ in
+                    DispatchQueue.main.async {
+                        self?.refresh()
+                    }
+                }
+            } else {
+                store.requestAccess(to: .event) { [weak self] _, _ in
+                    DispatchQueue.main.async {
+                        self?.refresh()
+                    }
+                }
+            }
+        case .restricted, .denied:
+            Self.openCalendarPrivacySettings()
+        @unknown default:
+            Self.openCalendarPrivacySettings()
         }
     }
 
@@ -288,9 +384,14 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
         NSWorkspace.shared.open(bluetoothPrivacySettingsURL)
     }
 
-    private static func openScreenCapturePrivacySettings() {
-        guard let screenCapturePrivacySettingsURL else { return }
-        NSWorkspace.shared.open(screenCapturePrivacySettingsURL)
+    private static func openCameraPrivacySettings() {
+        guard let cameraPrivacySettingsURL else { return }
+        NSWorkspace.shared.open(cameraPrivacySettingsURL)
+    }
+
+    private static func openCalendarPrivacySettings() {
+        guard let calendarPrivacySettingsURL else { return }
+        NSWorkspace.shared.open(calendarPrivacySettingsURL)
     }
 
     private static func currentAccessibilityTrustState() -> Bool {
@@ -304,14 +405,6 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
     private static func currentPostEventAccessState() -> Bool {
         #if canImport(ApplicationServices)
         CGPreflightPostEventAccess()
-        #else
-        true
-        #endif
-    }
-
-    private static func currentScreenCaptureAccessState() -> Bool {
-        #if canImport(ApplicationServices)
-        CGPreflightScreenCaptureAccess()
         #else
         true
         #endif

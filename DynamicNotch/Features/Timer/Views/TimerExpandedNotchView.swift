@@ -74,7 +74,7 @@ struct TimerExpandedNotchView: View {
 
     private var rightContent: some View {
         HStack {
-            Text("Timer")
+            Text(verbatim: "Timer")
                 .font(.system(size: 14))
                 .foregroundStyle(Color.orange.opacity(0.8))
                 .offset(y: 8)

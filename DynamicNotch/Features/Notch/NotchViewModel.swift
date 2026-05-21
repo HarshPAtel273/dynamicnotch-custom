@@ -45,6 +45,7 @@ final class NotchViewModel: ObservableObject {
     @Published private(set) var isExpandingLiveActivityTransition = false
     @Published private(set) var isActivityPresentationHidden = false
     
+    @Published var isHoveringScrollableContent = false
     @Published var showNotch = false
     @Published var isPressed = false
     @Published var cachedStrokeColor: Color = .clear
@@ -143,7 +144,8 @@ final class NotchViewModel: ObservableObject {
         settings.isNotchMouseDragGesturesEnabled &&
         settings.isNotchSwipeDismissEnabled &&
         !isActivityPresentationHidden &&
-        notchModel.content != nil
+        notchModel.content != nil &&
+        (notchModel.content?.id != NotchContentRegistry.HomePage.active.id || notchModel.isLiveActivityExpanded)
     }
     
     var canRestoreWithMouseDrag: Bool {
@@ -156,7 +158,8 @@ final class NotchViewModel: ObservableObject {
         settings.isNotchTrackpadSwipeGesturesEnabled &&
         settings.isNotchSwipeDismissEnabled &&
         !isActivityPresentationHidden &&
-        notchModel.content != nil
+        notchModel.content != nil &&
+        (notchModel.content?.id != NotchContentRegistry.HomePage.active.id || notchModel.isLiveActivityExpanded)
     }
     
     var canRestoreWithTrackpadSwipe: Bool {
@@ -335,9 +338,12 @@ final class NotchViewModel: ObservableObject {
     }
     
     func dismissActiveContent() {
-        if notchModel.isLiveActivityExpanded,
-           notchModel.liveActivityContent?.id == NotchContentRegistry.Media.timer.id {
+        if notchModel.isLiveActivityExpanded {
             engine.handleOutsideClick()
+            return
+        }
+        
+        if notchModel.liveActivityContent?.id == NotchContentRegistry.HomePage.active.id {
             return
         }
         

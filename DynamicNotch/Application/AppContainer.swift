@@ -10,6 +10,9 @@ final class AppContainer {
     let fileConverterViewModel = FileConverterViewModel()
     let settingsViewModel: SettingsViewModel
     let networkViewModel: NetworkViewModel
+    let homePageViewModel = HomePageViewModel()
+    let localTimerViewModel = LocalTimerViewModel()
+    let calendarViewModel = CalendarViewModel()
 
     let powerViewModel: PowerViewModel
     let downloadViewModel: DownloadViewModel
@@ -50,7 +53,10 @@ final class AppContainer {
         settingsViewModel: settingsViewModel,
         nowPlayingViewModel: nowPlayingViewModel,
         timerViewModel: timerViewModel,
-        lockScreenManager: lockScreenManager
+        lockScreenManager: lockScreenManager,
+        homePageViewModel: homePageViewModel,
+        localTimerViewModel: localTimerViewModel,
+        calendarViewModel: calendarViewModel
     )
 
     lazy var lockScreenPanelManager = LockScreenPanelManager(

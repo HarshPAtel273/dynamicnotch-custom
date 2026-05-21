@@ -320,6 +320,19 @@ struct SettingsRootView: View {
                     applicationSettings: settingsViewModel.application
                 )
             }
+            
+        case .homePage:
+            detailContainer(for: section) {
+                HomePageSettingsView(
+                    settings: settingsViewModel.homePage
+                )
+            }
+        case .calendar:
+            detailContainer(for: section) {
+                CalendarSettingsView(
+                    settings: settingsViewModel.calendar
+                )
+            }
 
         case .downloads:
             detailContainer(for: section) {

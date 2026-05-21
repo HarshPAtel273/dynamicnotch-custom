@@ -30,9 +30,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     var airDropController: NotchAirDropController { container.airDropController }
     var notchEventCoordinator: NotchEventCoordinator { container.notchEventCoordinator }
     var lockScreenPanelManager: LockScreenPanelManager { container.lockScreenPanelManager }
-    var lockScreenLiveActivityWindowManager: LockScreenLiveActivityWindowManager {
-        container.lockScreenLiveActivityWindowManager
-    }
+    var lockScreenLiveActivityWindowManager: LockScreenLiveActivityWindowManager { container.lockScreenLiveActivityWindowManager }
+    var homePageViewModel: HomePageViewModel { container.homePageViewModel }
     
     var window: OverlayPanelWindow!
     var localClickMonitor: Any?

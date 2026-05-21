@@ -32,6 +32,10 @@ class SettingsStoreBase: ObservableObject {
         defaults.set(value, forKey: key)
     }
 
+    func persist(_ value: [String], for key: String) {
+        defaults.set(value, forKey: key)
+    }
+
     func defaultBool(for key: String) -> Bool {
         (GeneralSettingsStorage.defaultValues[key] as? Bool) ?? false
     }
@@ -46,6 +50,10 @@ class SettingsStoreBase: ObservableObject {
 
     func defaultString(for key: String) -> String {
         (GeneralSettingsStorage.defaultValues[key] as? String) ?? ""
+    }
+
+    func defaultStringArray(for key: String) -> [String] {
+        (GeneralSettingsStorage.defaultValues[key] as? [String]) ?? []
     }
 
     class func clampTemporaryActivityDuration(_ value: Int) -> Int {

@@ -6,6 +6,7 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
     enum ResetGroup {
         case general
         case notch
+        case homePage
         case nowPlaying
         case downloads
         case drop
@@ -17,9 +18,11 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
         case hud
         case lockScreen
         case screenRecording
+        case calendar
     }
 
     enum LiveActivityPreference {
+        case homePage
         case hotspot
         case focus
         case nowPlaying
@@ -28,6 +31,7 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
         case drop
         case timer
         case screenRecording
+        case calendar
     }
 
     enum TemporaryActivityPreference {
@@ -48,12 +52,14 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
     }
 
     let application: ApplicationSettingsStore
+    let homePage: HomePageSettingsStore
     let mediaAndFiles: MediaAndFilesSettingsStore
     let connectivity: ConnectivitySettingsStore
     let battery: BatterySettingsStore
     let hud: HUDSettingsStore
     let lockScreen: LockScreenFeatureSettingsStore
     let screenRecording: ScreenRecordingSettingsStore
+    let calendar: CalendarSettingsStore
     private let defaults: UserDefaults
 
     private var cancellables = Set<AnyCancellable>()
@@ -61,12 +67,14 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         self.application = ApplicationSettingsStore(defaults: defaults)
+        self.homePage = HomePageSettingsStore(defaults: defaults)
         self.mediaAndFiles = MediaAndFilesSettingsStore(defaults: defaults)
         self.connectivity = ConnectivitySettingsStore(defaults: defaults)
         self.battery = BatterySettingsStore(defaults: defaults)
         self.hud = HUDSettingsStore(defaults: defaults)
         self.lockScreen = LockScreenFeatureSettingsStore(defaults: defaults)
         self.screenRecording = ScreenRecordingSettingsStore(defaults: defaults)
+        self.calendar = CalendarSettingsStore(defaults: defaults)
         bindStores()
     }
 
@@ -310,6 +318,8 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
 
     func isLiveActivityEnabled(_ preference: LiveActivityPreference) -> Bool {
         switch preference {
+        case .homePage:
+            return homePage.isHomePageLiveActivityEnabled
         case .hotspot:
             return connectivity.isHotspotLiveActivityEnabled
         case .focus:
@@ -326,6 +336,8 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
             return mediaAndFiles.isTimerLiveActivityEnabled
         case .screenRecording:
             return screenRecording.isScreenRecordingLiveActivityEnabled
+        case .calendar:
+            return calendar.isCalendarLiveActivityEnabled
         }
     }
 
@@ -409,6 +421,8 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
             application.resetGeneral()
         case .notch:
             application.resetNotch()
+        case .homePage:
+            homePage.resetHomePage()
         case .nowPlaying:
             mediaAndFiles.resetNowPlaying()
         case .downloads:
@@ -431,17 +445,21 @@ final class SettingsViewModel: ObservableObject, NotchSettingsProviding {
             lockScreen.reset()
         case .screenRecording:
             screenRecording.reset()
+        case .calendar:
+            calendar.resetCalendar()
         }
     }
 
     private func bindStores() {
         bind(store: application)
+        bind(store: homePage)
         bind(store: mediaAndFiles)
         bind(store: connectivity)
         bind(store: battery)
         bind(store: hud)
         bind(store: lockScreen)
         bind(store: screenRecording)
+        bind(store: calendar)
     }
 
     private func bind<Object: ObservableObject>(store: Object)

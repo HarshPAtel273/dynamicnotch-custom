@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict/>
+<dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Мы используем камеру для отображения превью</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>DynamicNotch needs access to your calendar to display upcoming events in the notch.</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>DynamicNotch needs access to your calendar to display upcoming events in the notch.</string>
+</dict>
 </plist>

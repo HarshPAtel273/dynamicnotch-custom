@@ -11,6 +11,7 @@ struct NotchSwipeDismissModifier: ViewModifier {
             NotchSwipeDismissMonitorRepresentable(
                 canSwipeUp: isEnabled && notchViewModel.canDismissWithTrackpadSwipe,
                 canSwipeDown: isEnabled && notchViewModel.canRestoreWithTrackpadSwipe,
+                isHoveringScrollableContent: notchViewModel.isHoveringScrollableContent,
                 onSwipeUp: {
                     notchViewModel.dismissActiveContent()
                 },
@@ -31,6 +32,7 @@ struct NotchSwipeDismissModifier: ViewModifier {
 private struct NotchSwipeDismissMonitorRepresentable: NSViewRepresentable {
     let canSwipeUp: Bool
     let canSwipeDown: Bool
+    let isHoveringScrollableContent: Bool
     let onSwipeUp: () -> Void
     let onSwipeDown: () -> Void
     let onSwipeStretchChanged: (NotchSwipeInteraction, CGFloat) -> Void
@@ -41,6 +43,7 @@ private struct NotchSwipeDismissMonitorRepresentable: NSViewRepresentable {
         view.update(
             canSwipeUp: canSwipeUp,
             canSwipeDown: canSwipeDown,
+            isHoveringScrollableContent: isHoveringScrollableContent,
             onSwipeUp: onSwipeUp,
             onSwipeDown: onSwipeDown,
             onSwipeStretchChanged: onSwipeStretchChanged,
@@ -53,6 +56,7 @@ private struct NotchSwipeDismissMonitorRepresentable: NSViewRepresentable {
         nsView.update(
             canSwipeUp: canSwipeUp,
             canSwipeDown: canSwipeDown,
+            isHoveringScrollableContent: isHoveringScrollableContent,
             onSwipeUp: onSwipeUp,
             onSwipeDown: onSwipeDown,
             onSwipeStretchChanged: onSwipeStretchChanged,
@@ -69,6 +73,13 @@ private final class NotchSwipeDismissMonitorView: NSView {
     private enum SwipeMetrics {
         static let verticalThreshold: CGFloat = 42
         static let directionDominanceMultiplier: CGFloat = 1.25
+        static let lockThreshold: CGFloat = 2
+    }
+
+    private enum SwipeDirectionLock {
+        case undetermined
+        case vertical
+        case horizontal
     }
 
     private var localScrollMonitor: Any?
@@ -76,6 +87,7 @@ private final class NotchSwipeDismissMonitorView: NSView {
 
     private var canSwipeUp = false
     private var canSwipeDown = false
+    private var isHoveringScrollableContent = false
     private var onSwipeUp: (() -> Void)?
     private var onSwipeDown: (() -> Void)?
     private var onSwipeStretchChanged: ((NotchSwipeInteraction, CGFloat) -> Void)?
@@ -83,6 +95,7 @@ private final class NotchSwipeDismissMonitorView: NSView {
 
     private var isTrackingSwipe = false
     private var isGestureActionLocked = false
+    private var swipeDirectionLock: SwipeDirectionLock = .undetermined
     private var accumulatedUpwardSwipe: CGFloat = 0
     private var accumulatedDownwardSwipe: CGFloat = 0
     private var accumulatedHorizontalSwipe: CGFloat = 0
@@ -109,6 +122,7 @@ private final class NotchSwipeDismissMonitorView: NSView {
     func update(
         canSwipeUp: Bool,
         canSwipeDown: Bool,
+        isHoveringScrollableContent: Bool,
         onSwipeUp: @escaping () -> Void,
         onSwipeDown: @escaping () -> Void,
         onSwipeStretchChanged: @escaping (NotchSwipeInteraction, CGFloat) -> Void,
@@ -116,6 +130,7 @@ private final class NotchSwipeDismissMonitorView: NSView {
     ) {
         self.canSwipeUp = canSwipeUp
         self.canSwipeDown = canSwipeDown
+        self.isHoveringScrollableContent = isHoveringScrollableContent
         self.onSwipeUp = onSwipeUp
         self.onSwipeDown = onSwipeDown
         self.onSwipeStretchChanged = onSwipeStretchChanged
@@ -187,6 +202,7 @@ private extension NotchSwipeDismissMonitorView {
         if event.phase.contains(.mayBegin) || event.phase.contains(.began) {
             resetSwipeTracking()
             isGestureActionLocked = false
+            swipeDirectionLock = .undetermined
             isTrackingSwipe = isInsideNotch
         } else if event.phase.contains(.ended) || event.phase.contains(.cancelled) {
             resetSwipeTracking()
@@ -211,6 +227,22 @@ private extension NotchSwipeDismissMonitorView {
         } else {
             accumulatedDownwardSwipe += abs(verticalDelta)
             accumulatedUpwardSwipe = max(0, accumulatedUpwardSwipe + verticalDelta)
+        }
+        
+        if swipeDirectionLock == .undetermined {
+            let maxVertical = max(accumulatedUpwardSwipe, accumulatedDownwardSwipe)
+            if accumulatedHorizontalSwipe > SwipeMetrics.lockThreshold || maxVertical > SwipeMetrics.lockThreshold {
+                if accumulatedHorizontalSwipe > maxVertical * SwipeMetrics.directionDominanceMultiplier {
+                    swipeDirectionLock = .horizontal
+                } else {
+                    swipeDirectionLock = .vertical
+                }
+            }
+        }
+        
+        guard swipeDirectionLock != .horizontal else {
+            onSwipeStretchReset?()
+            return
         }
 
         let dominanceThreshold =
@@ -261,6 +293,7 @@ private extension NotchSwipeDismissMonitorView {
     }
 
     func shouldTrackSwipe(for event: NSEvent) -> Bool {
+        guard !isHoveringScrollableContent else { return false }
         guard canSwipeUp || canSwipeDown else { return false }
         guard window != nil else { return false }
         guard event.hasPreciseScrollingDeltas else { return false }
@@ -292,6 +325,7 @@ private extension NotchSwipeDismissMonitorView {
         accumulatedDownwardSwipe = 0
         accumulatedHorizontalSwipe = 0
         didTriggerSwipe = false
+        swipeDirectionLock = .undetermined
         onSwipeStretchReset?()
     }
 }
