@@ -143,4 +143,17 @@ final class CalendarViewModel: ObservableObject {
             NSWorkspace.shared.open(url)
         }
     }
+
+    func deleteEvent(_ event: EKEvent) {
+        do {
+            try eventStore.remove(event, span: .thisEvent, commit: true)
+            // Immediately update the UI locally, the system will also trigger .EKEventStoreChanged
+            self.events.removeAll { $0.eventIdentifier == event.eventIdentifier }
+            if self.nextEvent?.eventIdentifier == event.eventIdentifier {
+                self.nextEvent = self.events.first
+            }
+        } catch {
+            print("Failed to delete event: \(error.localizedDescription)")
+        }
+    }
 }
