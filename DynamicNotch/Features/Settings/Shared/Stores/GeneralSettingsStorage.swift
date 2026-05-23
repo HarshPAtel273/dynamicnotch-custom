@@ -113,6 +113,7 @@ enum GeneralSettingsStorage {
         static let fullBatterySound = "settings.battery.fullBatterySound"
         static let homePageLiveActivity = "settings.homePage.liveActivity"
         static let calendarLiveActivity = "settings.calendar.liveActivity"
+        static let calendarHideWhenFocused = "settings.calendar.hideWhenFocused"
         static let calendarShowAllDay = "settings.calendar.showAllDay"
         static let calendarDaysToShow = "settings.calendar.daysToShow"
         static let homePageOrder = "settings.homePage.order"
@@ -247,6 +248,7 @@ enum GeneralSettingsStorage {
         Keys.homePageOrder: ["camera", "localTimer", "calendar"],
         Keys.homePageDisabled: [String](),
         Keys.calendarLiveActivity: true,
+        Keys.calendarHideWhenFocused: true,
         Keys.calendarShowAllDay: true,
         Keys.calendarDaysToShow: 7
     ]

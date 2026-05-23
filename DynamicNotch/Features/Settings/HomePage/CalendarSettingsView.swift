@@ -21,6 +21,17 @@ struct CalendarSettingsView: View {
                 isOn: $settings.isCalendarLiveActivityEnabled,
                 accessibilityIdentifier: "settings.activities.live.calendar"
             )
+
+            Divider().opacity(0.6)
+
+            SettingsToggleRow(
+                title: "settings.activities.calendar.hideWhenFocused",
+                description: "settings.activities.calendar.hideWhenFocused.desc",
+                systemImage: "eye.slash",
+                color: .orange,
+                isOn: $settings.isCalendarHideWhenFocusedEnabled,
+                accessibilityIdentifier: "settings.activities.live.calendar.hideWhenFocused"
+            )
         }
     }
     

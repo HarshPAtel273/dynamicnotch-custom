@@ -14,10 +14,17 @@ struct CalendarEventRow: View {
                     .frame(width: 8, height: 8)
                 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(event.title)
-                        .font(.headline)
-                        .lineLimit(1)
-                        .foregroundColor(.white)
+                    if !event.title.isEmpty {
+                        Text(event.title)
+                            .font(.headline)
+                            .lineLimit(1)
+                            .foregroundColor(.white)
+                    } else {
+                        Text("Empty Title")
+                            .font(.headline)
+                            .foregroundColor(.gray.opacity(0.6))
+                            .lineLimit(1)
+                    }
                     
                     HStack(spacing: 4) {
                         if event.isAllDay {
