@@ -84,6 +84,7 @@ final class NotchEngine: ObservableObject {
 
                 withAnimation(animations.contentUpdate) {
                     notchModel.temporaryNotificationContent = content
+                    notchModel.updateToken = UUID()
                 }
 
                 restartTemporaryTimer(duration: duration)
@@ -102,6 +103,7 @@ final class NotchEngine: ObservableObject {
             if notchModel.liveActivityContent?.id == content.id {
                 withAnimation(animations.contentUpdate) {
                     notchModel.liveActivityContent = content
+                    notchModel.updateToken = UUID()
                 }
                 return
             }
@@ -318,6 +320,9 @@ final class NotchEngine: ObservableObject {
             let bestVisible = highestPriorityVisibleActivity
 
             if bestVisible?.id == notchModel.liveActivityContent?.id {
+                if let bestVisible {
+                    notchModel.liveActivityContent = bestVisible
+                }
                 return
             }
 
