@@ -200,9 +200,11 @@ final class DoNotDisturbManager: ObservableObject {
                 task.standardError = Pipe()
 
                 guard (try? task.run()) != nil else { return }
+
+                let outputData = pipe.fileHandleForReading.readDataToEndOfFile()
                 task.waitUntilExit()
 
-                let output = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+                let output = String(data: outputData, encoding: .utf8) ?? ""
                 let lines = output.components(separatedBy: "\n").filter {
                     !$0.hasPrefix("Filtering") && ($0.contains("semanticModeIdentifier") || $0.contains("<DNDMode:"))
                 }
