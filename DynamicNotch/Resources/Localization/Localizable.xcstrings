@@ -5362,6 +5362,8 @@
         }
       }
     },
+    "Empty Location": {},
+    "Empty Title": {},
     "Enjoy your free time!": {},
     "Enlarged": {
       "localizations": {
@@ -8491,7 +8493,6 @@
         }
       }
     },
-    "Next Event": {},
     "No audio outputs available": {
       "extractionState": "stale",
       "localizations": {
@@ -9898,6 +9899,22 @@
         }
       }
     },
+    "Quickly access the camera.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quickly access the camera."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Быстрый доступ к камере."
+          }
+        }
+      }
+    },
     "Quit": {
       "extractionState": "stale",
       "localizations": {
@@ -10436,6 +10453,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "设置控制动画速度的全局动效参数。"
+          }
+        }
+      }
+    },
+    "Set a quick timer.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set a quick timer."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Установка быстрого таймера."
           }
         }
       }
@@ -19174,6 +19207,22 @@
         }
       }
     },
+    "View upcoming events.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View upcoming events."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Просмотр предстоящих событий."
+          }
+        }
+      }
+    },
     "Volume": {
       "extractionState": "stale",
       "localizations": {
@@ -19798,50 +19847,34 @@
         }
       }
     },
-    "Quickly access the camera.": {
+    "settings.activities.calendar.hideWhenFocused": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quickly access the camera."
+            "value": "Hide when Calendar is active"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Быстрый доступ к камере."
+            "value": "Скрывать, когда открыт Календарь"
           }
         }
       }
     },
-    "Set a quick timer.": {
+    "settings.activities.calendar.hideWhenFocused.desc": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Set a quick timer."
+            "value": "Automatically hide the live activity when the Calendar app is in focus."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Установка быстрого таймера."
-          }
-        }
-      }
-    },
-    "View upcoming events.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "View upcoming events."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Просмотр предстоящих событий."
+            "value": "Автоматически скрывать виджет, когда приложение Календарь активно."
           }
         }
       }

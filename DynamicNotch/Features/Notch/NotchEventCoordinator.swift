@@ -510,6 +510,14 @@ final class NotchEventCoordinator: ObservableObject {
                 self.calendarHandler.handleCalendarEvent(isEnabled && self.calendarViewModel.hasUpcomingEvent)
             }
             .store(in: &cancellables)
+
+        settingsViewModel.calendar.$isCalendarHideWhenFocusedEnabled
+            .removeDuplicates()
+            .sink { [weak self] _ in
+                guard let self else { return }
+                self.calendarHandler.handleCalendarEvent(self.calendarViewModel.hasUpcomingEvent)
+            }
+            .store(in: &cancellables)
     }
 
     private func observeSettingsChanges() {
