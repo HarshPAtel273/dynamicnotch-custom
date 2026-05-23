@@ -104,6 +104,10 @@ extension FocusModeType {
         }
 
         if normalizedLowercased.hasPrefix("com.apple.focus") {
+            if normalizedLowercased == "com.apple.focus" || normalizedLowercased == "com.apple.focus.default" {
+                self = .doNotDisturb
+                return
+            }
             self = .custom
             return
         }
