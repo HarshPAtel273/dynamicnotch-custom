@@ -97,6 +97,16 @@ final class NotchEngine: ObservableObject {
                 return
             }
 
+            if let index = eventQueue.firstIndex(where: {
+                if case .showTemporaryNotification(let queuedContent, _) = $0 {
+                    return queuedContent.id == content.id
+                }
+                return false
+            }) {
+                eventQueue[index] = notchState
+                return
+            }
+
         case .showLiveActivity(let content):
             updateLiveActivityStack(with: content)
 
@@ -343,7 +353,16 @@ final class NotchEngine: ObservableObject {
             await showLiveContentTransition(highestPriorityVisibleActivity)
 
         case .showTemporaryNotification(let content, let duration):
-            await showTemporaryTransition(content, duration: duration)
+            if notchModel.temporaryNotificationContent?.id == content.id {
+                currentTemporaryNotificationDuration = duration
+                withAnimation(animations.contentUpdate) {
+                    notchModel.temporaryNotificationContent = content
+                    notchModel.updateToken = UUID()
+                }
+                restartTemporaryTimer(duration: duration)
+            } else {
+                await showTemporaryTransition(content, duration: duration)
+            }
 
         case .hide:
             await hideAllTransition()
