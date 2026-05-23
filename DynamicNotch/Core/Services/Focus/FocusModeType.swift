@@ -122,16 +122,16 @@ extension FocusModeType {
 
             let lower = name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
             switch lower {
-            case "work": return .work
-            case "personal", "personal-time": return .personal
-            case "sleep", "sleep-mode": return .sleep
-            case "driving": return .driving
-            case "fitness": return .fitness
-            case "gaming": return .gaming
-            case "mindfulness": return .mindfulness
-            case "reading": return .reading
+            case "work", "работа": return .work
+            case "personal", "personal-time", "личное": return .personal
+            case "sleep", "sleep-mode", "сон": return .sleep
+            case "driving", "за рулем": return .driving
+            case "fitness", "тренировка": return .fitness
+            case "gaming", "видеоигры", "игры": return .gaming
+            case "mindfulness", "осознанность": return .mindfulness
+            case "reading", "чтение": return .reading
             case "reduce-interruptions", "reduce interruptions": return .reduceInterruptions
-            case "do not disturb", "dnd", "donotdisturb", "do-not-disturb", "default": return .doNotDisturb
+            case "do not disturb", "dnd", "donotdisturb", "do-not-disturb", "default", "не беспокоить": return .doNotDisturb
             default: break
             }
         }
