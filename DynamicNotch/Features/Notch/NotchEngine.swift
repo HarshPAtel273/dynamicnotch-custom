@@ -322,6 +322,7 @@ final class NotchEngine: ObservableObject {
             if bestVisible?.id == notchModel.liveActivityContent?.id {
                 if let bestVisible {
                     notchModel.liveActivityContent = bestVisible
+                    notchModel.updateToken = UUID()
                 }
                 return
             }
