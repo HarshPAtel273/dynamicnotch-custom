@@ -22,7 +22,8 @@ struct CalendarExpandedNotchView: View {
                     .foregroundColor(.gray.opacity(0.6))
             }
         }
-        .padding(.horizontal, 45)
+        .padding(.leading, 48)
+        .padding(.trailing, 45)
         .padding(.bottom, 18)
     }
     
@@ -73,7 +74,23 @@ struct CalendarExpandedNotchView: View {
                         .font(.system(size: 12))
                         .foregroundColor(.gray)
                     
-                    Text(location)
+                    MarqueeText(
+                        .constant(location),
+                        font: .system(size: 12),
+                        nsFont: .headline,
+                        textColor: .gray.opacity(0.8),
+                        backgroundColor: .clear,
+                        minDuration: 3.0,
+                        frameWidth: 200
+                    )
+                }
+            } else {
+                HStack {
+                    Image(systemName: "mappin.and.ellipse")
+                        .font(.system(size: 12))
+                        .foregroundColor(.gray)
+                    
+                    Text("Empty Location")
                         .font(.system(size: 12))
                         .lineLimit(1)
                         .foregroundColor(.gray.opacity(0.8))
