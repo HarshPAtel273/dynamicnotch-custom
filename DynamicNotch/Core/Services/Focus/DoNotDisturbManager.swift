@@ -102,9 +102,15 @@ final class DoNotDisturbManager: ObservableObject {
             let trimmedName = name?.trimmingCharacters(in: .whitespacesAndNewlines)
             let resolvedMode = FocusModeType.resolve(identifier: trimmedIdentifier, name: trimmedName)
 
+            let previousIdentifier = self.currentFocusModeIdentifier
+            let previousName = self.currentFocusModeName
+            let previousActive = self.isDoNotDisturbActive
+
             let finalIdentifier: String
             if let identifier = trimmedIdentifier, !identifier.isEmpty {
                 finalIdentifier = identifier
+            } else if !previousIdentifier.isEmpty {
+                finalIdentifier = previousIdentifier
             } else {
                 finalIdentifier = resolvedMode.rawValue
             }
@@ -112,6 +118,8 @@ final class DoNotDisturbManager: ObservableObject {
             let finalName: String
             if let name = trimmedName, !name.isEmpty {
                 finalName = name
+            } else if !previousName.isEmpty {
+                finalName = previousName
             } else if !resolvedMode.displayName.isEmpty {
                 finalName = resolvedMode.displayName
             } else if let identifier = trimmedIdentifier, !identifier.isEmpty {
@@ -120,9 +128,6 @@ final class DoNotDisturbManager: ObservableObject {
                 finalName = "Focus"
             }
 
-            let previousIdentifier = self.currentFocusModeIdentifier
-            let previousName = self.currentFocusModeName
-            let previousActive = self.isDoNotDisturbActive
 
             let identifierChanged = finalIdentifier != previousIdentifier
             let nameChanged = finalName != previousName

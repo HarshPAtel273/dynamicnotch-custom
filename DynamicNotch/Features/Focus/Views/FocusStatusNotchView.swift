@@ -21,7 +21,7 @@ struct FocusOffNotchView: View {
     let focusModeType: FocusModeType
 
     var body: some View {
-        FocusStatusNotchView(title: "Off", tint: .gray.opacity(0.6), style: style, icon: focusModeType.icon)
+        FocusStatusNotchView(title: "Off", tint: .gray, style: style, icon: focusModeType.icon)
     }
 }
 
