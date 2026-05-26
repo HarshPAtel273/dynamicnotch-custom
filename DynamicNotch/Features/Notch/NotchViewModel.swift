@@ -24,12 +24,7 @@ private enum SwipeFeedbackMetrics {
     static let restoreOpacityReduction: Double = 0.5
 }
 
-private enum SurfaceResizeMetrics {
-    static let heightLeadDeltaFactor: CGFloat = 0.24
-    static let heightLeadDeltaMinimum: CGFloat = 6
-    static let heightLeadDeltaMaximum: CGFloat = 28
-    static let heightFollowUpDelay: TimeInterval = 0.1
-}
+
 
 private enum ExpansionTransitionTiming {
     static let preparationDelay: UInt64 = 16_000_000
@@ -54,7 +49,6 @@ final class NotchViewModel: ObservableObject {
     private let engine: NotchEngine
     private let screenMetricsProvider: (any NotchSettingsProviding) -> NotchScreenMetrics?
     private var cancellables = Set<AnyCancellable>()
-    private var stagedHeightTask: Task<Void, Never>?
     private var expansionTransitionTask: Task<Void, Never>?
     private var swipeStretchResetWorkItem: DispatchWorkItem?
     private var isClosingHeightStaged = false
@@ -455,18 +449,22 @@ final class NotchViewModel: ObservableObject {
 
     func contentTransition(notchWidth: CGFloat, notchHeight: CGFloat, baseHeight: CGFloat, isExpandedPresentation: Bool, isCompactRemovalForExpansion: Bool = false) -> AnyTransition {
 
-        let animation = isExpandedPresentation
-            ? animations.expandLiveActivityContentTransition
-            : animations.openContentTransition
-
-        return .dynamicIslandContent(
+        let baseTransition = AnyTransition.dynamicIslandContent(
             notchWidth: notchWidth,
             notchHeight: notchHeight,
             baseHeight: baseHeight,
             isExpandedPresentation: isExpandedPresentation,
             isCompactRemovalForExpansion: isCompactRemovalForExpansion
         )
-        .animation(animation)
+
+        if isExpandedPresentation {
+            return .asymmetric(
+                insertion: baseTransition.animation(animations.expandLiveActivityContentTransition),
+                removal: baseTransition.animation(animations.closeLiveActivityContentTransition)
+            )
+        } else {
+            return baseTransition.animation(animations.openContentTransition)
+        }
     }
     
     private func bindEngine() {
@@ -505,8 +503,6 @@ final class NotchViewModel: ObservableObject {
     }
 
     private func scheduleStagedHeightUpdate(to targetHeight: CGFloat) {
-        stagedHeightTask?.cancel()
-
         guard !isSwipeInteractionActive else {
             isClosingHeightStaged = false
             stagedNotchHeight = targetHeight
@@ -527,30 +523,8 @@ final class NotchViewModel: ObservableObject {
             return
         }
 
-        isClosingHeightStaged = true
-
-        let leadHeight = intermediateHeight(from: currentHeight, to: targetHeight)
-
-        applyStagedHeight(leadHeight, animated: true)
-
-        guard abs(leadHeight - targetHeight) > 0.5 else {
-            isClosingHeightStaged = false
-            stagedNotchHeight = targetHeight
-            return
-        }
-
-        stagedHeightTask = Task { [weak self] in
-            try? await Task.sleep(
-                nanoseconds: UInt64(SurfaceResizeMetrics.heightFollowUpDelay * 1_000_000_000)
-            )
-
-            guard !Task.isCancelled else { return }
-
-            await MainActor.run {
-                self?.applyStagedHeight(targetHeight, animated: true)
-                self?.isClosingHeightStaged = false
-            }
-        }
+        isClosingHeightStaged = false
+        applyStagedHeight(targetHeight, animated: true)
     }
 
     private func applyStagedHeight(_ targetHeight: CGFloat, animated: Bool) {
@@ -564,17 +538,4 @@ final class NotchViewModel: ObservableObject {
         }
     }
 
-    private func intermediateHeight(from currentHeight: CGFloat, to targetHeight: CGFloat) -> CGFloat {
-        let delta = targetHeight - currentHeight
-        let clampedLeadDelta = min(
-            abs(delta),
-            max(
-                abs(delta) * SurfaceResizeMetrics.heightLeadDeltaFactor,
-                SurfaceResizeMetrics.heightLeadDeltaMinimum
-            ),
-            SurfaceResizeMetrics.heightLeadDeltaMaximum
-        )
-
-        return currentHeight + (delta.sign == .minus ? -clampedLeadDelta : clampedLeadDelta)
-    }
 }
