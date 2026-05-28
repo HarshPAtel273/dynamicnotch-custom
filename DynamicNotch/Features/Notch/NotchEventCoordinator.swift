@@ -379,13 +379,13 @@ final class NotchEventCoordinator: ObservableObject {
     }
 
     func handleLockScreenEvent(_ event: LockScreenEvent) {
-        guard settingsViewModel.isLiveActivityEnabled(.lockScreen) else {
-            notchViewModel.send(.hideLiveActivity(id: NotchContentRegistry.LockScreen.activity.id))
-            return
-        }
-
         switch event {
         case .started:
+            notchViewModel.isLocked = true
+            guard settingsViewModel.isLiveActivityEnabled(.lockScreen) else {
+                notchViewModel.send(.hideLiveActivity(id: NotchContentRegistry.LockScreen.activity.id))
+                return
+            }
             notchViewModel.send(
                 .showLiveActivity(
                     LockScreenNotchContent(
@@ -396,6 +396,7 @@ final class NotchEventCoordinator: ObservableObject {
             )
             
         case .stopped:
+            notchViewModel.isLocked = false
             notchViewModel.send(.hideLiveActivity(id: NotchContentRegistry.LockScreen.activity.id))
         }
     }

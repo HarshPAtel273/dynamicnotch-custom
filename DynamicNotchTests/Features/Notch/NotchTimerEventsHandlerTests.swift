@@ -78,7 +78,8 @@ private extension NotchTimerEventsHandlerTests {
         let handler = NotchTimerEventsHandler(
             notchViewModel: notchViewModel,
             timerViewModel: timerViewModel,
-            settingsViewModel: settingsViewModel
+            settingsViewModel: settingsViewModel,
+            localTimerViewModel: LocalTimerViewModel()
         )
 
         return TestContext(

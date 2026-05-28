@@ -82,6 +82,7 @@ final class FakeNetworkMonitor: NetworkMonitoring {
     var onStatusChange: ((_ wifi: Bool, _ hotspot: Bool, _ vpn: Bool) -> Void)?
     var currentWiFiName: String?
     var currentVPNName: String?
+    var currentWiFiSignalLevel: Double = 0.0
     var isInternetAvailable = true
 
     private(set) var startCalls = 0
@@ -228,25 +229,25 @@ final class FakeScreenRecordingMonitor: ScreenRecordingMonitoring {
     }
 }
 
-@MainActor
-final class FakeClipboardMonitor: ClipboardMonitoring {
-    var onClipboardChange: ((ClipboardSnapshot) -> Void)?
-
-    private(set) var startCalls = 0
-    private(set) var stopCalls = 0
-
-    func startMonitoring() {
-        startCalls += 1
-    }
-
-    func stopMonitoring() {
-        stopCalls += 1
-    }
-
-    func publish(_ snapshot: ClipboardSnapshot) {
-        onClipboardChange?(snapshot)
-    }
-}
+// @MainActor
+// final class FakeClipboardMonitor: ClipboardMonitoring {
+//     var onClipboardChange: ((ClipboardSnapshot) -> Void)?
+// 
+//     private(set) var startCalls = 0
+//     private(set) var stopCalls = 0
+// 
+//     func startMonitoring() {
+//         startCalls += 1
+//     }
+// 
+//     func stopMonitoring() {
+//         stopCalls += 1
+//     }
+// 
+//     func publish(_ snapshot: ClipboardSnapshot) {
+//         onClipboardChange?(snapshot)
+//     }
+// }
 
 final class FakeLockScreenMonitoringService: LockScreenMonitoring {
     var onLockStateChange: ((Bool) -> Void)?

@@ -102,7 +102,7 @@ struct LockScreenNowPlayingView: View {
                     
                     LightweightNowPlayingEqualizerView(
                         isPlaying: snapshot.isPlaying,
-                        color: nowPlayingViewModel.artworkPalette.equalizerBaseColor,
+                        color: NSColor.white.withAlphaComponent(0.7),
                         barHeight: onTapArtwork ? 18 : 23,
                         barWidth: 2.7
                     )

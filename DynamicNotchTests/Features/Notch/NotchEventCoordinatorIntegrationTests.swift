@@ -28,13 +28,13 @@ final class NotchEventCoordinatorIntegrationTests: XCTestCase {
     func testFocusOffReplacesFocusLiveActivityWithTemporaryNotification() async {
         let context = makeContext()
 
-        context.coordinator.handleFocusEvent(.FocusOn)
+        context.coordinator.handleFocusEvent(.FocusOn(.doNotDisturb))
 
         await assertEventually {
             await MainActor.run { context.notchViewModel.notchModel.liveActivityContent?.id == NotchContentRegistry.Focus.active.id }
         }
 
-        context.coordinator.handleFocusEvent(.FocusOff)
+        context.coordinator.handleFocusEvent(.FocusOff(.doNotDisturb))
 
         await assertEventually {
             await MainActor.run {
@@ -94,6 +94,42 @@ final class NotchEventCoordinatorIntegrationTests: XCTestCase {
             await MainActor.run {
                 context.notchViewModel.notchModel.temporaryNotificationContent?.id == NotchContentRegistry.HUD.system.id
             }
+        }
+    }
+
+    func testVolumeHUDShowOnLockScreen() async {
+        let context = makeContext()
+
+        context.lockScreenService.publish(isLocked: true)
+        await assertEventually {
+            await MainActor.run {
+                context.notchViewModel.notchModel.liveActivityContent?.id == NotchContentRegistry.LockScreen.activity.id
+            }
+        }
+
+        context.coordinator.handleHudEvent(.volume(72))
+
+        try? await Task.sleep(for: .milliseconds(100))
+        await MainActor.run {
+            XCTAssertNil(context.notchViewModel.notchModel.temporaryNotificationContent)
+        }
+    }
+
+    func testChargerNotificationShowOnLockScreen() async {
+        let context = makeContext()
+
+        context.lockScreenService.publish(isLocked: true)
+        await assertEventually {
+            await MainActor.run {
+                context.notchViewModel.notchModel.liveActivityContent?.id == NotchContentRegistry.LockScreen.activity.id
+            }
+        }
+
+        context.coordinator.handlePowerEvent(.charger)
+
+        try? await Task.sleep(for: .milliseconds(100))
+        await MainActor.run {
+            XCTAssertNil(context.notchViewModel.notchModel.temporaryNotificationContent)
         }
     }
 
@@ -428,7 +464,8 @@ private extension NotchEventCoordinatorIntegrationTests {
         dragAndDropEnabled: Bool = true,
         dragAndDropActivityMode: DragAndDropActivityMode = .airDrop,
         trayLiveActivityEnabled: Bool = true,
-        noInternetTemporaryActivityEnabled: Bool = true
+        noInternetTemporaryActivityEnabled: Bool = true,
+        homePageLiveActivityEnabled: Bool = false
     ) -> TestContext {
         UserDefaults.standard.set(false, forKey: "isLaunchAtLoginEnabled")
         UserDefaults.standard.set(0, forKey: "notchWidth")
@@ -459,6 +496,7 @@ private extension NotchEventCoordinatorIntegrationTests {
         UserDefaults.standard.set(noInternetTemporaryActivityEnabled, forKey: "settings.temporary.noInternet")
         UserDefaults.standard.set(true, forKey: "settings.temporary.focusOff")
         UserDefaults.standard.set(true, forKey: "settings.temporary.notchSize")
+        UserDefaults.standard.set(homePageLiveActivityEnabled, forKey: "settings.homePage.liveActivity")
 
         let settingsViewModel = SettingsViewModel()
         let notchViewModel = NotchViewModel(
@@ -487,6 +525,9 @@ private extension NotchEventCoordinatorIntegrationTests {
         downloadViewModel.startMonitoring()
         nowPlayingViewModel.startMonitoring()
         lockScreenManager.startMonitoring()
+        let homePageViewModel = HomePageViewModel()
+        let localTimerViewModel = LocalTimerViewModel()
+        let calendarViewModel = CalendarViewModel()
         let coordinator = NotchEventCoordinator(
             notchViewModel: notchViewModel,
             bluetoothViewModel: BluetoothViewModel(),
@@ -499,7 +540,10 @@ private extension NotchEventCoordinatorIntegrationTests {
             settingsViewModel: settingsViewModel,
             nowPlayingViewModel: nowPlayingViewModel,
             timerViewModel: timerViewModel,
-            lockScreenManager: lockScreenManager
+            lockScreenManager: lockScreenManager,
+            homePageViewModel: homePageViewModel,
+            localTimerViewModel: localTimerViewModel,
+            calendarViewModel: calendarViewModel
         )
         var cancellables = Set<AnyCancellable>()
 

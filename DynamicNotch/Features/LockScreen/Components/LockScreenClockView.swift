@@ -24,6 +24,9 @@ struct LockScreenClockView: View {
             Text(dateString)
                 .font(.system(size: 38, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.8))
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .fixedSize(horizontal: true, vertical: false)
             
             Spacer()
         }

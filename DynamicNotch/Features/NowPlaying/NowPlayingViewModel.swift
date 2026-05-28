@@ -90,7 +90,10 @@ final class NowPlayingViewModel: ObservableObject {
     ) {
         self.service = service
         self.audioOutputRouting = audioOutputRouting ?? InactiveAudioOutputRoutingService()
-        self.lyricsProvider = lyricsProvider ?? LRCLIBLyricsProvider()
+        self.lyricsProvider = lyricsProvider ?? CompositeLyricsProvider(providers: [
+            LRCLIBLyricsProvider(),
+            OvhLyricsProvider()
+        ])
         self.favoritesStore = favoritesStore
         self.detailPollingService = service as? any NowPlayingDetailPollingConfigurable
         self.playbackSourceOpener = playbackSourceOpener ?? WorkspacePlaybackSourceOpener()

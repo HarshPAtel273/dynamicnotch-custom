@@ -77,14 +77,23 @@ extension AppDelegate {
         guard let window, !isPrimaryWindowSuspendedForLock else { return }
 
         isPrimaryWindowSuspendedForLock = true
+        notchViewModel.isLocked = true
         clearNowPlayingPrimaryWindowPresentationState()
-        window.orderOut(nil)
+        notchViewModel.setActivityPresentationHidden(false)
+        
+        window.level = OverlayWindowLevel.lockScreenNotch
+        SkyLightOperator.shared.delegateWindow(window, to: .lockScreenNotchOverlay)
+        window.orderFrontRegardless()
     }
 
     func restorePrimaryWindowForUnlockTransition() {
-        guard isPrimaryWindowSuspendedForLock else { return }
+        guard let window, isPrimaryWindowSuspendedForLock else { return }
 
         isPrimaryWindowSuspendedForLock = false
+        notchViewModel.isLocked = false
+        
+        window.level = OverlayWindowLevel.interactiveNotch
+        SkyLightOperator.shared.delegateWindow(window, to: .notchSurface)
         updateWindowFrame()
     }
 
