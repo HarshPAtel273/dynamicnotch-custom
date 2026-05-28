@@ -84,10 +84,10 @@ struct LockScreenLyricsView: View {
             }
             
         case .notFound:
-            unavailableContent(title: "Lyrics not found")
+            unavailableContent(title: "Текст не найден")
             
         case .failed:
-            unavailableContent(title: "Lyrics not found")
+            unavailableContent(title: "Ошибка загрузки")
         }
     }
     

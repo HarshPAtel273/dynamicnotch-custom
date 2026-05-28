@@ -36,8 +36,8 @@ final class LRCLIBLyricsProvider: LyricsProviding {
     init() {
         let configuration = URLSessionConfiguration.default
         configuration.requestCachePolicy = .returnCacheDataElseLoad
-        configuration.timeoutIntervalForRequest = 5
-        configuration.timeoutIntervalForResource = 8
+        configuration.timeoutIntervalForRequest = 30
+        configuration.timeoutIntervalForResource = 45
         session = URLSession(configuration: configuration)
     }
 
