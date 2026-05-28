@@ -75,7 +75,12 @@ struct LockScreenLyricsView: View {
             ForEach(visibleLines) { line in
                 LockScreenLyricLineView(
                     line: line,
-                    distanceFromActive: line.id - activeIndex
+                    distanceFromActive: line.id - activeIndex,
+                    onTap: line.startTime.map { startTime in
+                        {
+                            nowPlayingViewModel.seek(to: startTime)
+                        }
+                    }
                 )
                 .transition(
                     .asymmetric(
@@ -97,7 +102,8 @@ struct LockScreenLyricsView: View {
             ForEach(Array(visibleLines.enumerated()), id: \.element.id) { index, line in
                 LockScreenLyricLineView(
                     line: line,
-                    distanceFromActive: index - centerIndex
+                    distanceFromActive: index - centerIndex,
+                    onTap: nil
                 )
             }
         }
@@ -125,6 +131,7 @@ struct LockScreenLyricsView: View {
 private struct LockScreenLyricLineView: View {
     let line: LyricLine
     let distanceFromActive: Int
+    let onTap: (() -> Void)?
     
     private var isActive: Bool {
         distanceFromActive == 0
@@ -160,10 +167,11 @@ private struct LockScreenLyricLineView: View {
     
     var body: some View {
         Text(line.text)
-            .font(.system(size: isActive ? 34 : 30, weight: .bold, design: .rounded))
+            .font(.system(size: 34, weight: .bold, design: .rounded))
             .foregroundStyle(.white.opacity(lineOpacity))
-            .lineLimit(3)
+            .lineLimit(nil)
             .multilineTextAlignment(.leading)
+            .fixedSize(horizontal: false, vertical: true)
             .blur(radius: blurRadius)
             .scaleEffect(lineScale, anchor: .leading)
             .rotation3DEffect(
@@ -176,5 +184,16 @@ private struct LockScreenLyricLineView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentTransition(.opacity)
             .zIndex(Double(10 - clampedDistance))
+            .onTapGesture {
+                onTap?()
+            }
+            .onHover { inside in
+                guard onTap != nil else { return }
+                if inside {
+                    NSCursor.pointingHand.push()
+                } else {
+                    NSCursor.pop()
+                }
+            }
     }
 }

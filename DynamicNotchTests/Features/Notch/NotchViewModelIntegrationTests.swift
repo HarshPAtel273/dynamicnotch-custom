@@ -1,4 +1,5 @@
 import XCTest
+import SwiftUI
 @testable import DynamicNotch
 
 final class NotchViewModelIntegrationTests: XCTestCase {

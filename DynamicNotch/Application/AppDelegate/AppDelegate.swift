@@ -63,7 +63,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             createNotchWindow()
             observeOutsideClickDismissal()
             _ = lockScreenPanelManager
-            _ = lockScreenLiveActivityWindowManager
+            // _ = lockScreenLiveActivityWindowManager
             hardwareHUDMonitor.startMonitoring()
 
             NotificationCenter.default.addObserver(
@@ -101,7 +101,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         hardwareHUDMonitor.stopMonitoring()
         if !isRunningUITests {
             lockScreenPanelManager.invalidate()
-            lockScreenLiveActivityWindowManager.invalidate()
+            // lockScreenLiveActivityWindowManager.invalidate()
         }
         stopOutsideClickMonitoring()
     }

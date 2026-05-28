@@ -16,7 +16,7 @@ struct LockScreenNotchContent: NotchContentProtocol {
     func size(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
         switch style {
         case .enlarged:
-                .init(width: baseWidth + (lockScreenManager.isShowingLockPresentation ? 120 : 150), height: baseHeight)
+                .init(width: baseWidth + 150, height: baseHeight)
         case .compact:
             .init(width: baseWidth + 55, height: baseHeight)
         }

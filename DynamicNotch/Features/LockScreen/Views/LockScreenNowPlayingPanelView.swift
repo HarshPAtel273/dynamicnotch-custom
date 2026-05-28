@@ -16,7 +16,7 @@ struct LockScreenNowPlayingPanelView: View {
     private static let expandedStackLift: CGFloat = 160
     private static let expandedClockHeight: CGFloat = 76
     private static let expandedClockArtworkSpacing: CGFloat = 20
-    private static let expandedLyricsWidth: CGFloat = 620
+    private static let expandedLyricsWidth: CGFloat = 520
     private static let expandedLyricsSpacing: CGFloat = 90
     private static let panelCenterYOffset: CGFloat = (Self.panelSize.height / 2) + 80
     private static let backgroundScaleRange: ClosedRange<CGFloat> = 1...2
@@ -38,22 +38,51 @@ struct LockScreenNowPlayingPanelView: View {
     private let animationTick: TimeInterval = 1.0 / 10.0
     
     var body: some View {
-        ZStack {
-            if onTapArtwork {
-                artworkPresentationBackground
-                    .onAppear(perform: configureMediaPanelBackgroundAnimation)
-                    .onChange(of: mediaPanelBackgroundStyle) {
-                        configureMediaPanelBackgroundAnimation()
-                    }
-                    .ignoresSafeArea()
-                    .transition(.opacity)
+        GeometryReader { screenProxy in
+            let screenWidth = screenProxy.size.width
+            let screenHeight = screenProxy.size.height
+            
+            ZStack {
+                if onTapArtwork {
+                    artworkPresentationBackground
+                        .onAppear(perform: configureMediaPanelBackgroundAnimation)
+                        .onChange(of: mediaPanelBackgroundStyle) {
+                            configureMediaPanelBackgroundAnimation()
+                        }
+                        .ignoresSafeArea()
+                        .transition(.opacity)
+                }
+                
+                if onTapArtwork {
+                    expandedClockView
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .offset(y: -screenHeight / 2 + 130)
+                }
+                
+                if onTapArtwork {
+                    expandedArtworkButton
+                        .transition(.scale(scale: 0.82).combined(with: .opacity))
+                        .offset(x: expandedArtworkXOffset, y: -42)
+                }
+                
+                if shouldShowExpandedLyrics {
+                    LockScreenLyricsView(
+                        nowPlayingViewModel: nowPlayingViewModel,
+                        width: Self.expandedLyricsWidth
+                    )
+                    .transition(.move(edge: .trailing).combined(with: .opacity))
+                    .offset(x: expandedLyricsXOffset, y: -42)
+                }
+                
+                playerPanel
+                    .offset(x: 0, y: playerPanelYOffset(screenHeight: screenHeight))
             }
-            expandedContent
-                .offset(y: Self.panelCenterYOffset + activeMediaPanelVerticalOffset)
+            .frame(width: screenWidth, height: screenHeight)
         }
         .opacity(animator.isPresented ? 1 : 0)
         .animation(.spring(response: 0.3), value: animator.isPresented)
         .animation(.spring(response: 0.58, dampingFraction: 0.86), value: onTapArtwork)
+        .animation(.spring(response: 0.58, dampingFraction: 0.86), value: shouldShowExpandedLyrics)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .onAppear(perform: syncLyricsPresentationState)
         .onDisappear {
@@ -68,36 +97,6 @@ struct LockScreenNowPlayingPanelView: View {
         .onChange(of: nowPlayingViewModel.snapshot?.lyricsLookupKey) {
             syncLyricsPresentationState()
         }
-    }
-
-    private var expandedContent: some View {
-        return ZStack {
-            if onTapArtwork {
-                VStack(spacing: 14) {
-                    expandedClockView
-                    expandedArtworkButton
-                }
-                .offset(x: expandedLeftColumnOffset, y: expandedArtworkOffset)
-                .transition(.scale(scale: 0.82).combined(with: .opacity))
-            }
-
-            if shouldShowExpandedLyrics {
-                LockScreenLyricsView(
-                    nowPlayingViewModel: nowPlayingViewModel,
-                    width: Self.expandedLyricsWidth
-                )
-                .offset(x: expandedLyricsOffset, y: expandedLyricsVerticalOffset)
-                .transition(.move(edge: .trailing).combined(with: .opacity))
-            }
-
-            playerPanel
-                .offset(x: expandedPlayerOffset, y: playerPanelOffset)
-        }
-        .frame(
-            width: expandedContentWidth,
-            height: onTapArtwork ? expandedPresentationHeight : Self.panelSize.height,
-            alignment: .center
-        )
     }
 
     private var playerPanel: some View {
@@ -141,55 +140,31 @@ struct LockScreenNowPlayingPanelView: View {
         TimelineView(.periodic(from: .now, by: 30)) { context in
             LockScreenClockView(
                 date: context.date,
-                width: Self.expandedArtworkSize,
+                width: Self.expandedArtworkSize + 120,
                 height: Self.expandedClockHeight
             )
         }
-    }
-
-    private var expandedPresentationHeight: CGFloat {
-        Self.expandedClockHeight +
-        Self.expandedClockArtworkSpacing +
-        Self.expandedArtworkSize +
-        Self.expandedArtworkSpacing +
-        Self.expandedPanelHeight
-    }
-
-    private var expandedContentWidth: CGFloat {
-        if shouldShowExpandedLyrics {
-            return Self.expandedArtworkSize + Self.expandedLyricsSpacing + Self.expandedLyricsWidth
-        }
-
-        return Self.panelSize.width
     }
 
     private var shouldShowExpandedLyrics: Bool {
         onTapArtwork && settingsViewModel.lockScreen.isLockScreenLyricsEnabled
     }
 
-    private var expandedLeftColumnOffset: CGFloat {
+    private var expandedArtworkXOffset: CGFloat {
         guard shouldShowExpandedLyrics else { return 0 }
         return -((Self.expandedLyricsWidth + Self.expandedLyricsSpacing) / 2)
     }
 
-    private var expandedLyricsOffset: CGFloat {
+    private var expandedLyricsXOffset: CGFloat {
         (Self.expandedArtworkSize + Self.expandedLyricsSpacing) / 2
     }
 
-    private var expandedLyricsVerticalOffset: CGFloat {
-        expandedArtworkOffset + 50
-    }
-
-    private var expandedPlayerOffset: CGFloat {
-        shouldShowExpandedLyrics ? expandedLeftColumnOffset : 0
-    }
-
-    private var expandedArtworkOffset: CGFloat {
-        -((Self.expandedPanelHeight + Self.expandedArtworkSpacing) / 2) - Self.expandedStackLift
-    }
-
-    private var playerPanelOffset: CGFloat {
-        onTapArtwork ? ((Self.expandedArtworkSize + Self.expandedArtworkSpacing) / 2) - Self.expandedStackLift : 0
+    private func playerPanelYOffset(screenHeight: CGFloat) -> CGFloat {
+        if onTapArtwork {
+            return screenHeight / 2 - 180
+        } else {
+            return Self.panelCenterYOffset + activeMediaPanelVerticalOffset
+        }
     }
 
     private var mediaPanelVerticalOffset: CGFloat {
