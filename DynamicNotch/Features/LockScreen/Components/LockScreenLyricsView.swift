@@ -9,28 +9,62 @@ import SwiftUI
 
 struct LockScreenLyricsView: View {
     @ObservedObject var nowPlayingViewModel: NowPlayingViewModel
-    let width: CGFloat
     
+    let width: CGFloat
     private let height: CGFloat = 520
     
     var body: some View {
         TimelineView(.periodic(from: .now, by: 0.35)) { context in
-            content(elapsedTime: nowPlayingViewModel.elapsedTime(at: context.date))
+            let lyricsContent = content(elapsedTime: nowPlayingViewModel.elapsedTime(at: context.date))
+                .frame(width: width, height: height, alignment: .leading)
+            
+            ZStack {
+                lyricsContent
+                    .mask {
+                        LinearGradient(
+                            stops: [
+                                .init(color: .clear, location: 0),
+                                .init(color: .clear, location: 0.10),
+                                .init(color: .black, location: 0.22),
+                                .init(color: .black, location: 0.78),
+                                .init(color: .clear, location: 0.90),
+                                .init(color: .clear, location: 1)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    }
+                lyricsContent
+                    .blur(radius: 3)
+                    .mask {
+                        LinearGradient(
+                            stops: [
+                                .init(color: .black, location: 0),
+                                .init(color: .black, location: 0.10),
+                                .init(color: .clear, location: 0.26),
+                                .init(color: .clear, location: 0.74),
+                                .init(color: .black, location: 0.90),
+                                .init(color: .black, location: 1)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    }
+            }
+            .mask {
+                LinearGradient(
+                    stops: [
+                        .init(color: .clear, location: 0),
+                        .init(color: .black, location: 0.18),
+                        .init(color: .black, location: 0.78),
+                        .init(color: .clear, location: 1)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            }
+            .shadow(color: .black.opacity(0.34), radius: 16, x: 0, y: 10)
         }
-        .frame(width: width, height: height, alignment: .leading)
-        .mask {
-            LinearGradient(
-                stops: [
-                    .init(color: .clear, location: 0),
-                    .init(color: .black, location: 0.18),
-                    .init(color: .black, location: 0.78),
-                    .init(color: .clear, location: 1)
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-        }
-        .shadow(color: .black.opacity(0.34), radius: 16, x: 0, y: 10)
     }
     
     @ViewBuilder
@@ -38,33 +72,23 @@ struct LockScreenLyricsView: View {
         switch nowPlayingViewModel.lyricsState {
         case .idle:
             EmptyView()
+            
         case .loading:
-            loadingContent
+            LockScreenLyricsLoadingView(width: width, height: height)
+            
         case .loaded(let lyrics):
             if lyrics.isSynced {
                 syncedLyricsContent(lyrics, elapsedTime: elapsedTime)
             } else {
                 plainLyricsContent(lyrics)
             }
+            
         case .notFound:
             unavailableContent(title: "Lyrics not found")
+            
         case .failed:
-            unavailableContent(title: "Lyrics failed to load")
+            unavailableContent(title: "Lyrics not found")
         }
-    }
-    
-    private var loadingContent: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            ForEach(0..<6, id: \.self) { index in
-                Capsule(style: .continuous)
-                    .fill(.white.opacity(index == 1 ? 0.26 : 0.14))
-                    .frame(
-                        width: width * CGFloat([0.72, 0.92, 0.62, 0.84, 0.58, 0.76][index]),
-                        height: index == 1 ? 26 : 18
-                    )
-            }
-        }
-        .frame(width: width, height: height, alignment: .center)
     }
     
     private func syncedLyricsContent(_ lyrics: TrackLyrics, elapsedTime: TimeInterval) -> some View {
@@ -122,9 +146,15 @@ struct LockScreenLyricsView: View {
     private func visibleSyncedLines(_ lines: [LyricLine], activeIndex: Int) -> [LyricLine] {
         guard lines.isEmpty == false else { return [] }
         
-        let lowerBound = max(0, activeIndex - 4)
-        let upperBound = min(lines.count - 1, activeIndex + 4)
-        return Array(lines[lowerBound...upperBound])
+        var result: [LyricLine] = []
+        for i in (activeIndex - 4)...(activeIndex + 4) {
+            if i >= 0 && i < lines.count {
+                result.append(lines[i])
+            } else {
+                result.append(LyricLine(id: i, startTime: nil, text: " "))
+            }
+        }
+        return result
     }
 }
 
@@ -160,7 +190,7 @@ private struct LockScreenLyricLineView: View {
     private var rotationAngle: Angle {
         .degrees(Double(distanceFromActive) * -7)
     }
-
+    
     private var rotationAnchor: UnitPoint {
         distanceFromActive < 0 ? .center : .center
     }
@@ -195,5 +225,33 @@ private struct LockScreenLyricLineView: View {
                     NSCursor.pop()
                 }
             }
+    }
+}
+
+private struct LockScreenLyricsLoadingView: View {
+    let width: CGFloat
+    let height: CGFloat
+    
+    @State private var isAnimating = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            ForEach(0..<6, id: \.self) { index in
+                Capsule(style: .continuous)
+                    .fill(.white.opacity(index == 1 ? 0.26 : 0.14))
+                    .frame(
+                        width: width * CGFloat([0.72, 0.92, 0.62, 0.84, 0.58, 0.76][index]),
+                        height: index == 1 ? 26 : 18
+                    )
+                    .shadow(color: .white.opacity(isAnimating ? 0.3 : 0.0), radius: isAnimating ? 6 : 0)
+            }
+        }
+        .frame(width: width, height: height, alignment: .center)
+        .opacity(isAnimating ? 0.4 : 1.0)
+        .onAppear {
+            withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
+                isAnimating = true
+            }
+        }
     }
 }

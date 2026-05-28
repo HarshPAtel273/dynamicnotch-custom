@@ -77,6 +77,7 @@ extension AppDelegate {
         guard let window, !isPrimaryWindowSuspendedForLock else { return }
 
         isPrimaryWindowSuspendedForLock = true
+        notchViewModel.isLocked = true
         clearNowPlayingPrimaryWindowPresentationState()
         notchViewModel.setActivityPresentationHidden(false)
         
@@ -89,6 +90,7 @@ extension AppDelegate {
         guard let window, isPrimaryWindowSuspendedForLock else { return }
 
         isPrimaryWindowSuspendedForLock = false
+        notchViewModel.isLocked = false
         
         window.level = OverlayWindowLevel.interactiveNotch
         SkyLightOperator.shared.delegateWindow(window, to: .notchSurface)
