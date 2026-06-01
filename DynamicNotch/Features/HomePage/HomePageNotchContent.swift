@@ -33,10 +33,6 @@ struct HomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
     func dynamicIslandCornerRadius(baseHeight: CGFloat) -> CGFloat {
         baseHeight * 0.5
     }
-
-    func expandedDynamicIslandCornerRadius(baseHeight: CGFloat) -> CGFloat {
-        baseHeight * 0.2
-    }
     
     func size(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
         return .init(width: baseWidth, height: baseHeight)
@@ -44,6 +40,36 @@ struct HomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
 
     func dynamicIslandSize(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
         return .init(width: baseWidth, height: baseHeight)
+    }
+    
+    func expandedDynamicIslandCornerRadius(baseHeight: CGFloat) -> CGFloat {
+        switch homePages {
+        case .camera:
+            let isStarted = UserDefaults.standard.bool(forKey: "isCameraStarted")
+            let isLarge = UserDefaults.standard.bool(forKey: "isCameraLarge")
+            
+            if !isStarted {
+                return baseHeight * 0.2
+            }
+            if isLarge {
+                return baseHeight * 0.15
+                
+            } else {
+                return baseHeight * 0.2
+            }
+            
+        case .localTimer:
+            return baseHeight * 0.2
+            
+        case .calendar:
+            if calendarViewModel.authorizationStatus != .fullAccess {
+                return baseHeight * 0.3
+            } else if calendarViewModel.events.isEmpty {
+                return baseHeight * 0.2
+            } else {
+                return baseHeight * 0.2
+            }
+        }
     }
     
     func expandedSize(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
@@ -57,6 +83,7 @@ struct HomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
             }
             if isLarge {
                 return .init(width: baseWidth + 250, height: baseHeight + 220)
+                
             } else {
                 return .init(width: baseWidth + 180, height: baseHeight + 180)
             }
@@ -67,6 +94,7 @@ struct HomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
         case .calendar:
             if calendarViewModel.authorizationStatus != .fullAccess {
                 return .init(width: baseWidth + 60, height: baseHeight + 125)
+                
             } else {
                 return .init(width: baseWidth + 130, height: baseHeight + 125)
             }
@@ -84,6 +112,7 @@ struct HomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
             }
             if isLarge {
                 return .init(width: baseWidth + 280, height: baseHeight + 220)
+                
             } else {
                 return .init(width: baseWidth + 210, height: baseHeight + 180)
             }
@@ -94,8 +123,10 @@ struct HomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
         case .calendar:
             if calendarViewModel.authorizationStatus != .fullAccess {
                 return .init(width: baseWidth + 60, height: baseHeight + 125)
+                
             } else if calendarViewModel.events.isEmpty {
                 return .init(width: baseWidth + 60, height: baseHeight + 125)
+                
             } else {
                 return .init(width: baseWidth + 160, height: baseHeight + 125)
             }
