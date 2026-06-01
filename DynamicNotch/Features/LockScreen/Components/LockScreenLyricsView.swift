@@ -17,6 +17,7 @@ struct LockScreenLyricsView: View {
         TimelineView(.periodic(from: .now, by: 0.35)) { context in
             let lyricsContent = content(elapsedTime: nowPlayingViewModel.elapsedTime(at: context.date))
                 .frame(width: width, height: height, alignment: .leading)
+                .clipped()
             
             ZStack {
                 lyricsContent

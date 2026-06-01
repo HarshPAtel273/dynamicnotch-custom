@@ -24,8 +24,6 @@ private enum SwipeFeedbackMetrics {
     static let restoreOpacityReduction: Double = 0.5
 }
 
-
-
 private enum ExpansionTransitionTiming {
     static let preparationDelay: UInt64 = 16_000_000
     static let resetDelay: UInt64 = 120_000_000
@@ -289,16 +287,21 @@ final class NotchViewModel: ObservableObject {
         screenMetricsProvider: (((any NotchSettingsProviding) -> NotchScreenMetrics?))? = nil
     ) {
         self.settings = settings
+        self.screenMetricsProvider = screenMetricsProvider ?? { settings in
+            NSScreen.metrics(for: settings)
+        }
         self.engine = engine ?? NotchEngine(
-            animations: {
-                animations ?? .preset(settings.notchAnimationPreset)
+            animations: { [weak settings] in
+                if let animations {
+                    return animations
+                }
+                guard let settings else { return .default }
+                let isDynamic = NSScreen.metrics(for: settings)?.topInset == 0
+                return .preset(settings.notchAnimationPreset, isDynamicIsland: isDynamic)
             },
             hideDelay: hideDelay,
             queueDelay: queueDelay
         )
-        self.screenMetricsProvider = screenMetricsProvider ?? { settings in
-            NSScreen.metrics(for: settings)
-        }
         updateDimensions()
         bindEngine()
     }

@@ -67,7 +67,6 @@ struct HomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
         case .calendar:
             if calendarViewModel.authorizationStatus != .fullAccess {
                 return .init(width: baseWidth + 60, height: baseHeight + 125)
-                
             } else {
                 return .init(width: baseWidth + 130, height: baseHeight + 125)
             }
@@ -94,8 +93,9 @@ struct HomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
             
         case .calendar:
             if calendarViewModel.authorizationStatus != .fullAccess {
-                return .init(width: baseWidth + 90, height: baseHeight + 125)
-                
+                return .init(width: baseWidth + 60, height: baseHeight + 125)
+            } else if calendarViewModel.events.isEmpty {
+                return .init(width: baseWidth + 60, height: baseHeight + 125)
             } else {
                 return .init(width: baseWidth + 160, height: baseHeight + 125)
             }
