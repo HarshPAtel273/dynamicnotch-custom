@@ -33,7 +33,7 @@ struct NotchAnimations {
                 contentUpdate: .spring(response: 0.41),
                 contentHide: .spring(response: 0.41, dampingFraction: damping),
                 contentShow: .spring(response: 0.41, dampingFraction: damping),
-                openContentTransition: .spring(response: 0.44, dampingFraction: damping),
+                openContentTransition: .spring(response: 0.41, dampingFraction: damping),
                 
                 expandLiveActivity: .spring(response: 0.39, dampingFraction: damping),
                 expandLiveActivityContentTransition: .spring(response: 0.39, dampingFraction: damping),
@@ -54,7 +54,7 @@ struct NotchAnimations {
                 contentUpdate: .spring(response: 0.44),
                 contentHide: .spring(response: 0.44, dampingFraction: damping),
                 contentShow: .spring(response: 0.44, dampingFraction: damping),
-                openContentTransition: .spring(response: 0.47, dampingFraction: damping),
+                openContentTransition: .spring(response: 0.44, dampingFraction: damping),
                 
                 expandLiveActivity: .spring(response: 0.42, dampingFraction: damping),
                 expandLiveActivityContentTransition: .spring(response: 0.42, dampingFraction: damping),
@@ -75,7 +75,7 @@ struct NotchAnimations {
                 contentUpdate: .spring(response: 0.47),
                 contentHide: .spring(response: 0.47, dampingFraction: damping),
                 contentShow: .spring(response: 0.47, dampingFraction: damping),
-                openContentTransition: .spring(response: 0.50, dampingFraction: damping),
+                openContentTransition: .spring(response: 0.47, dampingFraction: damping),
                 
                 expandLiveActivity: .spring(response: 0.45, dampingFraction: damping),
                 expandLiveActivityContentTransition: .spring(response: 0.45, dampingFraction: damping),
@@ -96,7 +96,7 @@ struct NotchAnimations {
                 contentUpdate: .spring(response: 0.50),
                 contentHide: .spring(response: 0.50, dampingFraction: damping),
                 contentShow: .spring(response: 0.50, dampingFraction: damping),
-                openContentTransition: .spring(response: 0.53, dampingFraction: damping),
+                openContentTransition: .spring(response: 0.50, dampingFraction: damping),
                 
                 expandLiveActivity: .spring(response: 0.48, dampingFraction: damping),
                 expandLiveActivityContentTransition: .spring(response: 0.48, dampingFraction: damping),
@@ -117,7 +117,7 @@ struct NotchAnimations {
                 contentUpdate: .spring(response: 0.53),
                 contentHide: .spring(response: 0.53, dampingFraction: damping),
                 contentShow: .spring(response: 0.53, dampingFraction: damping),
-                openContentTransition: .spring(response: 0.56, dampingFraction: damping),
+                openContentTransition: .spring(response: 0.53, dampingFraction: damping),
                 
                 expandLiveActivity: .spring(response: 0.51, dampingFraction: damping),
                 expandLiveActivityContentTransition: .spring(response: 0.51, dampingFraction: damping),

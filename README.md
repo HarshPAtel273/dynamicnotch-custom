@@ -62,14 +62,14 @@ The main goal is to make the project as native as possible, both in terms of des
 
 ## 🚀 Highlights
 
-- 🎵 Live activities for Now Playing, Downloads, AirDrop, Timer, Screen Recording, Focus, Personal Hotspot, and Lock Screen media/live activity surfaces
-- ⚡ Temporary alerts for charging, low battery, full battery, Bluetooth, Wi-Fi, VPN, Focus-off, and notch resize feedback
-- 🎚️ Custom hardware HUD replacements for brightness, keyboard brightness, and volume
-- 🖱️ Native interactions including tap to expand, mouse drag gestures, trackpad swipes, swipe-to-dismiss, and swipe-to-restore
-- 🎨 Personalization for notch width and height, background style, stroke options, animation presets, fullscreen behavior, display placement, and app language
-- 🔴 Screen Recording indicator that lights up in the notch while macOS reports active screen capture
-- 🔒 Lock Screen controls for sounds, media panel behavior, widget appearance, tint, and background brightness
-- ⚙️ A dedicated settings experience grouped into Application, Media & Files, Connectivity, and System sections
+- 🎵 **Live Activities**: Now Playing (media control, album artwork, audio visualizer), Downloads progress, AirDrop, Timer, Screen Recording indicator, Focus mode, Personal Hotspot, and Lock Screen media/live activity surfaces.
+- 🏝️ **Dynamic Island (Floating Capsule)**: Automatic support for devices without a physical hardware notch (e.g. non-notched MacBooks, iMac, Mac mini, or external monitors). Transitions to a floating capsule shape (`DynamicIslandShape`) when `topInset == 0`, utilizing dynamic, smooth corner radius transitions.
+- ⚡ **Temporary Alerts**: Interactive HUD status for battery charging, low/full battery, Bluetooth connections, Wi-Fi, VPN, Focus-off toggling, and notch size modification settings feedback.
+- 🎚️ **Native HUD Replacements**: Beautiful, hardware-inspired HUD overlays for System Volume, Screen Brightness, and Keyboard Backlight.
+- 📜 **Chained Lyrics Provider**: A dual-provider API engine (`CompositeLyricsProvider`) combining synchronized LRCLIB karaoke lyrics and static Lyrics.ovh database query fallback.
+- 🖱️ **Gestures & Swipe Controls**: Native interactive gestures including mouse drag, trackpad swipes, vertical swipe-to-dismiss/restore, and horizontal trackpad/mouse scroll-to-dismiss.
+- 🎨 **Deep Customization**: Personalization options for base notch width/height, stroke options, background styling, animation presets, custom screen/display selection, and fullscreen spaces handling.
+- ⚙️ **Refined Animations**: Multi-preset transitions system with separate, dedicated transition tuning parameter `closeLiveActivityCompactContentTransition` to control the exact speed of content insertion when returning to compact mode.
 
 ## 🎬 Preview
 
@@ -97,7 +97,7 @@ The main goal is to make the project as native as possible, both in terms of des
 ## ✅ Requirements
 
 - macOS 14.6 or later
-- A MacBook with a hardware notch for the intended experience
+- Works on both notched MacBooks and non-notched displays (automatically rendering as a floating Dynamic Island capsule)
 - Feature-specific permissions as needed:
   - Accessibility for custom HUD interception and some system-level interactions
   - Bluetooth access for accessory status updates
@@ -121,10 +121,10 @@ DynamicNotch/
 ├── Application/        # App entry point, app delegate, window setup, and settings shell
 ├── Core/               # Shared models, protocols, services, and infrastructure
 ├── Features/
-│   ├── DragAndDrop/
 │   ├── Battery/
 │   ├── Bluetooth/
 │   ├── Download/
+│   ├── DragAndDrop/
 │   ├── Focus/
 │   ├── HUD/
 │   ├── LockScreen/
