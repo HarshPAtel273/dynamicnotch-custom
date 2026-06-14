@@ -105,7 +105,7 @@ private extension NotchView {
                 contentOverlayWrapped
             }
             .shadow(
-                color: notchViewModel.isDisplayingExpandedLiveActivity ? .black.opacity(0.5) : .clear,
+                color: notchViewModel.isDisplayingExpandedLiveActivity ? .black.opacity(0.6) : .clear,
                 radius: 15
             )
             .frame(

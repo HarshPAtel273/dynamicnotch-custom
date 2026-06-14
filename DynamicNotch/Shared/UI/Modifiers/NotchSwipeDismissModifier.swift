@@ -249,10 +249,10 @@ private extension NotchSwipeDismissMonitorView {
             accumulatedHorizontalSwipe * SwipeMetrics.directionDominanceMultiplier
 
         let upwardProgress = canSwipeUp
-            ? min(accumulatedUpwardSwipe / SwipeMetrics.verticalThreshold, 1)
+            ? accumulatedUpwardSwipe / SwipeMetrics.verticalThreshold
             : 0
         let downwardProgress = canSwipeDown
-            ? min(accumulatedDownwardSwipe / SwipeMetrics.verticalThreshold, 1)
+            ? accumulatedDownwardSwipe / SwipeMetrics.verticalThreshold
             : 0
 
         if upwardProgress > 0 || downwardProgress > 0 {

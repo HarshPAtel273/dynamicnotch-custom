@@ -252,13 +252,13 @@ private extension NotchMouseSwipeMonitorView {
         }
 
         if translation.height > 0, canSwipeUp {
-            let progress = min(verticalDistance / SwipeMetrics.verticalThreshold, 1)
+            let progress = verticalDistance / SwipeMetrics.verticalThreshold
             onSwipeStretchChanged?(.dismiss, progress)
             return
         }
 
         if translation.height < 0, canSwipeDown {
-            let progress = min(verticalDistance / SwipeMetrics.verticalThreshold, 1)
+            let progress = verticalDistance / SwipeMetrics.verticalThreshold
             onSwipeStretchChanged?(.restore, progress)
             return
         }

@@ -388,7 +388,7 @@ final class NotchViewModel: ObservableObject {
         swipeStretchResetWorkItem?.cancel()
         swipeStretchResetWorkItem = nil
 
-        let clampedProgress = min(max(progress, 0), 1)
+        let clampedProgress = max(progress, 0)
         guard swipeInteraction != interaction || abs(swipeStretchProgress - clampedProgress) > 0.001 else {
             return
         }
@@ -459,7 +459,7 @@ final class NotchViewModel: ObservableObject {
     }
     
     private var easedSwipeStretchProgress: CGFloat {
-        1 - pow(1 - swipeStretchProgress, 2)
+        (1.5 * swipeStretchProgress) / (0.5 + swipeStretchProgress)
     }
 
     private var isHoldingStrokeAfterContentHide: Bool {
