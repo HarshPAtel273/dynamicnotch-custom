@@ -41,13 +41,23 @@ struct HudNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
         self.usesColoredLevelStroke = usesColoredLevelStroke
         self.applicationSettings = applicationSettings
     }
+    
+    func cornerRadius(baseRadius: CGFloat) -> (top: CGFloat, bottom: CGFloat) {
+        return (top: baseRadius + 3, bottom: baseRadius + 6)
+    }
 
     func size(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
-        .init(width: baseWidth + widthOffset, height: baseHeight)
+        let width = isStyleExpanded ? baseWidth + 20 : baseWidth + widthOffset
+        let height = isStyleExpanded ? (baseHeight + 40) : baseHeight
+        
+        return .init(width: width, height: height)
     }
     
     func dynamicIslandSize(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
-        .init(width: baseWidth + widthOffset - 30, height: baseHeight)
+        let width = isStyleExpanded ? baseWidth : baseWidth + widthOffset - 30
+        let height = isStyleExpanded ? (baseHeight + 40) : baseHeight
+        
+        return .init(width: width, height: height)
     }
 
     @MainActor
@@ -65,6 +75,10 @@ struct HudNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
         )
     }
 
+    private var isStyleExpanded: Bool {
+        style == .vertical || style == .large
+    }
+
     private var widthOffset: CGFloat {
         switch style {
         case .standard:
@@ -74,6 +88,7 @@ struct HudNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
             case .circle:
                 return 140
             }
+            
         case .compact:
             switch indicatorStyle {
             case .bar:
@@ -81,8 +96,20 @@ struct HudNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
             case .circle:
                 return 85
             }
+            
         case .minimal:
             return 80
+            
+        case .vertical:
+            switch indicatorStyle {
+            case .bar:
+                return 75
+            case .circle:
+                return 65
+            }
+            
+        case .large:
+            return 115
         }
     }
 

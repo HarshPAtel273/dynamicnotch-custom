@@ -579,5 +579,4 @@ final class NotchViewModel: ObservableObject {
             stagedNotchHeight = targetHeight
         }
     }
-
 }

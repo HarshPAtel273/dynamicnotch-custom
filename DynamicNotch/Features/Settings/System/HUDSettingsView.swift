@@ -1,8 +1,39 @@
 import SwiftUI
 
+enum HudLayoutType: String, CaseIterable {
+    case compact
+    case expanded
+    
+    var title: LocalizedStringKey {
+        switch self {
+        case .compact:
+            return "settings.general.hud.layoutType.compact"
+        case .expanded:
+            return "settings.general.hud.layoutType.expanded"
+        }
+    }
+}
+
 struct HUDSettingsView: View {
     @ObservedObject var settings: HUDSettingsStore
     @ObservedObject var applicationSettings: ApplicationSettingsStore
+
+    private var layoutTypeBinding: Binding<HudLayoutType> {
+        Binding(
+            get: {
+                settings.hudStyle == .vertical || settings.hudStyle == .large ? .expanded : .compact
+            },
+            set: { newType in
+                withAnimation(.easeInOut(duration: 0.15)) {
+                    if newType == .expanded {
+                        settings.hudStyle = .vertical
+                    } else {
+                        settings.hudStyle = .compact
+                    }
+                }
+            }
+        )
+    }
 
     private var temporaryActivityDurationRange: ClosedRange<Double> {
         Double(SettingsStoreBase.temporaryActivityDurationRange.lowerBound)...Double(SettingsStoreBase.temporaryActivityDurationRange.upperBound)
@@ -117,27 +148,53 @@ struct HUDSettingsView: View {
     
     private var hudStyleCard: some View {
         SettingsCard(title: "HUD appearance") {
-            CustomPicker(
-                selection: $settings.hudStyle,
-                options: Array(HudStyle.allCases),
-                title: { $0.title },
-                lightBackgroundImage: Image("backgroundLight"),
-                darkBackgroundImage: Image("backgroundDark")
-            ) { style, isSelected in
-                hudStylePickerContent(for: style, isSelected: isSelected)
-            }
-            .accessibilityIdentifier("settings.general.hud.style")
+            SettingsMenuRow(
+                title: "HUD style",
+                description: "settings.general.hud.layoutType.desc",
+                options: Array(HudLayoutType.allCases),
+                optionTitle: { $0.title },
+                accessibilityIdentifier: "settings.general.hud.layoutType",
+                selection: layoutTypeBinding
+            )
 
             Divider().opacity(0.6)
 
-            SettingsMenuRow(
-                title: "Level indicator",
-                description: "Choose whether the HUD level uses a bar or a circular ring.",
-                options: Array(HudIndicatorStyle.allCases),
-                optionTitle: { $0.title },
-                accessibilityIdentifier: "settings.general.hud.indicatorStyle",
-                selection: $settings.indicatorStyle
-            )
+            if layoutTypeBinding.wrappedValue == .compact {
+                CustomPicker(
+                    selection: $settings.hudStyle,
+                    options: [.standard, .compact, .minimal],
+                    title: { $0.title },
+                    lightBackgroundImage: Image("backgroundLight"),
+                    darkBackgroundImage: Image("backgroundDark")
+                ) { style, isSelected in
+                    hudStylePickerContent(for: style, isSelected: isSelected)
+                }
+                .accessibilityIdentifier("settings.general.hud.style.compact")
+            } else {
+                CustomPicker(
+                    selection: $settings.hudStyle,
+                    options: [.vertical, .large],
+                    title: { $0.title },
+                    lightBackgroundImage: Image("backgroundLight"),
+                    darkBackgroundImage: Image("backgroundDark")
+                ) { style, isSelected in
+                    hudStylePickerContent(for: style, isSelected: isSelected)
+                }
+                .accessibilityIdentifier("settings.general.hud.style.expanded")
+            }
+
+            if layoutTypeBinding.wrappedValue == .compact {
+                Divider().opacity(0.6)
+
+                SettingsMenuRow(
+                    title: "Level indicator",
+                    description: "Choose whether the HUD level uses a bar or a circular ring.",
+                    options: Array(HudIndicatorStyle.allCases),
+                    optionTitle: { $0.title },
+                    accessibilityIdentifier: "settings.general.hud.indicatorStyle",
+                    selection: $settings.indicatorStyle
+                )
+            }
 
             Divider().opacity(0.6)
 
@@ -198,7 +255,7 @@ struct HUDSettingsView: View {
                     
                     Spacer()
                     
-                    pickerIndicator
+                    pickerIndicator()
                 }
                 .foregroundStyle(.white.opacity(0.8))
                 .padding(.horizontal, 8)
@@ -220,7 +277,7 @@ struct HUDSettingsView: View {
                     
                     Spacer()
                     
-                    pickerIndicator
+                    pickerIndicator()
                 }
                 .foregroundStyle(.white.opacity(0.8))
                 .padding(.horizontal, 8)
@@ -247,16 +304,60 @@ struct HUDSettingsView: View {
                 .foregroundStyle(.white.opacity(0.8))
                 .padding(.horizontal, 8)
             }
+
+        case .vertical:
+            ZStack {
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(.black)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .stroke(strokeColor, lineWidth: 1)
+                    }
+                    .frame(height: 48)
+                
+                VStack(spacing: 4) {
+                    Image(systemName: "speaker.wave.2.fill")
+                        .font(.system(size: 13, weight: .semibold))
+                    
+                    pickerIndicator(barWidth: 26)
+                }
+                .foregroundStyle(.white.opacity(0.8))
+                .padding(.vertical, 4)
+            }
+
+        case .large:
+            ZStack {
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(.black)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .stroke(strokeColor, lineWidth: 1)
+                    }
+                    .frame(height: 48)
+                
+                VStack(spacing: 4) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "speaker.wave.2.fill")
+                            .font(.system(size: 12, weight: .semibold))
+                        Text(verbatim: "Volume")
+                            .font(.system(size: 11, weight: .medium))
+                    }
+                    
+                    pickerIndicator(barWidth: 50)
+                }
+                .foregroundStyle(.white.opacity(0.8))
+                .padding(.vertical, 4)
+            }
         }
     }
 
-    private var pickerIndicator: some View {
+    private func pickerIndicator(barWidth: CGFloat = 30) -> some View {
         HudLevelIndicatorView(
             level: 72,
             indicatorStyle: settings.indicatorStyle,
             tintStyle: settings.indicatorTintStyle,
             showsGlow: settings.isIndicatorGlowEnabled,
-            barWidth: 30,
+            barWidth: barWidth,
             barHeight: 4,
             circleSize: 16,
             circleLineWidth: 2.5
