@@ -33,20 +33,18 @@ struct HudContentView: View {
                 level: level,
                 indicatorStyle: indicatorStyle
             )
-        case .vertical:
-            HudVerticalContentView(
+        case .expandedCompact:
+            HudExpandedCompactContentView(
                 image: image,
                 level: level,
-                indicatorStyle: indicatorStyle,
                 indicatorTintStyle: indicatorTintStyle,
                 showsIndicatorGlow: showsIndicatorGlow
             )
-        case .large:
-            HudLargeContentView(
+        case .expandedDetailed:
+            HudExpandedDetailedContentView(
                 image: image,
                 text: text,
                 level: level,
-                indicatorStyle: indicatorStyle,
                 indicatorTintStyle: indicatorTintStyle,
                 showsIndicatorGlow: showsIndicatorGlow
             )

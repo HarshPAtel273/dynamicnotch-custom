@@ -21,12 +21,12 @@ struct HUDSettingsView: View {
     private var layoutTypeBinding: Binding<HudLayoutType> {
         Binding(
             get: {
-                settings.hudStyle == .vertical || settings.hudStyle == .large ? .expanded : .compact
+                settings.hudStyle == .expandedCompact || settings.hudStyle == .expandedDetailed ? .expanded : .compact
             },
             set: { newType in
                 withAnimation(.easeInOut(duration: 0.15)) {
                     if newType == .expanded {
-                        settings.hudStyle = .vertical
+                        settings.hudStyle = .expandedCompact
                     } else {
                         settings.hudStyle = .compact
                     }
@@ -173,7 +173,7 @@ struct HUDSettingsView: View {
             } else {
                 CustomPicker(
                     selection: $settings.hudStyle,
-                    options: [.vertical, .large],
+                    options: [.expandedCompact, .expandedDetailed],
                     title: { $0.title },
                     lightBackgroundImage: Image("backgroundLight"),
                     darkBackgroundImage: Image("backgroundDark")
@@ -255,7 +255,7 @@ struct HUDSettingsView: View {
                     
                     Spacer()
                     
-                    pickerIndicator()
+                    pickerIndicator(for: .standard)
                 }
                 .foregroundStyle(.white.opacity(0.8))
                 .padding(.horizontal, 8)
@@ -277,7 +277,7 @@ struct HUDSettingsView: View {
                     
                     Spacer()
                     
-                    pickerIndicator()
+                    pickerIndicator(for: .compact)
                 }
                 .foregroundStyle(.white.opacity(0.8))
                 .padding(.horizontal, 8)
@@ -305,7 +305,7 @@ struct HUDSettingsView: View {
                 .padding(.horizontal, 8)
             }
 
-        case .vertical:
+        case .expandedCompact:
             ZStack {
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .fill(.black)
@@ -319,13 +319,13 @@ struct HUDSettingsView: View {
                     Image(systemName: "speaker.wave.2.fill")
                         .font(.system(size: 13, weight: .semibold))
                     
-                    pickerIndicator(barWidth: 26)
+                    pickerIndicator(for: .expandedCompact, barWidth: 26)
                 }
                 .foregroundStyle(.white.opacity(0.8))
                 .padding(.vertical, 4)
             }
 
-        case .large:
+        case .expandedDetailed:
             ZStack {
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .fill(.black)
@@ -343,7 +343,7 @@ struct HUDSettingsView: View {
                             .font(.system(size: 11, weight: .medium))
                     }
                     
-                    pickerIndicator(barWidth: 50)
+                    pickerIndicator(for: .expandedDetailed, barWidth: 50)
                 }
                 .foregroundStyle(.white.opacity(0.8))
                 .padding(.vertical, 4)
@@ -351,10 +351,11 @@ struct HUDSettingsView: View {
         }
     }
 
-    private func pickerIndicator(barWidth: CGFloat = 30) -> some View {
-        HudLevelIndicatorView(
+    private func pickerIndicator(for style: HudStyle, barWidth: CGFloat = 30) -> some View {
+        let isExpanded = style == .expandedCompact || style == .expandedDetailed
+        return HudLevelIndicatorView(
             level: 72,
-            indicatorStyle: settings.indicatorStyle,
+            indicatorStyle: isExpanded ? .bar : settings.indicatorStyle,
             tintStyle: settings.indicatorTintStyle,
             showsGlow: settings.isIndicatorGlowEnabled,
             barWidth: barWidth,

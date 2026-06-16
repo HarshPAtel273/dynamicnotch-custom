@@ -13263,30 +13263,30 @@
         }
       }
     },
-    "settings.hud.style.large" : {
+    "settings.hud.style.expandedDetailed" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Expanded"
+            "value" : "Detailed"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Expandido"
+            "value" : "Detallado"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Расширенный"
+            "value" : "Детальный"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "展开"
+            "value" : "详细型"
           }
         }
       }
@@ -13347,30 +13347,30 @@
         }
       }
     },
-    "settings.hud.style.vertical" : {
+    "settings.hud.style.expandedCompact" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vertical"
+            "value" : "Compact"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vertical"
+            "value" : "Compacto"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Вертикальный"
+            "value" : "Компактный"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "垂直"
+            "value" : "紧凑型"
           }
         }
       }

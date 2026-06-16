@@ -4,8 +4,8 @@ enum HudStyle: String, CaseIterable {
     case standard
     case compact
     case minimal
-    case vertical
-    case large
+    case expandedCompact
+    case expandedDetailed
 
     var title: LocalizedStringKey {
         switch self {
@@ -15,10 +15,10 @@ enum HudStyle: String, CaseIterable {
             return "settings.hud.style.compact"
         case .minimal:
             return "settings.hud.style.minimal"
-        case .vertical:
-            return "settings.hud.style.vertical"
-        case .large:
-            return "settings.hud.style.large"
+        case .expandedCompact:
+            return "settings.hud.style.expandedCompact"
+        case .expandedDetailed:
+            return "settings.hud.style.expandedDetailed"
         }
     }
 
@@ -30,9 +30,9 @@ enum HudStyle: String, CaseIterable {
             return "rectangle.compress.vertical"
         case .minimal:
             return "minus.rectangle"
-        case .vertical:
+        case .expandedCompact:
             return "square.split.2x1"
-        case .large:
+        case .expandedDetailed:
             return "square.split.1x2"
         }
     }

@@ -1,13 +1,12 @@
 import SwiftUI
 
-struct HudLargeContentView: View {
+struct HudExpandedDetailedContentView: View {
     @Environment(\.notchScale) private var scale
     @Environment(\.isDynamicIsland) private var isDynamicIsland
     
     let image: String
     let text: String
     let level: Int
-    let indicatorStyle: HudIndicatorStyle
     let indicatorTintStyle: HudIndicatorTintStyle
     let showsIndicatorGlow: Bool
     
@@ -34,13 +33,11 @@ struct HudLargeContentView: View {
     private var indicatorView: some View {
         HudLevelIndicatorView(
             level: clampedLevel,
-            indicatorStyle: indicatorStyle,
+            indicatorStyle: .bar,
             tintStyle: indicatorTintStyle,
             showsGlow: showsIndicatorGlow,
             barWidth: barIndicatorWidth,
-            barHeight: barIndicatorHeight,
-            circleSize: circleIndicatorSize,
-            circleLineWidth: circleIndicatorLineWidth
+            barHeight: barIndicatorHeight
         )
     }
     
@@ -58,14 +55,6 @@ struct HudLargeContentView: View {
     
     private var barIndicatorHeight: CGFloat {
         6
-    }
-    
-    private var circleIndicatorSize: CGFloat {
-        isDynamicIsland ? 16 : 20
-    }
-    
-    private var circleIndicatorLineWidth: CGFloat {
-        3
     }
     
     private var clampedLevel: Int {

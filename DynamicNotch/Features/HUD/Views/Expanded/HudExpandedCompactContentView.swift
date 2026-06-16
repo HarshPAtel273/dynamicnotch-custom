@@ -1,21 +1,34 @@
 import SwiftUI
 
-struct HudVerticalContentView: View {
+struct HudExpandedCompactContentView: View {
     @Environment(\.notchScale) private var scale
     @Environment(\.isDynamicIsland) private var isDynamicIsland
     
     let image: String
     let level: Int
-    let indicatorStyle: HudIndicatorStyle
     let indicatorTintStyle: HudIndicatorTintStyle
     let showsIndicatorGlow: Bool
     
     var body: some View {
-        VStack(spacing: 4) {
-            iconView
-            indicatorView
+        VStack {
+            Spacer()
+            
+            ZStack {
+                indicatorView
+                
+                HStack {
+                    iconView
+                    
+                    Spacer()
+                    
+                    AnimatedLevelText(
+                        level: clampedLevel,
+                        fontSize: 14
+                    )
+                }
+            }
         }
-        .padding(.vertical, verticalPadding)
+        .padding(.bottom, 10)
         .padding(.horizontal, horizontalPadding)
     }
 
@@ -28,38 +41,16 @@ struct HudVerticalContentView: View {
     private var indicatorView: some View {
         HudLevelIndicatorView(
             level: clampedLevel,
-            indicatorStyle: indicatorStyle,
+            indicatorStyle: .bar,
             tintStyle: indicatorTintStyle,
             showsGlow: showsIndicatorGlow,
-            barWidth: barIndicatorWidth,
-            barHeight: barIndicatorHeight,
-            circleSize: circleIndicatorSize,
-            circleLineWidth: circleIndicatorLineWidth
+            barWidth: 110,
+            barHeight: 8
         )
     }
     
-    private var verticalPadding: CGFloat {
-        isDynamicIsland ? 6 : 8
-    }
-    
     private var horizontalPadding: CGFloat {
-        isDynamicIsland ? 12 : 16
-    }
-    
-    private var barIndicatorWidth: CGFloat {
-        45
-    }
-    
-    private var barIndicatorHeight: CGFloat {
-        6
-    }
-    
-    private var circleIndicatorSize: CGFloat {
-        isDynamicIsland ? 16 : 20
-    }
-    
-    private var circleIndicatorLineWidth: CGFloat {
-        3
+        isDynamicIsland ? 12 : 26
     }
     
     private var clampedLevel: Int {
