@@ -44,7 +44,7 @@ struct HudExpandedCompactContentView: View {
             indicatorStyle: .bar,
             tintStyle: indicatorTintStyle,
             showsGlow: showsIndicatorGlow,
-            barWidth: 100.scaled(by: scale),
+            barWidth: 90.scaled(by: scale),
             barHeight: 8
         )
     }

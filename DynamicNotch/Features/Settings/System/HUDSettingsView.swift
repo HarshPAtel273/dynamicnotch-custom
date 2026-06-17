@@ -175,6 +175,7 @@ struct HUDSettingsView: View {
                     selection: $settings.hudStyle,
                     options: [.expandedCompact, .expandedDetailed],
                     title: { $0.title },
+                    itemHeight: 110,
                     lightBackgroundImage: Image("backgroundLight"),
                     darkBackgroundImage: Image("backgroundDark")
                 ) { style, isSelected in
@@ -307,51 +308,77 @@ struct HUDSettingsView: View {
 
         case .expandedCompact:
             ZStack {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                RoundedRectangle(cornerRadius: 30, style: .continuous)
                     .fill(.black)
                     .overlay {
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        RoundedRectangle(cornerRadius: 30, style: .continuous)
                             .stroke(strokeColor, lineWidth: 1)
                     }
-                    .frame(height: 48)
                 
-                VStack(spacing: 4) {
-                    Image(systemName: "speaker.wave.2.fill")
-                        .font(.system(size: 13, weight: .semibold))
+                VStack {
+                    Spacer()
                     
-                    pickerIndicator(for: .expandedCompact, barWidth: 26)
+                    ZStack {
+                        pickerIndicator(for: .expandedCompact, barWidth: 60, barHeight: 6)
+                        
+                        HStack {
+                            Image(systemName: "speaker.wave.2.fill")
+                                .font(.system(size: 14))
+                            
+                            Spacer()
+                            
+                            Text(verbatim: "72")
+                                .font(.system(size: 14, design: .rounded))
+                        }
+                    }
+                    .frame(width: 120)
                 }
-                .foregroundStyle(.white.opacity(0.8))
-                .padding(.vertical, 4)
+                .padding(.bottom, 8)
             }
+            .frame(width: 150, height: 48)
 
         case .expandedDetailed:
             ZStack {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                RoundedRectangle(cornerRadius: 30, style: .continuous)
                     .fill(.black)
                     .overlay {
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        RoundedRectangle(cornerRadius: 30, style: .continuous)
                             .stroke(strokeColor, lineWidth: 1)
                     }
-                    .frame(height: 48)
                 
-                VStack(spacing: 4) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "speaker.wave.2.fill")
-                            .font(.system(size: 12, weight: .semibold))
-                        Text(verbatim: "Volume")
-                            .font(.system(size: 11, weight: .medium))
-                    }
+                VStack {
+                    Spacer()
                     
-                    pickerIndicator(for: .expandedDetailed, barWidth: 50)
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(verbatim: "Volume")
+                            .font(.system(size: 12))
+                            .foregroundStyle(.white.opacity(0.9))
+                            .padding(.horizontal, 10)
+                        
+                        ZStack {
+                            pickerIndicator(for: .expandedDetailed, barWidth: 60, barHeight: 6)
+                            
+                            HStack {
+                                Image(systemName: "speaker.wave.2.fill")
+                                    .font(.system(size: 14))
+                                
+                                Spacer()
+                                
+                                Text(verbatim: "72")
+                                    .font(.system(size: 14, design: .rounded))
+                            }
+                        }
+                        .frame(width: 120)
+                        .padding(.horizontal, 10)
+                    }
                 }
-                .foregroundStyle(.white.opacity(0.8))
-                .padding(.vertical, 4)
+                .padding(.bottom, 8)
             }
+            .frame(width: 150, height: 48)
         }
     }
 
-    private func pickerIndicator(for style: HudStyle, barWidth: CGFloat = 30) -> some View {
+    private func pickerIndicator(for style: HudStyle, barWidth: CGFloat = 30, barHeight: CGFloat = 4) -> some View {
         let isExpanded = style == .expandedCompact || style == .expandedDetailed
         return HudLevelIndicatorView(
             level: 72,
@@ -359,7 +386,7 @@ struct HUDSettingsView: View {
             tintStyle: settings.indicatorTintStyle,
             showsGlow: settings.isIndicatorGlowEnabled,
             barWidth: barWidth,
-            barHeight: 4,
+            barHeight: barHeight,
             circleSize: 16,
             circleLineWidth: 2.5
         )
