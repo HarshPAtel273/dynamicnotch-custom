@@ -10,6 +10,26 @@ struct HudLevelIndicatorView: View {
     let circleSize: CGFloat
     let circleLineWidth: CGFloat
 
+    init(
+        level: Int,
+        indicatorStyle: HudIndicatorStyle,
+        tintStyle: HudIndicatorTintStyle,
+        showsGlow: Bool,
+        barWidth: CGFloat,
+        barHeight: CGFloat,
+        circleSize: CGFloat = 16,
+        circleLineWidth: CGFloat = 3
+    ) {
+        self.level = level
+        self.indicatorStyle = indicatorStyle
+        self.tintStyle = tintStyle
+        self.showsGlow = showsGlow
+        self.barWidth = barWidth
+        self.barHeight = barHeight
+        self.circleSize = circleSize
+        self.circleLineWidth = circleLineWidth
+    }
+
     private var clampedLevel: Int { max(0, min(100, level)) }
     private var progress: CGFloat { CGFloat(clampedLevel) / 100 }
 
