@@ -1,0 +1,191 @@
+//
+//  VpnPageNotchView.swift
+//  DynamicNotch
+//
+//  Created by Евгений Петрукович on 6/19/26.
+//
+
+import SwiftUI
+import Combine
+internal import AppKit
+
+struct VpnPageNotchView: View {
+    let notchViewModel: NotchViewModel
+    @StateObject private var viewModel = VpnPageViewModel()
+    @AppStorage("settings.vpn.selectedID") private var selectedVPNID: String = ""
+    
+    @State private var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    @State private var timeString: String = "00:00"
+    
+    private func updateTimer() {
+        guard let startDate = viewModel.connectedAt else {
+            timeString = "00:00"
+            return
+        }
+        let elapsed = Date().timeIntervalSince(startDate)
+        timeString = elapsed.formattedDuration
+    }
+    
+    var body: some View {
+        VStack {
+            Spacer()
+            
+            if viewModel.vpns.isEmpty {
+                if viewModel.isLoading {
+                    progressView
+                } else {
+                    emptyStateView
+                }
+            } else if let preferredVPN = viewModel.vpns.first(where: { $0.id == selectedVPNID }) {
+                featuredVPNView(for: preferredVPN)
+            } else if let firstActive = viewModel.vpns.first(where: { $0.isConnected }) {
+                featuredVPNView(for: firstActive)
+            } else {
+                noSelectionView
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.bottom, 12)
+        .onAppear {
+            viewModel.startMonitoring()
+            updateTimer()
+        }
+        .onDisappear {
+            viewModel.stopMonitoring()
+        }
+    }
+    
+    @ViewBuilder
+    private func featuredVPNView(for vpn: VPNConfiguration) -> some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 14) {
+                // Large Icon Badge
+                ZStack {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(vpn.isConnected ? Color.green.opacity(0.2) : Color.gray.opacity(0.15))
+                        .frame(width: 44, height: 44)
+                    
+                    if let bundleID = vpn.bundleID, let nsImage = getAppIcon(for: bundleID) {
+                        Image(nsImage: nsImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 28, height: 28)
+                            .cornerRadius(6)
+                    } else {
+                        Image(systemName: vpn.isConnected ? "shield.fill" : "shield")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundStyle(vpn.isConnected ? Color.green : Color.gray)
+                    }
+                }
+                
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(vpn.name)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                    
+                    Text(vpn.type)
+                        .font(.system(size: 11))
+                        .foregroundColor(.gray)
+                        .lineLimit(1)
+                }
+                
+                Spacer()
+                
+                if vpn.isConnected {
+                    Text(timeString)
+                        .font(.system(size: 20, weight: .semibold, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(Color.orange)
+                        .onReceive(timer) { _ in
+                            updateTimer()
+                        }
+                } else {
+                    Text("Disconnected")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.gray)
+                }
+            }
+            .padding(.horizontal, 10)
+            
+            // Connect/Disconnect Action Button
+            Button(action: {
+                withAnimation(.spring(response: 0.3)) {
+                    viewModel.toggleVPN(vpn)
+                }
+            }) {
+                HStack {
+                    Image(systemName: vpn.isConnected ? "power" : "play.fill")
+                    Text(vpn.isConnected ? "Disconnect" : "Connect")
+                        .fontWeight(.semibold)
+                }
+                .font(.system(size: 13))
+            }
+            .buttonStyle(PrimaryButtonStyle(
+                width: .infinity,
+                height: 34,
+                backgroundColor: vpn.isConnected ? Color.red.opacity(0.3) : Color.green.opacity(0.2),
+                foregroundColor: vpn.isConnected ? .white : .green
+            ))
+            .padding(.horizontal, 5)
+        }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 6)
+    }
+    
+    @ViewBuilder
+    private var noSelectionView: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "network.badge.shield.half.filled")
+                .font(.system(size: 28, weight: .semibold))
+                .foregroundColor(.gray.opacity(0.8))
+            
+            Text("No VPN Selected")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.white)
+            
+            Text("Please select your preferred VPN in Settings.")
+                .font(.system(size: 11))
+                .foregroundColor(.gray.opacity(0.6))
+                .multilineTextAlignment(.center)
+        }
+        .padding(.bottom, 12)
+        .padding(.horizontal, 20)
+    }
+    
+    @ViewBuilder
+    private var emptyStateView: some View {
+        VStack(spacing: 6) {
+            Image(systemName: "network.badge.shield.half.filled")
+                .font(.system(size: 28, weight: .semibold))
+                .foregroundColor(.gray.opacity(0.8))
+            
+            Text("No VPN configurations found")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.white)
+            
+            Text("Add a VPN in macOS Settings -> VPN.")
+                .font(.system(size: 11))
+                .foregroundColor(.gray.opacity(0.6))
+                .multilineTextAlignment(.center)
+        }
+        .padding(.bottom, 12)
+        .padding(.horizontal, 20)
+    }
+    
+    @ViewBuilder
+    private var progressView: some View {
+        VStack {
+            ProgressView()
+                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+        }
+        .frame(height: 115)
+    }
+    
+    private func getAppIcon(for bundleID: String) -> NSImage? {
+        guard let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) else {
+            return nil
+        }
+        return NSWorkspace.shared.icon(forFile: appURL.path)
+    }
+}

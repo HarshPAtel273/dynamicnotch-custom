@@ -393,6 +393,14 @@ struct SettingsRootView: View {
                 )
             }
 
+        case .vpn:
+            detailContainer(for: section) {
+                VpnSettingsView(
+                    connectivitySettings: settingsViewModel.connectivity,
+                    appearanceSettings: settingsViewModel.application
+                )
+            }
+
         case .battery:
             detailContainer(for: section) {
                 BatterySettingsView(
