@@ -453,6 +453,7 @@
       }
     },
     "Add a VPN in macOS Settings -> VPN." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4358,6 +4359,7 @@
       }
     },
     "Connect" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5104,6 +5106,7 @@
       }
     },
     "Disconnect" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5120,6 +5123,7 @@
       }
     },
     "Disconnected" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -8970,6 +8974,7 @@
 
     },
     "No VPN configurations found" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9002,6 +9007,7 @@
       }
     },
     "No VPN Selected" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9446,6 +9452,35 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "仅当连接的网络实际发生变化时才显示 Wi-Fi 或 VPN 通知。"
+          }
+        }
+      }
+    },
+    "Open Settings" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Settings"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir configuración"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыть настройки"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开设置"
           }
         }
       }
@@ -10129,6 +10164,7 @@
       }
     },
     "Please select your preferred VPN in Settings." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

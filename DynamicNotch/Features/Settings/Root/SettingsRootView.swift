@@ -162,6 +162,11 @@ struct SettingsRootView: View {
         .accessibilityIdentifier("settings.root")
         .environment(\.locale, settingsViewModel.application.appLanguage.locale)
         .preferredColorScheme(settingsViewModel.application.appearanceMode.preferredColorScheme)
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("SelectSettingsSection"))) { notification in
+            if let section = notification.object as? SettingsRootViewModel.Section {
+                applySelection(section, origin: .sidebar)
+            }
+        }
     }
 
     private var selectionBinding: Binding<SettingsRootViewModel.Section> {

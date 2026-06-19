@@ -9,14 +9,6 @@ import Foundation
 import Combine
 import SwiftUI
 
-struct VPNConfiguration: Identifiable, Hashable {
-    let id: String
-    let name: String
-    let isConnected: Bool
-    let type: String
-    let bundleID: String?
-}
-
 @MainActor
 final class VpnPageViewModel: ObservableObject {
     @Published var vpns: [VPNConfiguration] = []
@@ -46,99 +38,23 @@ final class VpnPageViewModel: ObservableObject {
         isLoading = true
         Task.detached(priority: .userInitiated) { [weak self] in
             guard let self = self else { return }
-            let list = self.fetchVPNs()
+            let list = VPNStatusFetcher.fetchVPNs()
+            
+            var connDate: Date? = nil
+            let selectedID = UserDefaults.standard.string(forKey: "settings.vpn.selectedID") ?? ""
+            if let selectedVpn = list.first(where: { $0.id == selectedID }), selectedVpn.isConnected {
+                connDate = VPNStatusFetcher.fetchVPNConnectedAt(uuid: selectedVpn.id)
+            } else if let activeVpn = list.first(where: { $0.isConnected }) {
+                connDate = VPNStatusFetcher.fetchVPNConnectedAt(uuid: activeVpn.id)
+            }
+            
+            let finalConnDate = connDate
             await MainActor.run {
                 self.vpns = list
                 self.isLoading = false
-                
-                // Track connection start date
-                let selectedID = UserDefaults.standard.string(forKey: "settings.vpn.selectedID") ?? ""
-                if let selectedVpn = list.first(where: { $0.id == selectedID }) {
-                    if selectedVpn.isConnected {
-                        if self.connectedAt == nil {
-                            self.connectedAt = Date()
-                        }
-                    } else {
-                        self.connectedAt = nil
-                    }
-                } else if let activeVpn = list.first(where: { $0.isConnected }) {
-                    // Fallback to active VPN
-                    if self.connectedAt == nil {
-                        self.connectedAt = Date()
-                    }
-                } else {
-                    self.connectedAt = nil
-                }
+                self.connectedAt = finalConnDate
             }
         }
-    }
-    
-    nonisolated private func fetchVPNs() -> [VPNConfiguration] {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/sbin/scutil")
-        process.arguments = ["--nc", "list"]
-        
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        process.standardError = Pipe()
-        
-        do {
-            try process.run()
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            process.waitUntilExit()
-            
-            if let output = String(data: data, encoding: .utf8) {
-                return self.parseVPNList(from: output)
-            }
-        } catch {
-            print("Failed to run scutil --nc list: \(error)")
-        }
-        return []
-    }
-    
-    nonisolated private func parseVPNList(from output: String) -> [VPNConfiguration] {
-        var vpns: [VPNConfiguration] = []
-        let lines = output.components(separatedBy: .newlines)
-        for line in lines {
-            guard let uuidRange = line.range(of: "\\b[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\\b", options: .regularExpression) else {
-                continue
-            }
-            let uuid = String(line[uuidRange])
-            let isConnected = line.contains("(Connected)")
-            
-            var name = ""
-            if let firstQuote = line.firstIndex(of: "\""),
-               let lastQuote = line.lastIndex(of: "\""),
-               firstQuote < lastQuote {
-                let nextIndex = line.index(after: firstQuote)
-                name = String(line[nextIndex..<lastQuote])
-            } else {
-                name = uuid
-            }
-            
-            var type = "VPN"
-            if let firstQuote = line.firstIndex(of: "\""), uuidRange.upperBound < firstQuote {
-                let typeStr = line[uuidRange.upperBound..<firstQuote].trimmingCharacters(in: .whitespacesAndNewlines)
-                if !typeStr.isEmpty {
-                    type = typeStr
-                }
-            }
-            
-            // Extract bundle ID if present (e.g. inside parentheses in the type after UUID)
-            var bundleID: String? = nil
-            let substringAfterUUID = String(line[uuidRange.upperBound...])
-            if let openParen = substringAfterUUID.firstIndex(of: "("),
-               let closeParen = substringAfterUUID.firstIndex(of: ")"),
-               openParen < closeParen {
-                let content = String(substringAfterUUID[substringAfterUUID.index(after: openParen)..<closeParen]).trimmingCharacters(in: .whitespacesAndNewlines)
-                if content.contains(".") {
-                    bundleID = content
-                }
-            }
-            
-            vpns.append(VPNConfiguration(id: uuid, name: name, isConnected: isConnected, type: type, bundleID: bundleID))
-        }
-        return vpns
     }
     
     func toggleVPN(_ vpn: VPNConfiguration) {

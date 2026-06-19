@@ -10,12 +10,13 @@ import Combine
 internal import AppKit
 
 struct VpnPageNotchView: View {
-    let notchViewModel: NotchViewModel
     @StateObject private var viewModel = VpnPageViewModel()
     @AppStorage("settings.vpn.selectedID") private var selectedVPNID: String = ""
     
     @State private var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var timeString: String = "00:00"
+    
+    let notchViewModel: NotchViewModel
     
     private func updateTimer() {
         guard let startDate = viewModel.connectedAt else {
@@ -44,8 +45,6 @@ struct VpnPageNotchView: View {
                 noSelectionView
             }
         }
-        .padding(.horizontal, 10)
-        .padding(.bottom, 12)
         .onAppear {
             viewModel.startMonitoring()
             updateTimer()
@@ -59,7 +58,6 @@ struct VpnPageNotchView: View {
     private func featuredVPNView(for vpn: VPNConfiguration) -> some View {
         VStack(spacing: 12) {
             HStack(spacing: 14) {
-                // Large Icon Badge
                 ZStack {
                     RoundedRectangle(cornerRadius: 12)
                         .fill(vpn.isConnected ? Color.green.opacity(0.2) : Color.gray.opacity(0.15))
@@ -101,36 +99,43 @@ struct VpnPageNotchView: View {
                             updateTimer()
                         }
                 } else {
-                    Text("Disconnected")
+                    Text(verbatim: "Disconnected")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.gray)
                 }
             }
-            .padding(.horizontal, 10)
             
-            // Connect/Disconnect Action Button
-            Button(action: {
-                withAnimation(.spring(response: 0.3)) {
-                    viewModel.toggleVPN(vpn)
+            HStack {
+                Button(action: {
+                    SettingsWindowController.shared.showWindow(selecting: .vpn)
+                    notchViewModel.dismissActiveContent()
+                }) {
+                    Text(verbatim: "Open Settings")
+                        .font(.system(size: 14, weight: .medium))
                 }
-            }) {
-                HStack {
-                    Image(systemName: vpn.isConnected ? "power" : "play.fill")
-                    Text(vpn.isConnected ? "Disconnect" : "Connect")
-                        .fontWeight(.semibold)
+                .buttonStyle(PrimaryButtonStyle(
+                    height: 35,
+                    backgroundColor: Color.gray.opacity(0.2),
+                    foregroundColor: .white
+                ))
+
+                Button(action: {
+                    withAnimation(.spring(response: 0.3)) {
+                        viewModel.toggleVPN(vpn)
+                    }
+                }) {
+                    Text(verbatim: vpn.isConnected ? "Disconnect" : "Connect")
+                        .font(.system(size: 14, weight: .medium))
                 }
-                .font(.system(size: 13))
+                .buttonStyle(PrimaryButtonStyle(
+                    height: 35,
+                    backgroundColor: vpn.isConnected ? Color.red.opacity(0.2) : Color.blue.opacity(0.2),
+                    foregroundColor: vpn.isConnected ? .red : .blue
+                ))
             }
-            .buttonStyle(PrimaryButtonStyle(
-                width: .infinity,
-                height: 34,
-                backgroundColor: vpn.isConnected ? Color.red.opacity(0.3) : Color.green.opacity(0.2),
-                foregroundColor: vpn.isConnected ? .white : .green
-            ))
-            .padding(.horizontal, 5)
         }
-        .padding(.vertical, 8)
-        .padding(.horizontal, 6)
+        .padding(.horizontal, 5)
+        .padding(.bottom, 5)
     }
     
     @ViewBuilder
@@ -140,11 +145,11 @@ struct VpnPageNotchView: View {
                 .font(.system(size: 28, weight: .semibold))
                 .foregroundColor(.gray.opacity(0.8))
             
-            Text("No VPN Selected")
+            Text(verbatim: "No VPN Selected")
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(.white)
             
-            Text("Please select your preferred VPN in Settings.")
+            Text(verbatim: "Please select your preferred VPN in Settings.")
                 .font(.system(size: 11))
                 .foregroundColor(.gray.opacity(0.6))
                 .multilineTextAlignment(.center)
@@ -160,11 +165,11 @@ struct VpnPageNotchView: View {
                 .font(.system(size: 28, weight: .semibold))
                 .foregroundColor(.gray.opacity(0.8))
             
-            Text("No VPN configurations found")
+            Text(verbatim: "No VPN configurations found")
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(.white)
             
-            Text("Add a VPN in macOS Settings -> VPN.")
+            Text(verbatim: "Add a VPN in macOS Settings -> VPN.")
                 .font(.system(size: 11))
                 .foregroundColor(.gray.opacity(0.6))
                 .multilineTextAlignment(.center)
