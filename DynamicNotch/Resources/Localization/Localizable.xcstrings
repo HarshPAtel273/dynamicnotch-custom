@@ -102,9 +102,6 @@
     "%lld" : {
 
     },
-    "%lld " : {
-
-    },
     "%lld%%" : {
       "localizations" : {
         "en" : {
@@ -132,9 +129,6 @@
           }
         }
       }
-    },
-    "•" : {
-
     },
     "00" : {
 
@@ -400,6 +394,7 @@
       }
     },
     "Accent tint" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -553,6 +548,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "调整按下刘海达到峰值以及长按展开触发的速度。"
+          }
+        }
+      }
+    },
+    "Adjust the style variant of the liquid glass background." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adjust the style variant of the liquid glass background."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajusta la variante de estilo del fondo Liquid Glass."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройте вариант стиля фона Liquid Glass."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "调整 Liquid Glass 背景的样式变体。"
           }
         }
       }
@@ -1660,6 +1683,7 @@
       }
     },
     "Blend the app accent color into the lock-screen widget background." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2085,6 +2109,7 @@
       }
     },
     "Calendar" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5589,9 +5614,6 @@
     "Empty Title" : {
 
     },
-    "Enjoy your free time!" : {
-
-    },
     "Enlarged" : {
       "localizations" : {
         "en" : {
@@ -7480,9 +7502,6 @@
         }
       }
     },
-    "Join" : {
-
-    },
     "Join Meeting" : {
 
     },
@@ -7847,6 +7866,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "液态玻璃"
+          }
+        }
+      }
+    },
+    "Liquid glass style" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid glass style"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estilo de Liquid Glass"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стиль Liquid Glass"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid Glass 样式"
           }
         }
       }
@@ -8884,9 +8931,6 @@
           }
         }
       }
-    },
-    "No events today" : {
-
     },
     "No Internet Connection" : {
       "localizations" : {
@@ -11369,6 +11413,7 @@
       }
     },
     "settings.activities.calendar.allDay" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11397,6 +11442,7 @@
       }
     },
     "settings.activities.calendar.allDay.desc" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11425,6 +11471,7 @@
       }
     },
     "settings.activities.calendar.days" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11453,6 +11500,7 @@
       }
     },
     "settings.activities.calendar.daysToShow" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11481,6 +11529,7 @@
       }
     },
     "settings.activities.calendar.daysToShow.desc" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11650,6 +11699,7 @@
       }
     },
     "settings.activities.calendar.preferences" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20275,6 +20325,7 @@
       }
     },
     "View upcoming events." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

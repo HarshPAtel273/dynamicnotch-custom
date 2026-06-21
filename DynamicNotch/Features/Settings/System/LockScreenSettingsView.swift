@@ -131,6 +131,24 @@ struct LockScreenSettingsView: View {
             }
             .accessibilityIdentifier("settings.activities.lockScreen.widgetAppearance")
             
+            if settings.widgetAppearanceStyle == .liquidGlass {
+                Divider().opacity(0.6)
+
+                SettingsSliderRow(
+                    title: "Liquid glass style",
+                    description: "Adjust the style variant of the liquid glass background.",
+                    range: Double(LockScreenSettings.liquidGlassVariantRange.lowerBound)...Double(LockScreenSettings.liquidGlassVariantRange.upperBound),
+                    step: 1,
+                    fractionLength: 0,
+                    suffix: "",
+                    accessibilityIdentifier: "settings.activities.lockScreen.liquidGlassVariant",
+                    value: Binding(
+                        get: { Double(settings.liquidGlassVariant) },
+                        set: { settings.liquidGlassVariant = Int($0) }
+                    )
+                )
+            }
+            
             Divider().opacity(0.6)
 
             SettingsSliderRow(
@@ -144,20 +162,6 @@ struct LockScreenSettingsView: View {
                 value: $settings.mediaPanelVerticalOffset
             )
 
-            Divider().opacity(0.6)
-            
-            SettingsToggleRow(
-                title: "Accent tint",
-                description: "Blend the app accent color into the lock-screen widget background.",
-                systemImage: "paintpalette.fill",
-                color: .accentColor,
-                isOn: Binding(
-                    get: { settings.widgetTintStyle == .accent },
-                    set: { settings.widgetTintStyle = $0 ? .accent : .neutral }
-                ),
-                accessibilityIdentifier: "settings.activities.lockScreen.widgetTint"
-            )
-            
             Divider().opacity(0.6)
 
             SettingsSliderRow(
@@ -209,7 +213,8 @@ struct LockScreenSettingsView: View {
         LockScreenWidgetAppearancePickerPreview(
             style: style,
             tintStyle: settings.widgetTintStyle,
-            backgroundBrightness: settings.widgetBackgroundBrightness
+            backgroundBrightness: settings.widgetBackgroundBrightness,
+            liquidGlassVariant: settings.liquidGlassVariant
         )
         .scaleEffect(isSelected ? 1 : 0.97)
     }
@@ -401,6 +406,7 @@ private struct LockScreenWidgetAppearancePickerPreview: View {
     let style: LockScreenWidgetAppearanceStyle
     let tintStyle: LockScreenWidgetTintStyle
     let backgroundBrightness: Double
+    let liquidGlassVariant: Int
 
     private let panelSize = CGSize(width: 380, height: 228)
     private let panelCornerRadius: CGFloat = 34
@@ -413,7 +419,8 @@ private struct LockScreenWidgetAppearancePickerPreview: View {
                 style: style,
                 tintStyle: tintStyle,
                 brightness: backgroundBrightness,
-                cornerRadius: panelCornerRadius
+                cornerRadius: panelCornerRadius,
+                liquidGlassVariant: liquidGlassVariant
             )
 
             VStack {

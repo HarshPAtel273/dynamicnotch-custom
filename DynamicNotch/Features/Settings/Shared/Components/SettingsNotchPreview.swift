@@ -26,6 +26,7 @@ struct SettingsNotchPreview<Overlay: View>: View {
     let darkBackgroundImage: Image?
     let backgroundImageContentMode: ContentMode
     let backgroundImageOpacity: Double
+    let liquidGlassVariant: Int
     
     private let overlay: Overlay
     
@@ -46,6 +47,7 @@ struct SettingsNotchPreview<Overlay: View>: View {
         darkBackgroundImage: Image? = nil,
         backgroundImageContentMode: ContentMode = .fill,
         backgroundImageOpacity: Double = 1,
+        liquidGlassVariant: Int = 11,
         @ViewBuilder overlay: () -> Overlay
     ) {
         self.width = width
@@ -64,6 +66,7 @@ struct SettingsNotchPreview<Overlay: View>: View {
         self.darkBackgroundImage = darkBackgroundImage
         self.backgroundImageContentMode = backgroundImageContentMode
         self.backgroundImageOpacity = backgroundImageOpacity
+        self.liquidGlassVariant = liquidGlassVariant
         self.overlay = overlay()
     }
     
@@ -125,7 +128,8 @@ struct SettingsNotchPreview<Overlay: View>: View {
             isDynamicIsland: isDynamicIsland,
             dynamicIslandCornerRadius: dynamicIslandCornerRadius,
             strokeColor: showsStroke ? strokeColor : .clear,
-            strokeWidth: strokeWidth
+            strokeWidth: strokeWidth,
+            liquidGlassVariant: liquidGlassVariant
         )
     }
 }

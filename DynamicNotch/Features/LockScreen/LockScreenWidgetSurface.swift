@@ -5,6 +5,7 @@ struct LockScreenWidgetSurface: View {
     let tintStyle: LockScreenWidgetTintStyle
     let brightness: Double
     let cornerRadius: CGFloat
+    let liquidGlassVariant: Int
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
@@ -36,25 +37,13 @@ struct LockScreenWidgetSurface: View {
             shape.fill(.ultraThickMaterial)
 
         case .liquidGlass:
-            if #available(macOS 26.0, *) {
+            LiquidGlassBackground(
+                variant: LiquidGlassVariant.clamped(liquidGlassVariant),
+                cornerRadius: cornerRadius
+            ) {
                 Color.clear
-                    .glassEffect(.regular, in: shape)
-            } else {
-                shape
-                    .fill(.ultraThinMaterial)
-                    .overlay {
-                        shape.fill(
-                            LinearGradient(
-                                colors: [
-                                    .white.opacity(0.14),
-                                    .white.opacity(0.04)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                    }
             }
+            .clipShape(shape)
         }
     }
 
