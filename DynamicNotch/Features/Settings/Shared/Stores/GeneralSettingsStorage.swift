@@ -5,6 +5,8 @@ enum GeneralSettingsStorage {
         static let appearanceMode = "settings.general.appearance.mode"
         static let notchBackgroundStyle = "settings.notch.backgroundStyle"
         static let dynamicIslandBackgroundStyle = "settings.dynamicIsland.backgroundStyle"
+        static let notchLiquidGlassVariant = "settings.notch.liquidGlassVariant"
+        static let dynamicIslandLiquidGlassVariant = "settings.dynamicIsland.liquidGlassVariant"
         static let notchWidth = "notchWidth"
         static let notchHeight = "notchHeight"
         static let dynamicIslandHeight = "dynamicIslandHeight"
@@ -129,12 +131,17 @@ enum GeneralSettingsStorage {
         static let selectedVPNID = "settings.vpn.selectedID"
     }
 
+    static let notchLiquidGlassVariantRange = 0...19
+    static let dynamicIslandLiquidGlassVariantRange = 0...19
+
     static let defaultValues: [String: Any] = [
         Keys.launchAtLogin: true,
         Keys.dockIcon: false,
         Keys.appearanceMode: SettingsAppearanceMode.system.rawValue,
         Keys.notchBackgroundStyle: NotchBackgroundStyle.black.rawValue,
         Keys.dynamicIslandBackgroundStyle: NotchBackgroundStyle.black.rawValue,
+        Keys.notchLiquidGlassVariant: 11,
+        Keys.dynamicIslandLiquidGlassVariant: 11,
         Keys.notchWidth: 0,
         Keys.notchHeight: 0,
         Keys.dynamicIslandHeight: 0,
@@ -223,6 +230,7 @@ enum GeneralSettingsStorage {
         LockScreenSettings.widgetAppearanceStyleKey: LockScreenWidgetAppearanceStyle.ultraThinMaterial.rawValue,
         LockScreenSettings.widgetTintStyleKey: LockScreenWidgetTintStyle.neutral.rawValue,
         LockScreenSettings.widgetBackgroundBrightnessKey: 1.0,
+        LockScreenSettings.liquidGlassVariantKey: 11,
         LockScreenSettings.mediaPanelBackgroundStyleKey: LockScreenMediaPanelBackgroundStyle.animatedArtwork.rawValue,
         LockScreenSettings.lyricsEnabledKey: true,
         LockScreenSettings.mediaPanelVerticalOffsetKey: 0.0,

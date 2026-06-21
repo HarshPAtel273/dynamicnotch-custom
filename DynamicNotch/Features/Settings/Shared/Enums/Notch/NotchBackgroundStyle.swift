@@ -6,11 +6,7 @@ enum NotchBackgroundStyle: String, CaseIterable {
     case liquidGlass
 
     static var availableOptions: [Self] {
-        if #available(macOS 26.0, *) {
-            return Array(allCases)
-        }
-
-        return [.black, .ultraThickMaterial]
+        return Array(allCases)
     }
 
     var title: LocalizedStringKey {
@@ -36,25 +32,12 @@ enum NotchBackgroundStyle: String, CaseIterable {
     }
 
     var isSupportedOnCurrentSystem: Bool {
-        switch self {
-        case .black, .ultraThickMaterial:
-            return true
-        case .liquidGlass:
-            if #available(macOS 26.0, *) {
-                return true
-            }
-
-            return false
-        }
+        return true
     }
 
     static func resolved(_ rawValue: String?) -> NotchBackgroundStyle {
         guard let rawValue, let style = NotchBackgroundStyle(rawValue: rawValue) else {
             return .black
-        }
-
-        guard style.isSupportedOnCurrentSystem else {
-            return .ultraThickMaterial
         }
 
         return style

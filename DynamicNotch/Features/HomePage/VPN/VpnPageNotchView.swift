@@ -129,7 +129,7 @@ struct VpnPageNotchView: View {
                         viewModel.toggleVPN(vpn)
                     }
                 }) {
-                    Text(verbatim: vpn.isConnected ? "Disconnect" : "Connect")
+                    Text(verbatim: vpn.isConnected ? "Disconnect" : "Connect VPN")
                         .font(.system(size: 14, weight: .medium))
                 }
                 .buttonStyle(PrimaryButtonStyle(

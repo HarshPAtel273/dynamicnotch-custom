@@ -6,11 +6,7 @@ enum LockScreenWidgetAppearanceStyle: String, CaseIterable {
     case liquidGlass
 
     static var availableOptions: [Self] {
-        if #available(macOS 26.0, *) {
-            return Array(allCases)
-        }
-
-        return [.ultraThinMaterial, .ultraThickMaterial]
+        return Array(allCases)
     }
 
     var title: LocalizedStringKey {
@@ -25,15 +21,6 @@ enum LockScreenWidgetAppearanceStyle: String, CaseIterable {
     }
 
     var isSupportedOnCurrentSystem: Bool {
-        switch self {
-        case .ultraThinMaterial, .ultraThickMaterial:
-            return true
-        case .liquidGlass:
-            if #available(macOS 26.0, *) {
-                return true
-            }
-
-            return false
-        }
+        return true
     }
 }

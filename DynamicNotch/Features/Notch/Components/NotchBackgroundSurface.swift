@@ -8,6 +8,7 @@ struct NotchBackgroundSurface: View {
     let dynamicIslandCornerRadius: CGFloat
     let strokeColor: Color
     let strokeWidth: CGFloat
+    let liquidGlassVariant: Int
     
     var body: some View {
         if isDynamicIsland {
@@ -37,14 +38,13 @@ struct NotchBackgroundSurface: View {
             shape.fill(.ultraThinMaterial)
             
         case .liquidGlass:
-            ZStack {
-                shape.fill(Color.white.opacity(0.001))
-                
-                if #available(macOS 26.0, *) {
-                    Color.clear
-                        .glassEffect(.regular, in: shape)
-                }
+            LiquidGlassBackground(
+                variant: LiquidGlassVariant.clamped(liquidGlassVariant),
+                cornerRadius: isDynamicIsland ? dynamicIslandCornerRadius : bottomCornerRadius
+            ) {
+                Color.clear
             }
+            .clipShape(shape)
         }
     }
 }

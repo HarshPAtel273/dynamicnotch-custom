@@ -75,6 +75,24 @@ struct NotchSettingsView: View {
             }
             .accessibilityIdentifier("settings.notch.backgroundStyle")
             
+            if applicationSettings.notchBackgroundStyle == .liquidGlass {
+                Divider().opacity(0.6)
+                
+                SettingsSliderRow(
+                    title: "Liquid glass style",
+                    description: "Adjust the style variant of the liquid glass background.",
+                    range: Double(GeneralSettingsStorage.notchLiquidGlassVariantRange.lowerBound)...Double(GeneralSettingsStorage.notchLiquidGlassVariantRange.upperBound),
+                    step: 1,
+                    fractionLength: 0,
+                    suffix: "",
+                    accessibilityIdentifier: "settings.general.notchLiquidGlassVariant",
+                    value: Binding(
+                        get: { Double(applicationSettings.notchLiquidGlassVariant) },
+                        set: { applicationSettings.notchLiquidGlassVariant = Int($0) }
+                    )
+                )
+            }
+            
             Divider().opacity(0.6)
             
             SettingsToggleRow(
@@ -157,6 +175,24 @@ struct NotchSettingsView: View {
                 backgroundPickerContent(for: style, isSelected: isSelected, isDynamicIsland: true)
             }
             .accessibilityIdentifier("settings.dynamicIsland.backgroundStyle")
+            
+            if applicationSettings.dynamicIslandBackgroundStyle == .liquidGlass {
+                Divider().opacity(0.6)
+                
+                SettingsSliderRow(
+                    title: "Liquid glass style",
+                    description: "Adjust the style variant of the liquid glass background.",
+                    range: Double(GeneralSettingsStorage.dynamicIslandLiquidGlassVariantRange.lowerBound)...Double(GeneralSettingsStorage.dynamicIslandLiquidGlassVariantRange.upperBound),
+                    step: 1,
+                    fractionLength: 0,
+                    suffix: "",
+                    accessibilityIdentifier: "settings.general.dynamicIslandLiquidGlassVariant",
+                    value: Binding(
+                        get: { Double(applicationSettings.dynamicIslandLiquidGlassVariant) },
+                        set: { applicationSettings.dynamicIslandLiquidGlassVariant = Int($0) }
+                    )
+                )
+            }
             
             Divider().opacity(0.6)
             
@@ -447,13 +483,17 @@ struct NotchSettingsView: View {
             }
             
         case .liquidGlass:
-            if #available(macOS 26.0, *) {
+            let variant = isDynamicIsland ? applicationSettings.dynamicIslandLiquidGlassVariant : applicationSettings.notchLiquidGlassVariant
+            LiquidGlassBackground(
+                variant: LiquidGlassVariant.clamped(variant),
+                cornerRadius: isDynamicIsland ? 15 : 6
+            ) {
                 Color.clear
-                    .glassEffect(.regular, in: shape)
-                    .overlay {
-                        shape
-                            .stroke(strokeColor, lineWidth: strokeWidth)
-                    }
+            }
+            .clipShape(shape)
+            .overlay {
+                shape
+                    .stroke(strokeColor, lineWidth: strokeWidth)
             }
         }
     }

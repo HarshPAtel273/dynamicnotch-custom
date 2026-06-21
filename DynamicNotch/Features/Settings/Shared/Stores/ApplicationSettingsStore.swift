@@ -41,6 +41,18 @@ final class ApplicationSettingsStore: SettingsStoreBase, NotchSettingsProviding 
         }
     }
 
+    @Published var notchLiquidGlassVariant: Int {
+        didSet {
+            persist(notchLiquidGlassVariant, for: GeneralSettingsStorage.Keys.notchLiquidGlassVariant)
+        }
+    }
+
+    @Published var dynamicIslandLiquidGlassVariant: Int {
+        didSet {
+            persist(dynamicIslandLiquidGlassVariant, for: GeneralSettingsStorage.Keys.dynamicIslandLiquidGlassVariant)
+        }
+    }
+
     @Published var notchWidth: Int {
         didSet {
             guard oldValue != notchWidth else { return }
@@ -301,6 +313,8 @@ final class ApplicationSettingsStore: SettingsStoreBase, NotchSettingsProviding 
         self.dynamicIslandBackgroundStyle = NotchBackgroundStyle.resolved(
             defaults.string(forKey: GeneralSettingsStorage.Keys.dynamicIslandBackgroundStyle)
         )
+        self.notchLiquidGlassVariant = defaults.object(forKey: GeneralSettingsStorage.Keys.notchLiquidGlassVariant) as? Int ?? 11
+        self.dynamicIslandLiquidGlassVariant = defaults.object(forKey: GeneralSettingsStorage.Keys.dynamicIslandLiquidGlassVariant) as? Int ?? 11
         self.notchWidth = defaults.integer(forKey: GeneralSettingsStorage.Keys.notchWidth)
         self.dynamicIslandWidth = defaults.integer(forKey: GeneralSettingsStorage.Keys.dynamicIslandWidth)
         self.notchHeight = defaults.integer(forKey: GeneralSettingsStorage.Keys.notchHeight)
@@ -438,6 +452,8 @@ final class ApplicationSettingsStore: SettingsStoreBase, NotchSettingsProviding 
         dynamicIslandBackgroundStyle = NotchBackgroundStyle.resolved(
             defaultString(for: GeneralSettingsStorage.Keys.dynamicIslandBackgroundStyle)
         )
+        notchLiquidGlassVariant = defaultInt(for: GeneralSettingsStorage.Keys.notchLiquidGlassVariant)
+        dynamicIslandLiquidGlassVariant = defaultInt(for: GeneralSettingsStorage.Keys.dynamicIslandLiquidGlassVariant)
         notchWidth = defaultInt(for: GeneralSettingsStorage.Keys.notchWidth)
         dynamicIslandWidth = defaultInt(for: GeneralSettingsStorage.Keys.dynamicIslandWidth)
         notchHeight = defaultInt(for: GeneralSettingsStorage.Keys.notchHeight)
