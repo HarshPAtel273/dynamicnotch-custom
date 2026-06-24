@@ -33,9 +33,9 @@ final class MediaAndFilesSettingsStore: SettingsStoreBase {
         }
     }
 
-    @Published var isNowPlayingArtworkTintEnabled: Bool {
+    @Published var nowPlayingProgressTintStyle: NowPlayingProgressTintStyle {
         didSet {
-            persist(isNowPlayingArtworkTintEnabled, for: GeneralSettingsStorage.Keys.nowPlayingArtworkTintEnabled)
+            persist(nowPlayingProgressTintStyle.rawValue, for: GeneralSettingsStorage.Keys.nowPlayingProgressTintStyle)
         }
     }
 
@@ -247,7 +247,12 @@ final class MediaAndFilesSettingsStore: SettingsStoreBase {
             defaults: defaults,
             key: GeneralSettingsStorage.Keys.nowPlayingArtwork3DEffectEnabled
         )
-        self.isNowPlayingArtworkTintEnabled = defaults.bool(forKey: GeneralSettingsStorage.Keys.nowPlayingArtworkTintEnabled)
+        if let storedStyle = defaults.string(forKey: GeneralSettingsStorage.Keys.nowPlayingProgressTintStyle) {
+            self.nowPlayingProgressTintStyle = NowPlayingProgressTintStyle.resolved(storedStyle)
+        } else {
+            let legacyTint = defaults.bool(forKey: GeneralSettingsStorage.Keys.nowPlayingArtworkTintEnabled)
+            self.nowPlayingProgressTintStyle = legacyTint ? .artwork : .default
+        }
         self.isNowPlayingArtworkStrokeEnabled = defaults.bool(forKey: GeneralSettingsStorage.Keys.nowPlayingArtworkStrokeEnabled)
         self.isNowPlayingPauseHideTimerEnabled = Self.resolvedBool(
             defaults: defaults,
@@ -342,7 +347,9 @@ final class MediaAndFilesSettingsStore: SettingsStoreBase {
         isNowPlayingArtwork3DEffectEnabled = defaultBool(
             for: GeneralSettingsStorage.Keys.nowPlayingArtwork3DEffectEnabled
         )
-        isNowPlayingArtworkTintEnabled = defaultBool(for: GeneralSettingsStorage.Keys.nowPlayingArtworkTintEnabled)
+        nowPlayingProgressTintStyle = NowPlayingProgressTintStyle.resolved(
+            defaultString(for: GeneralSettingsStorage.Keys.nowPlayingProgressTintStyle)
+        )
         isNowPlayingArtworkStrokeEnabled = defaultBool(for: GeneralSettingsStorage.Keys.nowPlayingArtworkStrokeEnabled)
         isNowPlayingPauseHideTimerEnabled = defaultBool(
             for: GeneralSettingsStorage.Keys.nowPlayingPauseHideTimerEnabled
@@ -436,7 +443,7 @@ struct NowPlayingAppearanceOptions {
     let showsFavoriteButton: Bool
     let showsOutputDeviceButton: Bool
     let usesArtwork3DEffect: Bool
-    let usesArtworkTint: Bool
+    let progressTintStyle: NowPlayingProgressTintStyle
     let usesArtworkStrokeTint: Bool
 }
 
@@ -452,7 +459,7 @@ extension MediaAndFilesSettingsStore {
             showsFavoriteButton: isNowPlayingFavoriteButtonVisible,
             showsOutputDeviceButton: isNowPlayingOutputDeviceButtonVisible,
             usesArtwork3DEffect: isNowPlayingArtwork3DEffectEnabled,
-            usesArtworkTint: isNowPlayingArtworkTintEnabled,
+            progressTintStyle: nowPlayingProgressTintStyle,
             usesArtworkStrokeTint: isNowPlayingArtworkStrokeEnabled && !isDefaultActivityStrokeEnabled
         )
     }

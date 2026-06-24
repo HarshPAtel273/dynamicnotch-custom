@@ -104,7 +104,7 @@ struct NowPlayingSettingsView: View {
             )
 
             Divider().opacity(0.6)
-
+            
             SettingsToggleRow(
                 title: "Artwork 3D effect",
                 description: "Animate artwork with a 3D flip when the track cover changes.",
@@ -113,11 +113,19 @@ struct NowPlayingSettingsView: View {
                 isOn: $settings.isNowPlayingArtwork3DEffectEnabled,
                 accessibilityIdentifier: "settings.activities.live.nowPlaying.artwork3DEffect"
             )
+            
+            Divider().opacity(0.6)
+            
+            SettingsMenuRow(
+                title: "Progress bar tint",
+                description: "Choose how to color the progress bar and timer labels.",
+                options: Array(NowPlayingProgressTintStyle.allCases),
+                optionTitle: { $0.title },
+                accessibilityIdentifier: "settings.activities.live.nowPlaying.progressTintStyle",
+                selection: $settings.nowPlayingProgressTintStyle
+            )
 
-            Divider()
-                .opacity(0.6)
-                .padding(.leading, 43)
-                .frame(maxWidth: .infinity, alignment: .trailing)
+            Divider().opacity(0.6)
 
             SettingsToggleRow(
                 title: "Hide favorite",
@@ -148,20 +156,6 @@ struct NowPlayingSettingsView: View {
                 accessibilityIdentifier: "settings.activities.live.nowPlaying.hideOutputDevice"
             )
             
-            Divider()
-                .opacity(0.6)
-                .padding(.leading, 43)
-                .frame(maxWidth: .infinity, alignment: .trailing)
-            
-            SettingsToggleRow(
-                title: "Artwork-tinted progress",
-                description: "Color the progress bar and timer labels using the current artwork palette.",
-                systemImage: "paintbrush.pointed.fill",
-                color: Color(red: 1, green: 0.73, blue: 0.32),
-                isOn: $settings.isNowPlayingArtworkTintEnabled,
-                accessibilityIdentifier: "settings.activities.live.nowPlaying.artworkTint"
-            )
-
             Divider()
                 .opacity(0.6)
                 .padding(.leading, 43)
@@ -267,7 +261,7 @@ private struct NowPlayingAppearancePreview: View {
                     Text("01:21")
                         .font(.system(size: 10, weight: .medium, design: .rounded))
                         .monospacedDigit()
-                        .foregroundStyle(appearance.usesArtworkTint ? highlightColor : .white.opacity(0.4))
+                        .foregroundStyle(progressTimeColor(isPrimary: true, style: appearance.progressTintStyle))
                     
                     GeometryReader { proxy in
                         let trackHeight: CGFloat = 6
@@ -278,7 +272,7 @@ private struct NowPlayingAppearancePreview: View {
                                 .frame(height: trackHeight)
                             
                             Capsule(style: .continuous)
-                                .fill(appearance.usesArtworkTint ? AnyShapeStyle(progressGradient) : AnyShapeStyle(.white.opacity(0.5)))
+                                .fill(progressFillStyle(style: appearance.progressTintStyle, gradient: progressGradient))
                                 .frame(width: proxy.size.width * 0.38, height: trackHeight)
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
@@ -288,7 +282,7 @@ private struct NowPlayingAppearancePreview: View {
                     Text("03:34")
                         .font(.system(size: 10, weight: .medium, design: .rounded))
                         .monospacedDigit()
-                        .foregroundStyle(appearance.usesArtworkTint ? baseColor : .white.opacity(0.4))
+                        .foregroundStyle(progressTimeColor(isPrimary: false, style: appearance.progressTintStyle))
                 }
                 
                 ZStack {
@@ -335,5 +329,32 @@ private struct NowPlayingAppearancePreview: View {
                 .foregroundStyle(.white.opacity(0.52))
         }
         .frame(width: 34, height: 34)
+    }
+
+    private func progressTimeColor(isPrimary: Bool, style: NowPlayingProgressTintStyle) -> Color {
+        switch style {
+        case .default:
+            return .white.opacity(0.4)
+        case .artwork:
+            return isPrimary ? highlightColor : baseColor
+        case .systemAccent:
+            return isPrimary ? .accentColor : .accentColor.opacity(0.7)
+        }
+    }
+
+    private func progressFillStyle(style: NowPlayingProgressTintStyle, gradient: LinearGradient) -> AnyShapeStyle {
+        switch style {
+        case .default:
+            return AnyShapeStyle(.white.opacity(0.5))
+        case .artwork:
+            return AnyShapeStyle(gradient)
+        case .systemAccent:
+            let systemGradient = LinearGradient(
+                colors: [.accentColor, .accentColor.opacity(0.7)],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+            return AnyShapeStyle(systemGradient)
+        }
     }
 }

@@ -1211,7 +1211,36 @@
         }
       }
     },
+    "Artwork cover" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Artwork cover"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Color de la carátula"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В цвет обложки"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "封面颜色"
+          }
+        }
+      }
+    },
     "Artwork-tinted progress" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2987,6 +3016,34 @@
         }
       }
     },
+    "Choose how to color the progress bar and timer labels." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose how to color the progress bar and timer labels."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige cómo colorear la barra de progreso y las etiquetas del temporizador."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выберите способ окрашивания прогресс-бара и меток времени."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择如何为进度条和计时器标签着色。"
+          }
+        }
+      }
+    },
     "Choose Lock Sound" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4213,6 +4270,7 @@
       }
     },
     "Color the progress bar and timer labels using the current artwork palette." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10387,6 +10445,34 @@
         }
       }
     },
+    "Progress bar tint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progress bar tint"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tinte de la barra de progreso"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Окрашивание прогресс-бара"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "进度条着色"
+          }
+        }
+      }
+    },
     "Progress indicator" : {
       "localizations" : {
         "en" : {
@@ -11562,6 +11648,7 @@
       }
     },
     "settings.activities.calendar.hideWhenFocused" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

@@ -104,8 +104,8 @@ struct NotchSettingsView: View {
             SettingsToggleRow(
                 title: "Show notch stroke",
                 description: "Show a subtle outline that adapts to the active content color.",
-                systemImage: "square.on.square.squareshape.controlhandles",
-                color: .green,
+                systemImage: "inset.filled.capsule",
+                color: .black,
                 isOn: $applicationSettings.isShowNotchStrokeEnabled,
                 accessibilityIdentifier: "settings.general.showNotchStroke"
             )
@@ -205,8 +205,8 @@ struct NotchSettingsView: View {
             SettingsToggleRow(
                 title: "Show Dynamic Island stroke",
                 description: "Show a subtle outline that adapts to the active content color.",
-                systemImage: "square.on.square.squareshape.controlhandles",
-                color: .green,
+                systemImage: "inset.filled.capsule",
+                color: .black,
                 isOn: $applicationSettings.isShowDynamicIslandStrokeEnabled,
                 accessibilityIdentifier: "settings.general.showDynamicIslandStroke"
             )
@@ -341,7 +341,7 @@ struct NotchSettingsView: View {
                 title: "Trackpad swipe gestures",
                 description: "Use vertical two-finger scrolling over the notch to dismiss or restore the latest activity.",
                 systemImage: "rectangle.and.hand.point.up.left.filled",
-                color: .mint,
+                color: .blue,
                 isOn: $applicationSettings.isNotchTrackpadSwipeGesturesEnabled,
                 accessibilityIdentifier: "settings.notch.trackpadSwipeGestures"
             )

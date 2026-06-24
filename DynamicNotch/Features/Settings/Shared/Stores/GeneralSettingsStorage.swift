@@ -57,6 +57,7 @@ enum GeneralSettingsStorage {
         static let nowPlayingArtwork3DEffectEnabled = "settings.nowPlaying.artwork3DEffectEnabled"
         static let nowPlayingArtworkTintEnabled = "settings.nowPlaying.artworkTintEnabled"
         static let nowPlayingArtworkStrokeEnabled = "settings.nowPlaying.artworkStrokeEnabled"
+        static let nowPlayingProgressTintStyle = "settings.nowPlaying.progressTintStyle"
         static let nowPlayingPauseHideTimerEnabled = "settings.nowPlaying.pauseHideTimerEnabled"
         static let nowPlayingPauseHideDelay = "settings.nowPlaying.pauseHideDelay"
         static let nowPlayingSourceFilter = "settings.nowPlaying.sourceFilter"
@@ -192,6 +193,7 @@ enum GeneralSettingsStorage {
         Keys.nowPlayingArtwork3DEffectEnabled: true,
         Keys.nowPlayingArtworkTintEnabled: false,
         Keys.nowPlayingArtworkStrokeEnabled: false,
+        Keys.nowPlayingProgressTintStyle: NowPlayingProgressTintStyle.default.rawValue,
         Keys.nowPlayingPauseHideTimerEnabled: true,
         Keys.nowPlayingPauseHideDelay: 5,
         Keys.nowPlayingSourceFilter: NowPlayingSourceFilter.any.rawValue,

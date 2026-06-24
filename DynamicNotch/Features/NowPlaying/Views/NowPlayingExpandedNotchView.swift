@@ -133,7 +133,20 @@ struct NowPlayingExpandedNotchView: View {
                 displayedElapsedTime: displayedElapsedTime,
                 duration: snapshot.duration,
                 isInteractive: snapshot.duration > 0,
-                tintGradient: appearance.usesArtworkTint ? nowPlayingViewModel.artworkPalette.equalizerGradient : nil,
+                tintGradient: {
+                    switch appearance.progressTintStyle {
+                    case .default:
+                        return nil
+                    case .artwork:
+                        return nowPlayingViewModel.artworkPalette.equalizerGradient
+                    case .systemAccent:
+                        return LinearGradient(
+                            colors: [.accentColor, .accentColor.opacity(0.7)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    }
+                }(),
                 primaryColor: progressTimeColor(isPrimary: true, appearance: appearance),
                 secondaryColor: progressTimeColor(isPrimary: false, appearance: appearance),
                 onScrubChanged: { newProgress in
@@ -243,15 +256,17 @@ struct NowPlayingExpandedNotchView: View {
     }
 
     private func progressTimeColor(isPrimary: Bool, appearance: NowPlayingAppearanceOptions) -> Color {
-        guard appearance.usesArtworkTint else {
+        switch appearance.progressTintStyle {
+        case .default:
             return .white.opacity(0.4)
+        case .artwork:
+            let nsColor = isPrimary ?
+            nowPlayingViewModel.artworkPalette.equalizerHighlightColor :
+            nowPlayingViewModel.artworkPalette.equalizerBaseColor
+            return Color(nsColor: nsColor)
+        case .systemAccent:
+            return isPrimary ? .accentColor : .accentColor.opacity(0.7)
         }
-
-        let nsColor = isPrimary ?
-        nowPlayingViewModel.artworkPalette.equalizerHighlightColor :
-        nowPlayingViewModel.artworkPalette.equalizerBaseColor
-
-        return Color(nsColor: nsColor)
     }
     
     private func playbackStatusColor(for snapshot: NowPlayingSnapshot) -> Color {

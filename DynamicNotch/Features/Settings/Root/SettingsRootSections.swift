@@ -492,7 +492,7 @@ private enum SettingsSectionCatalog {
                 ],
                 systemImage: "slider.horizontal.below.sun.max",
                 imageName: nil,
-                tint: .mint,
+                tint: .cyan,
                 resetGroup: .hud
             )
 
