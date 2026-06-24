@@ -101,10 +101,6 @@ struct SettingsRootView: View {
                                 }
                             }
                         }
-                    } header: {
-                        if let titleKey = group.group.titleKey {
-                            Text(localized(titleKey, fallback: group.group.fallbackTitle))
-                        }
                     }
                 }
             }

@@ -113,7 +113,6 @@ struct MarqueeText: View {
             animate = true
             offset = -(textSize.width + 20)
         }
-        .frame(height: textSize.height * 1.3)
     }
 }
 
