@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct WifiConnectedNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
-    let id = NotchContentRegistry.Network.wifi.id
-    var priority: Int { NotchContentRegistry.Network.wifi.priority }
+    let id = NotchContentRegistry.Wifi.wifi.id
+    var priority: Int { NotchContentRegistry.Wifi.wifi.priority }
     
-    let networkViewModel: NetworkViewModel
+    let wifiViewModel: WifiViewModel
     
     func size(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
         .init(width: baseWidth + 110, height: baseHeight)
@@ -25,7 +25,7 @@ struct WifiConnectedNotchContent: NotchContentProtocol, DynamicIslandCustomizabl
     func makeView() -> AnyView {
         AnyView(
             WifiConnectedNotchView(
-                networkViewModel: networkViewModel
+                wifiViewModel: wifiViewModel
             )
         )
     }

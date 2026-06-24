@@ -10,9 +10,9 @@ import Network
 import CoreWLAN
 import SystemConfiguration
 
-final class NetworkMonitor: NetworkMonitoring {
+final class WifiMonitor: WifiMonitoring {
     private let monitor = NWPathMonitor()
-    private let queue = DispatchQueue(label: "NetworkMonitorQueue")
+    private let queue = DispatchQueue(label: "WifiMonitorQueue")
     
     var onStatusChange: ((_ wifi: Bool, _ hotspot: Bool, _ vpn: Bool) -> Void)?
     private(set) var currentWiFiName: String?
@@ -85,8 +85,8 @@ final class NetworkMonitor: NetworkMonitoring {
 
     private func resolveVPNName(isConnected: Bool) -> String? {
         guard isConnected else { return nil }
-        guard let store = SCDynamicStoreCreate(nil, "DynamicNotch.NetworkMonitor" as CFString, nil, nil),
-              let preferences = SCPreferencesCreate(nil, "DynamicNotch.NetworkMonitor" as CFString, nil),
+        guard let store = SCDynamicStoreCreate(nil, "DynamicNotch.WifiMonitor" as CFString, nil, nil),
+              let preferences = SCPreferencesCreate(nil, "DynamicNotch.WifiMonitor" as CFString, nil),
               let services = SCNetworkServiceCopyAll(preferences) as? [SCNetworkService] else {
             return nil
         }

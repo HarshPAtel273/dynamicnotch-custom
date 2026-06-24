@@ -9,33 +9,28 @@ import Foundation
 import Combine
 import SwiftUI
 
-enum NetworkEvent: Equatable {
+enum WifiEvent: Equatable {
     case wifiConnected
-    case vpnConnected
     case hotspotActive
     case hotspotHide
     case noInternetConnection
 }
 
 @MainActor
-final class NetworkViewModel: ObservableObject {
+final class WifiViewModel: ObservableObject {
     @Published var wifiConnected: Bool = false
     @Published var hotspotActive: Bool = false
-    @Published var vpnConnected: Bool = false
     @Published var isInternetAvailable: Bool = true
     @Published var wifiName: String = ""
-    @Published var vpnName: String = ""
-    @Published var vpnConnectedAt: Date?
-    @Published var vpnBundleID: String? = nil
     @Published var wifiSignalLevel: Double = 1
-    @Published var networkEvent: NetworkEvent? = nil
+    @Published var wifiEvent: WifiEvent? = nil
     
-    private let monitor: any NetworkMonitoring
+    private let monitor: any WifiMonitoring
     private let settings: ConnectivitySettingsStore
     private var isInitialCheck = true
     
     init(
-        monitor: any NetworkMonitoring,
+        monitor: any WifiMonitoring,
         settings: ConnectivitySettingsStore
     ) {
         self.monitor = monitor
@@ -45,66 +40,35 @@ final class NetworkViewModel: ObservableObject {
 
     convenience init(settings: ConnectivitySettingsStore) {
         self.init(
-            monitor: NetworkMonitor(),
+            monitor: WifiMonitor(),
             settings: settings
         )
     }
 
     convenience init() {
         self.init(
-            monitor: NetworkMonitor(),
+            monitor: WifiMonitor(),
             settings: ConnectivitySettingsStore(defaults: .standard)
         )
     }
 
     private func setupMonitoring() {
-        monitor.onStatusChange = { [weak self] wifi, hotspot, vpn in
+        monitor.onStatusChange = { [weak self] wifi, hotspot, _ in
             guard let self = self else { return }
 
             let nextWiFiName = (wifi && !hotspot) ? (self.monitor.currentWiFiName ?? "") : ""
-            let nextVPNName = vpn ? (self.monitor.currentVPNName ?? "") : ""
             let nextInternetAvailable = self.monitor.isInternetAvailable
 
             self.wifiName = nextWiFiName
-            self.vpnName = nextVPNName
-
-            if vpn {
-                if self.vpnConnected == false {
-                    self.vpnConnectedAt = .now
-                    Task.detached(priority: .userInitiated) {
-                        let activeVPN = VPNStatusFetcher.fetchVPNs().first(where: { $0.isConnected })
-                        let actualTime = activeVPN.flatMap { VPNStatusFetcher.fetchVPNConnectedAt(uuid: $0.id) }
-                        let bundleID = activeVPN?.bundleID
-                        let finalTime = actualTime
-                        
-                        await MainActor.run { [weak self] in
-                            guard let self = self, self.vpnConnected else { return }
-                            if let finalTime {
-                                self.vpnConnectedAt = finalTime
-                            }
-                            self.vpnBundleID = bundleID
-                        }
-                    }
-                }
-            } else {
-                self.vpnConnectedAt = nil
-                self.vpnBundleID = nil
-            }
             
             if !self.isInitialCheck {
-                var pendingEvents: [NetworkEvent] = []
+                var pendingEvents: [WifiEvent] = []
                 
                 if self.shouldEmitConnectionNotification(
                     isConnected: wifi && !hotspot,
                     wasConnected: self.wifiConnected
                 ) {
                     pendingEvents.append(.wifiConnected)
-                }
-                if self.shouldEmitConnectionNotification(
-                    isConnected: vpn,
-                    wasConnected: self.vpnConnected
-                ) {
-                    pendingEvents.append(.vpnConnected)
                 }
                 if hotspot && !self.hotspotActive {
                     pendingEvents.append(.hotspotActive)
@@ -117,20 +81,19 @@ final class NetworkViewModel: ObservableObject {
                 }
                 
                 if let first = pendingEvents.first {
-                    self.networkEvent = first
+                    self.wifiEvent = first
                     for (index, event) in pendingEvents.dropFirst().enumerated() {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1 * Double(index + 1)) {
-                            self.networkEvent = event
+                            self.wifiEvent = event
                         }
                     }
                 }
             } else if hotspot {
-                self.networkEvent = .hotspotActive
+                self.wifiEvent = .hotspotActive
             }
             
             self.wifiConnected = wifi
             self.hotspotActive = hotspot
-            self.vpnConnected = vpn
             self.isInternetAvailable = nextInternetAvailable
             
             if self.isInitialCheck { self.isInitialCheck = false }

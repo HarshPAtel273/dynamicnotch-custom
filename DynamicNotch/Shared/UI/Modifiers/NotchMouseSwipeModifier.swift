@@ -32,7 +32,7 @@ private struct NotchMouseSwipeMonitorRepresentable: NSViewRepresentable {
     let canSwipeDown: Bool
     let onSwipeUp: () -> Void
     let onSwipeDown: () -> Void
-    let onSwipeStretchChanged: (NotchSwipeInteraction, CGFloat) -> Void
+    let onSwipeStretchChanged: (SwipeInteraction, CGFloat) -> Void
     let onSwipeStretchReset: () -> Void
 
     func makeNSView(context: Context) -> NotchMouseSwipeMonitorView {
@@ -78,7 +78,7 @@ private final class NotchMouseSwipeMonitorView: NSView {
     private var canSwipeDown = false
     private var onSwipeUp: (() -> Void)?
     private var onSwipeDown: (() -> Void)?
-    private var onSwipeStretchChanged: ((NotchSwipeInteraction, CGFloat) -> Void)?
+    private var onSwipeStretchChanged: ((SwipeInteraction, CGFloat) -> Void)?
     private var onSwipeStretchReset: (() -> Void)?
 
     private var isTrackingDrag = false
@@ -107,7 +107,7 @@ private final class NotchMouseSwipeMonitorView: NSView {
         canSwipeDown: Bool,
         onSwipeUp: @escaping () -> Void,
         onSwipeDown: @escaping () -> Void,
-        onSwipeStretchChanged: @escaping (NotchSwipeInteraction, CGFloat) -> Void,
+        onSwipeStretchChanged: @escaping (SwipeInteraction, CGFloat) -> Void,
         onSwipeStretchReset: @escaping () -> Void
     ) {
         self.canSwipeUp = canSwipeUp

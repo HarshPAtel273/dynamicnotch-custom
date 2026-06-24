@@ -9,8 +9,8 @@ import SwiftUI
 internal import AppKit
 
 struct NoInternetConnectionContent: NotchContentProtocol, DynamicIslandCustomizable {
-    let id = NotchContentRegistry.Network.noInternet.id
-    var priority: Int { NotchContentRegistry.Network.noInternet.priority }
+    let id = NotchContentRegistry.Wifi.noInternet.id
+    var priority: Int { NotchContentRegistry.Wifi.noInternet.priority }
 
     let onDismiss: @MainActor () -> Void
     let onOpenNetworkSettings: @MainActor () -> Void

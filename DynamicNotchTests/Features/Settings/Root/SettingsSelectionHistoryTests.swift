@@ -5,19 +5,19 @@ final class SettingsSelectionHistoryTests: XCTestCase {
     func testRecordAppendsSelectionToHistory() {
         var history = SettingsRootViewModel.SelectionHistory(initialSelection: .general)
 
-        history.record(.network)
+        history.record(.wifi)
 
-        XCTAssertEqual(history.currentSelection, .network)
+        XCTAssertEqual(history.currentSelection, .wifi)
         XCTAssertTrue(history.canGoBack)
         XCTAssertFalse(history.canGoForward)
     }
 
     func testRecordAfterGoingBackDropsForwardHistory() {
         var history = SettingsRootViewModel.SelectionHistory(initialSelection: .general)
-        history.record(.network)
+        history.record(.wifi)
         history.record(.battery)
 
-        XCTAssertEqual(history.goBack(), .network)
+        XCTAssertEqual(history.goBack(), .wifi)
 
         history.record(.about)
 
@@ -37,14 +37,14 @@ final class SettingsSelectionHistoryTests: XCTestCase {
 
     func testBackAndForwardMoveAcrossRecordedSelections() {
         var history = SettingsRootViewModel.SelectionHistory(initialSelection: .general)
-        history.record(.network)
+        history.record(.wifi)
         history.record(.battery)
 
-        XCTAssertEqual(history.goBack(), .network)
+        XCTAssertEqual(history.goBack(), .wifi)
         XCTAssertEqual(history.goBack(), .general)
         XCTAssertNil(history.goBack())
 
-        XCTAssertEqual(history.goForward(), .network)
+        XCTAssertEqual(history.goForward(), .wifi)
         XCTAssertEqual(history.goForward(), .battery)
         XCTAssertNil(history.goForward())
     }

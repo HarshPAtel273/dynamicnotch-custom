@@ -47,13 +47,13 @@ final class NotchEventCoordinatorIntegrationTests: XCTestCase {
     func testHotspotEventsShowAndHideLiveActivity() async {
         let context = makeContext()
 
-        context.coordinator.handleNetworkEvent(.hotspotActive)
+        context.coordinator.handleWifiEvent(.hotspotActive)
 
         await assertEventually {
-            await MainActor.run { context.notchViewModel.notchModel.liveActivityContent?.id == NotchContentRegistry.Network.hotspot.id }
+            await MainActor.run { context.notchViewModel.notchModel.liveActivityContent?.id == NotchContentRegistry.Wifi.hotspot.id }
         }
 
-        context.coordinator.handleNetworkEvent(.hotspotHide)
+        context.coordinator.handleWifiEvent(.hotspotHide)
 
         await assertEventually {
             await MainActor.run { context.notchViewModel.notchModel.content == nil }
@@ -63,11 +63,11 @@ final class NotchEventCoordinatorIntegrationTests: XCTestCase {
     func testNoInternetEventShowsTemporaryNotification() async {
         let context = makeContext()
 
-        context.coordinator.handleNetworkEvent(.noInternetConnection)
+        context.coordinator.handleWifiEvent(.noInternetConnection)
 
         await assertEventually {
             await MainActor.run {
-                context.notchViewModel.notchModel.temporaryNotificationContent?.id == NotchContentRegistry.Network.noInternet.id
+                context.notchViewModel.notchModel.temporaryNotificationContent?.id == NotchContentRegistry.Wifi.noInternet.id
             }
         }
     }
@@ -75,7 +75,7 @@ final class NotchEventCoordinatorIntegrationTests: XCTestCase {
     func testDisabledNoInternetTemporaryActivitySuppressesNotification() async {
         let context = makeContext(noInternetTemporaryActivityEnabled: false)
 
-        context.coordinator.handleNetworkEvent(.noInternetConnection)
+        context.coordinator.handleWifiEvent(.noInternetConnection)
 
         try? await Task.sleep(nanoseconds: 50_000_000)
 
@@ -518,7 +518,8 @@ private extension NotchEventCoordinatorIntegrationTests {
             hideDelay: 0.01,
             queueDelay: 0
         )
-        let networkViewModel = NetworkViewModel(monitor: FakeNetworkMonitor(), settings: settingsViewModel.connectivity)
+        let wifiViewModel = WifiViewModel(monitor: FakeWifiMonitor(), settings: settingsViewModel.connectivity)
+        let vpnViewModel = VpnViewModel(monitor: FakeWifiMonitor(), settings: settingsViewModel.connectivity)
         let downloadMonitor = FakeFileDownloadMonitor()
         let downloadViewModel = DownloadViewModel(monitor: downloadMonitor)
         let nowPlayingService = FakeNowPlayingService()
@@ -546,7 +547,8 @@ private extension NotchEventCoordinatorIntegrationTests {
             notchViewModel: notchViewModel,
             bluetoothViewModel: BluetoothViewModel(),
             powerService: PowerService(startMonitoring: false),
-            networkViewModel: networkViewModel,
+            wifiViewModel: wifiViewModel,
+            vpnViewModel: vpnViewModel,
             downloadViewModel: downloadViewModel,
             airDropViewModel: airDropViewModel,
             fileTrayViewModel: fileTrayViewModel,

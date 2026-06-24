@@ -20,12 +20,10 @@ private struct SettingsSectionDescriptor {
 
 extension SettingsRootViewModel {
     enum SidebarGroup: String, CaseIterable, Identifiable {
-        case app
-        case homePage
-        case media
+        case application
         case connectivity
+        case mediaAndFiles
         case system
-        case info
 
         var id: String { rawValue }
 
@@ -44,26 +42,28 @@ extension SettingsRootViewModel {
 
     enum Section: String, CaseIterable, Identifiable {
         case general
-        case permissions
         case notch
-        case nowPlaying
-        case homePage
-        case calendar
-        case downloads
-        case drop
-        case timer
-        case screenRecording
-        case bluetooth
-        case focus
-        case network
-        case vpn
-        case battery
-        case hud
-        case lockScreen
+        case permissions
+        case about
         #if DEBUG
         case debug
         #endif
-        case about
+    
+        case wifi
+        case bluetooth
+        case vpn
+        case battery
+        case focus
+        
+        case nowPlaying
+        case downloads
+        case drop
+        
+        case hud
+        case timer
+        case calendar
+        case screenRecording
+        case lockScreen
 
         var id: String { rawValue }
 
@@ -122,7 +122,7 @@ extension SettingsRootViewModel {
             case "permissions":
                 return .permissions
             case "homePage", "homeScreen":
-                return .homePage
+                return .notch
             case "activities", "liveActivity":
                 return .nowPlaying
             case "airDrop", "dragAndDrop":
@@ -130,7 +130,7 @@ extension SettingsRootViewModel {
             case "temporaryActivity":
                 return .battery
             case "hotspot", "wifi", "vpn":
-                return .network
+                return .wifi
             case "calendar", "events":
                 return .calendar
             default:
@@ -147,17 +147,12 @@ extension SettingsRootViewModel {
 private enum SettingsSectionCatalog {
     static func sidebarGroupDescriptor(for group: SettingsRootViewModel.SidebarGroup) -> SettingsSidebarGroupDescriptor {
         switch group {
-        case .app:
+        case .application:
             return .init(
                 titleKey: "settings.group.application",
                 fallbackTitle: "Application"
             )
-        case .homePage:
-            return .init(
-                titleKey: "settings.group.homePage",
-                fallbackTitle: "Home Page"
-            )
-        case .media:
+        case .mediaAndFiles:
             return .init(
                 titleKey: "settings.group.media",
                 fallbackTitle: "Media & Files"
@@ -172,11 +167,6 @@ private enum SettingsSectionCatalog {
                 titleKey: "settings.group.system",
                 fallbackTitle: "System"
             )
-        case .info:
-            return .init(
-                titleKey: "settings.group.info",
-                fallbackTitle: "Info"
-            )
         }
     }
 
@@ -184,7 +174,7 @@ private enum SettingsSectionCatalog {
         switch section {
         case .general:
             return .init(
-                sidebarGroup: .app,
+                sidebarGroup: .application,
                 titleKey: "settings.section.general.title",
                 fallbackTitle: "General",
                 subtitleKey: "settings.section.general.subtitle",
@@ -207,7 +197,7 @@ private enum SettingsSectionCatalog {
 
         case .permissions:
             return .init(
-                sidebarGroup: .app,
+                sidebarGroup: .application,
                 titleKey: "settings.section.permissions.title",
                 fallbackTitle: "Permissions",
                 subtitleKey: "settings.section.permissions.subtitle",
@@ -228,7 +218,7 @@ private enum SettingsSectionCatalog {
 
         case .notch:
             return .init(
-                sidebarGroup: .app,
+                sidebarGroup: .application,
                 titleKey: "settings.section.notch.title",
                 fallbackTitle: "Notch",
                 subtitleKey: "settings.section.notch.subtitle",
@@ -251,7 +241,7 @@ private enum SettingsSectionCatalog {
 
         case .nowPlaying:
             return .init(
-                sidebarGroup: .media,
+                sidebarGroup: .mediaAndFiles,
                 titleKey: "settings.section.nowPlaying.title",
                 fallbackTitle: "Now Playing",
                 subtitleKey: "settings.section.nowPlaying.subtitle",
@@ -270,22 +260,7 @@ private enum SettingsSectionCatalog {
                 tint: .red,
                 resetGroup: .nowPlaying
             )
-            
-        case .homePage:
-            return .init(
-                sidebarGroup: .homePage,
-                titleKey: "settings.section.homePage.title",
-                fallbackTitle: "Home Page",
-                subtitleKey: "settings.section.homePage.subtitle",
-                fallbackSubtitle: "Interactive home page, widgets layout, and custom pages.",
-                searchKeywords: [
-                    "Home Page"
-                ],
-                systemImage: "house.fill",
-                imageName: nil,
-                tint: .black,
-                resetGroup: .homePage
-            )
+
             
         case .calendar:
             return .init(
@@ -306,7 +281,7 @@ private enum SettingsSectionCatalog {
 
         case .downloads:
             return .init(
-                sidebarGroup: .media,
+                sidebarGroup: .mediaAndFiles,
                 titleKey: "settings.section.downloads.title",
                 fallbackTitle: "Downloads",
                 subtitleKey: "settings.section.downloads.subtitle",
@@ -320,15 +295,15 @@ private enum SettingsSectionCatalog {
                     "default stroke",
                     "live activity"
                 ],
-                systemImage: "arrow.down.doc.fill",
+                systemImage: "arrow.down.circle.fill",
                 imageName: nil,
-                tint: .purple,
+                tint: .blue,
                 resetGroup: .downloads
             )
 
         case .drop:
             return .init(
-                sidebarGroup: .media,
+                sidebarGroup: .mediaAndFiles,
                 titleKey: "settings.section.drop.title",
                 fallbackTitle: "Drag&Drop",
                 subtitleKey: "settings.section.drop.subtitle",
@@ -345,13 +320,13 @@ private enum SettingsSectionCatalog {
                 ],
                 systemImage: "tray.and.arrow.down.fill",
                 imageName: nil,
-                tint: .blue,
+                tint: .black,
                 resetGroup: .drop
             )
 
         case .timer:
             return .init(
-                sidebarGroup: .homePage,
+                sidebarGroup: .system,
                 titleKey: "settings.section.timer.title",
                 fallbackTitle: "Timer",
                 subtitleKey: "settings.section.timer.subtitle",
@@ -434,13 +409,13 @@ private enum SettingsSectionCatalog {
                 resetGroup: .bluetooth
             )
 
-        case .network:
+        case .wifi:
             return .init(
                 sidebarGroup: .connectivity,
-                titleKey: "settings.section.network.title",
-                fallbackTitle: "Network",
-                subtitleKey: "settings.section.network.subtitle",
-                fallbackSubtitle: "Wi-Fi, VPN, and Hotspot activity in one place.",
+                titleKey: "settings.section.wifi.title",
+                fallbackTitle: "Wi-Fi",
+                subtitleKey: "settings.section.wifi.subtitle",
+                fallbackSubtitle: "Wi-Fi and Personal Hotspot activity.",
                 searchKeywords: [
                     "wifi",
                     "vpn",
@@ -451,15 +426,15 @@ private enum SettingsSectionCatalog {
                     "stroke",
                     "duration"
                 ],
-                systemImage: "network",
+                systemImage: "wifi",
                 imageName: nil,
                 tint: .blue,
-                resetGroup: .network
+                resetGroup: .wifi
             )
 
         case .vpn:
             return .init(
-                sidebarGroup: .homePage,
+                sidebarGroup: .connectivity,
                 titleKey: "settings.section.vpn.title",
                 fallbackTitle: "VPN",
                 subtitleKey: "settings.section.vpn.subtitle",
@@ -478,7 +453,7 @@ private enum SettingsSectionCatalog {
 
         case .battery:
             return .init(
-                sidebarGroup: .system,
+                sidebarGroup: .connectivity,
                 titleKey: "settings.section.battery.title",
                 fallbackTitle: "Battery",
                 subtitleKey: "settings.section.battery.subtitle",
@@ -494,7 +469,7 @@ private enum SettingsSectionCatalog {
                 ],
                 systemImage: "battery.100",
                 imageName: nil,
-                tint: .green.opacity(0.8),
+                tint: .green,
                 resetGroup: .battery
             )
 
@@ -515,9 +490,9 @@ private enum SettingsSectionCatalog {
                     "stroke",
                     "duration"
                 ],
-                systemImage: "slider.horizontal.below.rectangle",
+                systemImage: "slider.horizontal.below.sun.max",
                 imageName: nil,
-                tint: .purple,
+                tint: .mint,
                 resetGroup: .hud
             )
 
@@ -546,7 +521,7 @@ private enum SettingsSectionCatalog {
         #if DEBUG
         case .debug:
             return .init(
-                sidebarGroup: .app,
+                sidebarGroup: .application,
                 titleKey: "settings.section.debug.title",
                 fallbackTitle: "Debug",
                 subtitleKey: "settings.section.debug.subtitle",
@@ -565,7 +540,7 @@ private enum SettingsSectionCatalog {
 
         case .about:
             return .init(
-                sidebarGroup: .app,
+                sidebarGroup: .application,
                 titleKey: "settings.section.about.title",
                 fallbackTitle: "About",
                 subtitleKey: "settings.section.about.subtitle",

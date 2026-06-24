@@ -247,7 +247,7 @@ final class ConnectivitySettingsStore: SettingsStoreBase {
         ) ?? .percent
     }
 
-    func resetNetwork() {
+    func resetWifi() {
         isHotspotLiveActivityEnabled = defaultBool(for: GeneralSettingsStorage.Keys.hotspotLiveActivityEnabled)
         isWifiTemporaryActivityEnabled = defaultBool(for: GeneralSettingsStorage.Keys.wifiTemporaryActivityEnabled)
         wifiTemporaryActivityDuration = Self.clampTemporaryActivityDuration(

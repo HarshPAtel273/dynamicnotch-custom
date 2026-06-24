@@ -11,7 +11,8 @@ import Combine
 @MainActor
 final class NotchEventCoordinator: ObservableObject {
     private let notchViewModel: NotchViewModel
-    private let networkViewModel: NetworkViewModel
+    private let wifiViewModel: WifiViewModel
+    private let vpnViewModel: VpnViewModel
     private let downloadViewModel: DownloadViewModel
     private let settingsViewModel: SettingsViewModel
     private let nowPlayingViewModel: NowPlayingViewModel
@@ -59,7 +60,8 @@ final class NotchEventCoordinator: ObservableObject {
         notchViewModel: NotchViewModel,
         bluetoothViewModel: BluetoothViewModel,
         powerService: PowerService,
-        networkViewModel: NetworkViewModel,
+        wifiViewModel: WifiViewModel,
+        vpnViewModel: VpnViewModel,
         downloadViewModel: DownloadViewModel,
         airDropViewModel: AirDropNotchViewModel,
         fileTrayViewModel: FileTrayViewModel,
@@ -73,7 +75,8 @@ final class NotchEventCoordinator: ObservableObject {
         calendarViewModel: CalendarViewModel
     ) {
         self.notchViewModel = notchViewModel
-        self.networkViewModel = networkViewModel
+        self.wifiViewModel = wifiViewModel
+        self.vpnViewModel = vpnViewModel
         self.downloadViewModel = downloadViewModel
         self.settingsViewModel = settingsViewModel
         self.nowPlayingViewModel = nowPlayingViewModel
@@ -99,7 +102,8 @@ final class NotchEventCoordinator: ObservableObject {
         self.connectivityHandler = NotchConnectivityEventsHandler(
             notchViewModel: notchViewModel,
             bluetoothViewModel: bluetoothViewModel,
-            networkViewModel: networkViewModel,
+            wifiViewModel: wifiViewModel,
+            vpnViewModel: vpnViewModel,
             settingsViewModel: settingsViewModel
         )
         self.powerHandler = NotchPowerEventsHandler(
@@ -296,20 +300,28 @@ final class NotchEventCoordinator: ObservableObject {
         connectivityHandler.handleBluetooth(event)
     }
     
-    func handleNetworkEvent(_ event: NetworkEvent) {
+    func handleWifiEvent(_ event: WifiEvent) {
         guard !isLockScreenTransitionActive else { return }
         if event != .noInternetConnection {
             guard !isOnboardingActive else { return }
         }
 
-        connectivityHandler.handleNetwork(event)
-        networkViewModel.networkEvent = nil
+        connectivityHandler.handleWifi(event)
+        wifiViewModel.wifiEvent = nil
+    }
+
+    func handleVpnEvent(_ event: VpnEvent) {
+        guard !isLockScreenTransitionActive else { return }
+        guard !isOnboardingActive else { return }
+
+        connectivityHandler.handleVpn(event)
+        vpnViewModel.vpnEvent = nil
     }
 
     @discardableResult
     func requestInternetAccess() -> Bool {
-        guard networkViewModel.isInternetAvailable else {
-            handleNetworkEvent(.noInternetConnection)
+        guard wifiViewModel.isInternetAvailable else {
+            handleWifiEvent(.noInternetConnection)
             return false
         }
 
@@ -538,11 +550,11 @@ final class NotchEventCoordinator: ObservableObject {
                 guard let self else { return }
 
                 if isEnabled {
-                    if self.networkViewModel.hotspotActive {
-                        self.connectivityHandler.handleNetwork(.hotspotActive)
+                    if self.wifiViewModel.hotspotActive {
+                        self.connectivityHandler.handleWifi(.hotspotActive)
                     }
                 } else {
-                    self.notchViewModel.send(.hideLiveActivity(id: NotchContentRegistry.Network.hotspot.id))
+                    self.notchViewModel.send(.hideLiveActivity(id: NotchContentRegistry.Wifi.hotspot.id))
                 }
             }
             .store(in: &cancellables)
@@ -552,9 +564,9 @@ final class NotchEventCoordinator: ObservableObject {
             .sink { [weak self] _ in
                 guard let self else { return }
                 guard self.settingsViewModel.connectivity.isHotspotLiveActivityEnabled else { return }
-                guard self.networkViewModel.hotspotActive else { return }
+                guard self.wifiViewModel.hotspotActive else { return }
 
-                self.connectivityHandler.handleNetwork(.hotspotActive)
+                self.connectivityHandler.handleWifi(.hotspotActive)
             }
             .store(in: &cancellables)
 

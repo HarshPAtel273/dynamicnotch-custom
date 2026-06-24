@@ -91,7 +91,8 @@ final class DebugSettingsViewModel: ObservableObject {
     private let notchEventCoordinator: NotchEventCoordinator
     private let bluetoothViewModel: BluetoothViewModel
     private let powerService: PowerService
-    private let networkViewModel: NetworkViewModel
+    private let wifiViewModel: WifiViewModel
+    private let vpnViewModel: VpnViewModel
     private let downloadViewModel: DownloadViewModel
     private let timerViewModel: TimerViewModel
     private let nowPlayingViewModel: NowPlayingViewModel
@@ -109,7 +110,8 @@ final class DebugSettingsViewModel: ObservableObject {
         notchEventCoordinator: NotchEventCoordinator,
         bluetoothViewModel: BluetoothViewModel,
         powerService: PowerService,
-        networkViewModel: NetworkViewModel,
+        wifiViewModel: WifiViewModel,
+        vpnViewModel: VpnViewModel,
         downloadViewModel: DownloadViewModel,
         timerViewModel: TimerViewModel,
         settingsViewModel: SettingsViewModel,
@@ -120,7 +122,8 @@ final class DebugSettingsViewModel: ObservableObject {
         self.notchEventCoordinator = notchEventCoordinator
         self.bluetoothViewModel = bluetoothViewModel
         self.powerService = powerService
-        self.networkViewModel = networkViewModel
+        self.wifiViewModel = wifiViewModel
+        self.vpnViewModel = vpnViewModel
         self.downloadViewModel = downloadViewModel
         self.timerViewModel = timerViewModel
         self.settingsViewModel = settingsViewModel
@@ -139,18 +142,18 @@ final class DebugSettingsViewModel: ObservableObject {
     }
 
     func triggerWifiPreview() {
-        networkViewModel.wifiConnected = true
-        networkViewModel.wifiName = "Debug Wi-Fi"
-        notchEventCoordinator.handleNetworkEvent(.wifiConnected)
+        wifiViewModel.wifiConnected = true
+        wifiViewModel.wifiName = "Debug Wi-Fi"
+        notchEventCoordinator.handleWifiEvent(.wifiConnected)
     }
 
     func triggerNoInternetConnectionPreview() {
-        notchEventCoordinator.handleNetworkEvent(.noInternetConnection)
+        notchEventCoordinator.handleWifiEvent(.noInternetConnection)
     }
 
     func triggerVPNPreview() {
         applyVPNPreviewState()
-        notchEventCoordinator.handleNetworkEvent(.vpnConnected)
+        notchEventCoordinator.handleVpnEvent(.vpnConnected)
     }
 
     func triggerChargingPreview() {
@@ -236,8 +239,8 @@ final class DebugSettingsViewModel: ObservableObject {
     }
 
     func triggerHotspotHidePreview() {
-        networkViewModel.hotspotActive = false
-        notchEventCoordinator.handleNetworkEvent(.hotspotHide)
+        wifiViewModel.hotspotActive = false
+        notchEventCoordinator.handleWifiEvent(.hotspotHide)
         isHotspotPreviewEnabled = false
     }
 
@@ -347,11 +350,11 @@ final class DebugSettingsViewModel: ObservableObject {
 
     private func updateHotspotPreview() {
         if isHotspotPreviewEnabled {
-            networkViewModel.hotspotActive = true
-            notchEventCoordinator.handleNetworkEvent(.hotspotActive)
+            wifiViewModel.hotspotActive = true
+            notchEventCoordinator.handleWifiEvent(.hotspotActive)
         } else {
-            networkViewModel.hotspotActive = false
-            notchEventCoordinator.handleNetworkEvent(.hotspotHide)
+            wifiViewModel.hotspotActive = false
+            notchEventCoordinator.handleWifiEvent(.hotspotHide)
         }
     }
 
@@ -479,7 +482,7 @@ final class DebugSettingsViewModel: ObservableObject {
                 try await self.playBluetoothPreview()
                 try await self.playTemporaryPreview(
                     WifiConnectedNotchContent(
-                        networkViewModel: networkViewModel
+                        wifiViewModel: wifiViewModel
                     ),
                     id: NotchContentRegistry.DebugSequence.wifi,
                     duration: 3
@@ -716,7 +719,7 @@ final class DebugSettingsViewModel: ObservableObject {
         applyVPNPreviewState()
         try await playTemporaryPreview(
             VpnConnectedNotchContent(
-                networkViewModel: networkViewModel,
+                vpnViewModel: vpnViewModel,
                 settings: settingsViewModel.connectivity
             ),
             id: NotchContentRegistry.DebugSequence.vpn,
@@ -1088,9 +1091,9 @@ final class DebugSettingsViewModel: ObservableObject {
     }
 
     private func applyVPNPreviewState() {
-        networkViewModel.vpnConnected = true
-        networkViewModel.vpnName = "WireGuard Tunnel"
-        networkViewModel.vpnConnectedAt = .now.addingTimeInterval(-513)
+        vpnViewModel.vpnConnected = true
+        vpnViewModel.vpnName = "WireGuard Tunnel"
+        vpnViewModel.vpnConnectedAt = .now.addingTimeInterval(-513)
     }
 
     private func applyChargingPreviewState() {

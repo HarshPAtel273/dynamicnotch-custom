@@ -4,18 +4,21 @@ import SwiftUI
 final class NotchConnectivityEventsHandler {
     private let notchViewModel: NotchViewModel
     private let bluetoothViewModel: BluetoothViewModel
-    private let networkViewModel: NetworkViewModel
+    private let wifiViewModel: WifiViewModel
+    private let vpnViewModel: VpnViewModel
     private let settingsViewModel: SettingsViewModel
 
     init(
         notchViewModel: NotchViewModel,
         bluetoothViewModel: BluetoothViewModel,
-        networkViewModel: NetworkViewModel,
+        wifiViewModel: WifiViewModel,
+        vpnViewModel: VpnViewModel,
         settingsViewModel: SettingsViewModel
     ) {
         self.notchViewModel = notchViewModel
         self.bluetoothViewModel = bluetoothViewModel
-        self.networkViewModel = networkViewModel
+        self.wifiViewModel = wifiViewModel
+        self.vpnViewModel = vpnViewModel
         self.settingsViewModel = settingsViewModel
     }
 
@@ -36,28 +39,16 @@ final class NotchConnectivityEventsHandler {
         }
     }
 
-    func handleNetwork(_ event: NetworkEvent) {
+    func handleWifi(_ event: WifiEvent) {
         switch event {
         case .wifiConnected:
             guard settingsViewModel.isTemporaryActivityEnabled(.wifi) else { return }
             notchViewModel.send(
                 .showTemporaryNotification(
                     WifiConnectedNotchContent(
-                        networkViewModel: networkViewModel
+                        wifiViewModel: wifiViewModel
                     ),
                     duration: settingsViewModel.temporaryActivityDuration(for: .wifi)
-                )
-            )
-
-        case .vpnConnected:
-            guard settingsViewModel.isTemporaryActivityEnabled(.vpn) else { return }
-            notchViewModel.send(
-                .showTemporaryNotification(
-                    VpnConnectedNotchContent(
-                        networkViewModel: networkViewModel,
-                        settings: settingsViewModel.connectivity
-                    ),
-                    duration: settingsViewModel.temporaryActivityDuration(for: .vpn)
                 )
             )
 
@@ -83,7 +74,23 @@ final class NotchConnectivityEventsHandler {
             )
 
         case .hotspotHide:
-            notchViewModel.send(.hideLiveActivity(id: NotchContentRegistry.Network.hotspot.id))
+            notchViewModel.send(.hideLiveActivity(id: NotchContentRegistry.Wifi.hotspot.id))
+        }
+    }
+
+    func handleVpn(_ event: VpnEvent) {
+        switch event {
+        case .vpnConnected:
+            guard settingsViewModel.isTemporaryActivityEnabled(.vpn) else { return }
+            notchViewModel.send(
+                .showTemporaryNotification(
+                    VpnConnectedNotchContent(
+                        vpnViewModel: vpnViewModel,
+                        settings: settingsViewModel.connectivity
+                    ),
+                    duration: settingsViewModel.temporaryActivityDuration(for: .vpn)
+                )
+            )
         }
     }
 }

@@ -20,7 +20,8 @@ struct SettingsRootView: View {
     let notchViewModel: NotchViewModel
     let notchEventCoordinator: NotchEventCoordinator
     let bluetoothViewModel: BluetoothViewModel
-    let networkViewModel: NetworkViewModel
+    let wifiViewModel: WifiViewModel
+    let vpnViewModel: VpnViewModel
     let downloadViewModel: DownloadViewModel
     let nowPlayingViewModel: NowPlayingViewModel
     let timerViewModel: TimerViewModel
@@ -41,7 +42,8 @@ struct SettingsRootView: View {
         notchViewModel: NotchViewModel,
         notchEventCoordinator: NotchEventCoordinator,
         bluetoothViewModel: BluetoothViewModel,
-        networkViewModel: NetworkViewModel,
+        wifiViewModel: WifiViewModel,
+        vpnViewModel: VpnViewModel,
         downloadViewModel: DownloadViewModel,
         nowPlayingViewModel: NowPlayingViewModel,
         timerViewModel: TimerViewModel,
@@ -52,7 +54,8 @@ struct SettingsRootView: View {
         self.notchViewModel = notchViewModel
         self.notchEventCoordinator = notchEventCoordinator
         self.bluetoothViewModel = bluetoothViewModel
-        self.networkViewModel = networkViewModel
+        self.wifiViewModel = wifiViewModel
+        self.vpnViewModel = vpnViewModel
         self.downloadViewModel = downloadViewModel
         self.nowPlayingViewModel = nowPlayingViewModel
         self.timerViewModel = timerViewModel
@@ -63,7 +66,8 @@ struct SettingsRootView: View {
             notchEventCoordinator: notchEventCoordinator,
             bluetoothViewModel: bluetoothViewModel,
             powerService: powerService,
-            networkViewModel: networkViewModel,
+            wifiViewModel: wifiViewModel,
+            vpnViewModel: vpnViewModel,
             downloadViewModel: downloadViewModel,
             nowPlayingViewModel: nowPlayingViewModel,
             timerViewModel: timerViewModel,
@@ -313,7 +317,8 @@ struct SettingsRootView: View {
             detailContainer(for: section) {
                 NotchSettingsView(
                     powerService: powerService,
-                    applicationSettings: settingsViewModel.application
+                    applicationSettings: settingsViewModel.application,
+                    homePageSettings: settingsViewModel.homePage
                 )
             }
 
@@ -325,12 +330,6 @@ struct SettingsRootView: View {
                 )
             }
             
-        case .homePage:
-            detailContainer(for: section) {
-                HomePageSettingsView(
-                    settings: settingsViewModel.homePage
-                )
-            }
         case .calendar:
             detailContainer(for: section) {
                 CalendarSettingsView(
@@ -386,9 +385,9 @@ struct SettingsRootView: View {
                 )
             }
 
-        case .network:
+        case .wifi:
             detailContainer(for: section) {
-                NetworkSettingsView(
+                WifiSettingsView(
                     connectivitySettings: settingsViewModel.connectivity,
                     appearanceSettings: settingsViewModel.application
                 )

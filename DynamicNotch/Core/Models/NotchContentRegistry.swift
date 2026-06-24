@@ -35,15 +35,21 @@ enum NotchContentRegistry {
         static let inactive = NotchContentDescriptor(id: "screen.recording.inactive")
     }
 
-    enum Network {
-        static let bluetooth = NotchContentDescriptor(id: "bluetooth.connected")
+    enum Wifi {
         static let hotspot = NotchContentDescriptor(
             id: "hotspot.active",
             priorityKey: .hotspot
         )
         static let wifi = NotchContentDescriptor(id: "wifi.connected")
-        static let vpn = NotchContentDescriptor(id: "vpn.connected")
         static let noInternet = NotchContentDescriptor(id: "network.noInternetConnection")
+    }
+    
+    enum Bluetooth {
+        static let bluetooth = NotchContentDescriptor(id: "bluetooth.connected")
+    }
+    
+    enum Vpn {
+        static let vpn = NotchContentDescriptor(id: "vpn.connected")
     }
 
     enum Media {
@@ -163,7 +169,7 @@ enum NotchContentRegistry {
         static let focusOff = id(Focus.inactive.id)
         static let screenRecording = id(ScreenRecording.active.id)
         static let screenRecordingInactive = id(ScreenRecording.inactive.id)
-        static let hotspot = id(Network.hotspot.id)
+        static let hotspot = id(Wifi.hotspot.id)
         static let nowPlaying = id(Media.nowPlaying.id)
         static let download = id(Media.download.id)
         static let timer = id(Media.timer.id)
@@ -174,10 +180,10 @@ enum NotchContentRegistry {
         static let trayActive = id(DragAndDrop.trayActive.id)
         static let fileConverterActive = id(DragAndDrop.fileConverterActive.id)
         static let fileConverterConverted = id(DragAndDrop.fileConverterConverted.id)
-        static let bluetooth = id(Network.bluetooth.id)
-        static let wifi = id(Network.wifi.id)
-        static let vpn = id(Network.vpn.id)
-        static let noInternet = id(Network.noInternet.id)
+        static let bluetooth = id(Bluetooth.bluetooth.id)
+        static let wifi = id(Wifi.wifi.id)
+        static let vpn = id(Vpn.vpn.id)
+        static let noInternet = id(Wifi.noInternet.id)
         static let charging = id("charger")
         static let lowPower = id("lowPower")
         static let fullPower = id("fullPower")
