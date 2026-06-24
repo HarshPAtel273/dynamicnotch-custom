@@ -24,10 +24,10 @@ struct CalendarSettingsView: View {
             Divider().opacity(0.6)
 
             SettingsToggleRow(
-                title: "settings.activities.calendar.hideWhenFocused",
+                title: "Close at focus",
                 description: "settings.activities.calendar.hideWhenFocused.desc",
-                systemImage: "eye.slash",
-                color: .orange,
+                systemImage: "macwindow.and.cursorarrow",
+                color: .blue,
                 isOn: $settings.isCalendarHideWhenFocusedEnabled,
                 accessibilityIdentifier: "settings.activities.live.calendar.hideWhenFocused"
             )

@@ -9,7 +9,8 @@ final class AppContainer {
     let fileTrayViewModel = FileTrayViewModel()
     let fileConverterViewModel = FileConverterViewModel()
     let settingsViewModel: SettingsViewModel
-    let networkViewModel: NetworkViewModel
+    let wifiViewModel: WifiViewModel
+    let vpnViewModel: VpnViewModel
     let homePageViewModel = HomePageViewModel()
     let localTimerViewModel = LocalTimerViewModel()
     let calendarViewModel = CalendarViewModel()
@@ -45,7 +46,8 @@ final class AppContainer {
         notchViewModel: notchViewModel,
         bluetoothViewModel: bluetoothViewModel,
         powerService: powerService,
-        networkViewModel: networkViewModel,
+        wifiViewModel: wifiViewModel,
+        vpnViewModel: vpnViewModel,
         downloadViewModel: downloadViewModel,
         airDropViewModel: airDropViewModel,
         fileTrayViewModel: fileTrayViewModel,
@@ -73,7 +75,8 @@ final class AppContainer {
 
     init(isRunningUITests: Bool = ProcessInfo.processInfo.arguments.contains("-ui-testing")) {
         self.settingsViewModel = SettingsViewModel()
-        self.networkViewModel = NetworkViewModel(settings: settingsViewModel.connectivity)
+        self.wifiViewModel = WifiViewModel(settings: settingsViewModel.connectivity)
+        self.vpnViewModel = VpnViewModel(settings: settingsViewModel.connectivity)
         self.powerViewModel = PowerViewModel(
             powerService: powerService,
             batterySettings: settingsViewModel.battery

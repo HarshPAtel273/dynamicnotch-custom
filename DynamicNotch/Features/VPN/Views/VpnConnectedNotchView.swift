@@ -12,14 +12,14 @@ internal import AppKit
 struct VpnConnectedNotchView: View {
     @Environment(\.notchScale) private var scale
     @Environment(\.isDynamicIsland) private var isDynamicIsland
-    @ObservedObject var networkViewModel: NetworkViewModel
+    @ObservedObject var vpnViewModel: VpnViewModel
     @ObservedObject var settings: ConnectivitySettingsStore
     
     @State private var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var timeString: String = "00:00"
     
     private var resolvedVPNName: String {
-        let trimmedText = networkViewModel.vpnName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedText = vpnViewModel.vpnName.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmedText.isEmpty ? "Secure Tunnel" : trimmedText
     }
     
@@ -28,7 +28,7 @@ struct VpnConnectedNotchView: View {
     }
     
     private func updateTimer() {
-        guard let startDate = networkViewModel.vpnConnectedAt else {
+        guard let startDate = vpnViewModel.vpnConnectedAt else {
             timeString = "00:00"
             return
         }
@@ -51,7 +51,7 @@ struct VpnConnectedNotchView: View {
     @ViewBuilder
     private var compactView: some View {
         HStack {
-            if let bundleID = networkViewModel.vpnBundleID, let nsImage = getAppIcon(for: bundleID) {
+            if let bundleID = vpnViewModel.vpnBundleID, let nsImage = getAppIcon(for: bundleID) {
                 Image(nsImage: nsImage)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -80,7 +80,7 @@ struct VpnConnectedNotchView: View {
             
             HStack {
                 HStack(spacing: 16) {
-                    if let bundleID = networkViewModel.vpnBundleID, let nsImage = getAppIcon(for: bundleID) {
+                    if let bundleID = vpnViewModel.vpnBundleID, let nsImage = getAppIcon(for: bundleID) {
                         Image(nsImage: nsImage)
                             .resizable()
                             .aspectRatio(contentMode: .fit)

@@ -23,8 +23,8 @@ struct SettingsStrokeToggleRow: View {
         SettingsToggleRow(
             title: title,
             description: description,
-            systemImage: "square.on.square.squareshape.controlhandles",
-            color: .gray,
+            systemImage: "inset.filled.capsule",
+            color: .black,
             isOn: $isOn,
             accessibilityIdentifier: accessibilityIdentifier
         )

@@ -9,7 +9,8 @@ struct NotchView: View {
     @ObservedObject var notchEventCoordinator: NotchEventCoordinator
     @ObservedObject var powerViewModel: PowerViewModel
     @ObservedObject var bluetoothViewModel: BluetoothViewModel
-    @ObservedObject var networkViewModel: NetworkViewModel
+    @ObservedObject var wifiViewModel: WifiViewModel
+    @ObservedObject var vpnViewModel: VpnViewModel
     @ObservedObject var downloadViewModel: DownloadViewModel
     @ObservedObject var focusViewModel: FocusViewModel
     @ObservedObject var airDropViewModel: AirDropNotchViewModel
@@ -30,7 +31,8 @@ struct NotchView: View {
                         notchEventCoordinator: notchEventCoordinator,
                         powerViewModel: powerViewModel,
                         bluetoothViewModel: bluetoothViewModel,
-                        networkViewModel: networkViewModel,
+                        wifiViewModel: wifiViewModel,
+                        vpnViewModel: vpnViewModel,
                         downloadViewModel: downloadViewModel,
                         focusViewModel: focusViewModel,
                         airDropViewModel: airDropViewModel,

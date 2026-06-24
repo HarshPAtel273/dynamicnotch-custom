@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct HotspotActiveContent: NotchContentProtocol, DynamicIslandCustomizable {
-    let id = NotchContentRegistry.Network.hotspot.id
+    let id = NotchContentRegistry.Wifi.hotspot.id
     let settingsViewModel: SettingsViewModel
     
     var appearanceStyle: HotspotAppearanceStyle { settingsViewModel.connectivity.hotspotAppearanceStyle}
-    var priority: Int { NotchContentRegistry.Network.hotspot.priority }
+    var priority: Int { NotchContentRegistry.Wifi.hotspot.priority }
     var strokeColor: Color {
         settingsViewModel.isDefaultActivityStrokeEnabled || settingsViewModel.connectivity.isHotspotDefaultStrokeEnabled ?
             .white.opacity(0.2) :

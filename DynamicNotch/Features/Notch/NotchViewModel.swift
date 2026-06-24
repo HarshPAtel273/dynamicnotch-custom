@@ -3,38 +3,11 @@ import Combine
 
 typealias NotchScreenMetrics = (width: CGFloat, topInset: CGFloat, notchSize: CGSize?)
 
-enum NotchSwipeInteraction {
-    case dismiss
-    case restore
-}
-
-private enum SwipeFeedbackMetrics {
-    static let restoreHeightExpansion: CGFloat = 10
-    static let collapsedDismissWidthFactor: CGFloat = 0.18
-    static let collapsedDismissMinimumWidth: CGFloat = 28
-    static let collapsedDismissMaximumWidth: CGFloat = 44
-    static let expandedDismissHeightFactor: CGFloat = 0.16
-    static let expandedDismissMinimumHeight: CGFloat = 12
-    static let expandedDismissMaximumHeight: CGFloat = 28
-    static let restoreCornerRadiusExpansion: CGFloat = 4
-    static let restoreTopCornerRadiusExpansion: CGFloat = 12
-    static let expandedDismissCornerRadiusReduction: CGFloat = 4
-    static let dismissBlurRadius: CGFloat = 7
-    static let restoreBlurRadius: CGFloat = 4
-    static let dismissOpacityReduction: Double = 0.8
-    static let restoreOpacityReduction: Double = 0.5
-}
-
-private enum ExpansionTransitionTiming {
-    static let preparationDelay: UInt64 = 16_000_000
-    static let resetDelay: UInt64 = 120_000_000
-}
-
 @MainActor
 final class NotchViewModel: ObservableObject {
     @Published private(set) var notchModel = NotchModel()
     @Published private(set) var swipeStretchProgress: CGFloat = 0
-    @Published private(set) var swipeInteraction: NotchSwipeInteraction?
+    @Published private(set) var swipeInteraction: SwipeInteraction?
     @Published private(set) var stagedNotchHeight: CGFloat = NotchModel().baseHeight
     @Published private(set) var isExpandingLiveActivityTransition = false
     @Published private(set) var isActivityPresentationHidden = false
@@ -390,7 +363,7 @@ final class NotchViewModel: ObservableObject {
         engine.openActiveWindowLink()
     }
     
-    func updateSwipeStretch(for interaction: NotchSwipeInteraction, progress: CGFloat) {
+    func updateSwipeStretch(for interaction: SwipeInteraction, progress: CGFloat) {
         swipeStretchResetWorkItem?.cancel()
         swipeStretchResetWorkItem = nil
 
@@ -585,4 +558,9 @@ final class NotchViewModel: ObservableObject {
             stagedNotchHeight = targetHeight
         }
     }
+}
+
+private enum ExpansionTransitionTiming {
+    static let preparationDelay: UInt64 = 16_000_000
+    static let resetDelay: UInt64 = 120_000_000
 }

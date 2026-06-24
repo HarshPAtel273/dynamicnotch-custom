@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct VpnConnectedNotchContent : NotchContentProtocol, DynamicIslandCustomizable {
-    let id = NotchContentRegistry.Network.vpn.id
-    var priority: Int { NotchContentRegistry.Network.vpn.priority }
+    let id = NotchContentRegistry.Vpn.vpn.id
+    var priority: Int { NotchContentRegistry.Vpn.vpn.priority }
     
-    let networkViewModel: NetworkViewModel
+    let vpnViewModel: VpnViewModel
     let settings: ConnectivitySettingsStore
     
     func cornerRadius(baseRadius: CGFloat) -> (top: CGFloat, bottom: CGFloat) {
@@ -39,7 +39,7 @@ struct VpnConnectedNotchContent : NotchContentProtocol, DynamicIslandCustomizabl
     func makeView() -> AnyView {
         AnyView(
             VpnConnectedNotchView(
-                networkViewModel: networkViewModel,
+                vpnViewModel: vpnViewModel,
                 settings: settings
             )
         )

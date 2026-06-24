@@ -6,7 +6,8 @@ private struct SettingsRootDebugDependencies {
     let notchEventCoordinator: NotchEventCoordinator
     let bluetoothViewModel: BluetoothViewModel
     let powerService: PowerService
-    let networkViewModel: NetworkViewModel
+    let wifiViewModel: WifiViewModel
+    let vpnViewModel: VpnViewModel
     let downloadViewModel: DownloadViewModel
     let nowPlayingViewModel: NowPlayingViewModel
     let lockScreenManager: LockScreenManager
@@ -20,7 +21,8 @@ extension SettingsRootViewModel {
         notchEventCoordinator: NotchEventCoordinator?,
         bluetoothViewModel: BluetoothViewModel?,
         powerService: PowerService?,
-        networkViewModel: NetworkViewModel?,
+        wifiViewModel: WifiViewModel?,
+        vpnViewModel: VpnViewModel?,
         downloadViewModel: DownloadViewModel?,
         nowPlayingViewModel: NowPlayingViewModel?,
         timerViewModel: TimerViewModel?,
@@ -35,7 +37,8 @@ extension SettingsRootViewModel {
             notchEventCoordinator: notchEventCoordinator,
             bluetoothViewModel: bluetoothViewModel,
             powerService: powerService,
-            networkViewModel: networkViewModel,
+            wifiViewModel: wifiViewModel,
+            vpnViewModel: vpnViewModel,
             downloadViewModel: downloadViewModel,
             nowPlayingViewModel: nowPlayingViewModel,
             timerViewModel: timerViewModel,
@@ -50,7 +53,8 @@ extension SettingsRootViewModel {
             notchEventCoordinator: dependencies.notchEventCoordinator,
             bluetoothViewModel: dependencies.bluetoothViewModel,
             powerService: dependencies.powerService,
-            networkViewModel: dependencies.networkViewModel,
+            wifiViewModel: dependencies.wifiViewModel,
+            vpnViewModel: dependencies.vpnViewModel,
             downloadViewModel: dependencies.downloadViewModel,
             timerViewModel: dependencies.timerViewModel,
             settingsViewModel: settingsViewModel,
@@ -65,7 +69,8 @@ extension SettingsRootViewModel {
         notchEventCoordinator: NotchEventCoordinator?,
         bluetoothViewModel: BluetoothViewModel?,
         powerService: PowerService?,
-        networkViewModel: NetworkViewModel?,
+        wifiViewModel: WifiViewModel?,
+        vpnViewModel: VpnViewModel?,
         downloadViewModel: DownloadViewModel?,
         nowPlayingViewModel: NowPlayingViewModel?,
         timerViewModel: TimerViewModel?,
@@ -79,7 +84,10 @@ extension SettingsRootViewModel {
         )
         let resolvedBluetoothViewModel = bluetoothViewModel ?? BluetoothViewModel()
         let resolvedPowerService = powerService ?? PowerService(startMonitoring: false)
-        let resolvedNetworkViewModel = networkViewModel ?? NetworkViewModel(
+        let resolvedWifiViewModel = wifiViewModel ?? WifiViewModel(
+            settings: settingsViewModel.connectivity
+        )
+        let resolvedVpnViewModel = vpnViewModel ?? VpnViewModel(
             settings: settingsViewModel.connectivity
         )
         let resolvedDownloadViewModel = downloadViewModel ?? DownloadViewModel(
@@ -105,7 +113,8 @@ extension SettingsRootViewModel {
             notchViewModel: resolvedNotchViewModel,
             bluetoothViewModel: resolvedBluetoothViewModel,
             powerService: resolvedPowerService,
-            networkViewModel: resolvedNetworkViewModel,
+            wifiViewModel: resolvedWifiViewModel,
+            vpnViewModel: resolvedVpnViewModel,
             downloadViewModel: resolvedDownloadViewModel,
             airDropViewModel: resolvedAirDropViewModel,
             fileTrayViewModel: resolvedFileTrayViewModel,
@@ -124,7 +133,8 @@ extension SettingsRootViewModel {
             notchEventCoordinator: resolvedCoordinator,
             bluetoothViewModel: resolvedBluetoothViewModel,
             powerService: resolvedPowerService,
-            networkViewModel: resolvedNetworkViewModel,
+            wifiViewModel: resolvedWifiViewModel,
+            vpnViewModel: resolvedVpnViewModel,
             downloadViewModel: resolvedDownloadViewModel,
             nowPlayingViewModel: resolvedNowPlayingViewModel,
             lockScreenManager: resolvedLockScreenManager,

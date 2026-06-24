@@ -57,7 +57,7 @@ struct HUDSettingsView: View {
                 title: "Brightness HUD",
                 description: "Replace the system brightness HUD with DynamicNotch HUD.",
                 systemImage: "sun.max.fill",
-                color: .orange,
+                color: .cyan,
                 isOn: $settings.isBrightnessHUDEnabled,
                 accessibilityIdentifier: "settings.general.hud.brightness"
             )
@@ -70,7 +70,7 @@ struct HUDSettingsView: View {
                 title: "Keyboard HUD",
                 description: "Replace the keyboard backlight HUD with DynamicNotch HUD.",
                 systemImage: "light.max",
-                color: .orange,
+                color: .cyan,
                 isOn: $settings.isKeyboardHUDEnabled,
                 accessibilityIdentifier: "settings.general.hud.keyboard"
             )
@@ -83,7 +83,7 @@ struct HUDSettingsView: View {
                 title: "Volume HUD",
                 description: "Replace the system volume HUD with DynamicNotch HUD.",
                 systemImage: "speaker.wave.2.fill",
-                color: .orange,
+                color: .cyan,
                 isOn: $settings.isVolumeHUDEnabled,
                 accessibilityIdentifier: "settings.general.hud.volume"
             )

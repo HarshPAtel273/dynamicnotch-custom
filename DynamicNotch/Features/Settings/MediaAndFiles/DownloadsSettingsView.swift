@@ -39,8 +39,8 @@ struct DownloadsSettingsView: View {
             SettingsToggleRow(
                 title: "Downloads live activity",
                 description: "Show a live activity while files are being downloaded to monitored folders like Downloads, Desktop, and Documents.",
-                systemImage: "arrow.down.doc.fill",
-                color: .purple,
+                systemImage: "arrow.down.circle.fill",
+                color: .blue,
                 isOn: $mediaSettings.isDownloadsLiveActivityEnabled,
                 accessibilityIdentifier: "settings.activities.live.downloads"
             )

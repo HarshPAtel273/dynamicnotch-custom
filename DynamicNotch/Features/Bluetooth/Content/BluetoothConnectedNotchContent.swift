@@ -5,12 +5,12 @@ enum BluetoothEvent: Equatable {
 }
 
 struct BluetoothConnectedNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
-    let id = NotchContentRegistry.Network.bluetooth.id
+    let id = NotchContentRegistry.Bluetooth.bluetooth.id
     let bluetoothViewModel: BluetoothViewModel
     let settings: ConnectivitySettingsStore
     let applicationSettings: ApplicationSettingsStore
     
-    var priority: Int { NotchContentRegistry.Network.bluetooth.priority }
+    var priority: Int { NotchContentRegistry.Bluetooth.bluetooth.priority }
     
     var strokeColor: Color {
         guard settings.bluetoothAppearanceStyle.supportsBatteryPresentation,

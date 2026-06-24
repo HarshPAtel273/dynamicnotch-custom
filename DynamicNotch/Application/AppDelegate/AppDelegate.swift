@@ -16,7 +16,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     var powerService: PowerService { container.powerService }
     var bluetoothViewModel: BluetoothViewModel { container.bluetoothViewModel }
     var powerViewModel: PowerViewModel { container.powerViewModel }
-    var networkViewModel: NetworkViewModel { container.networkViewModel }
+    var wifiViewModel: WifiViewModel { container.wifiViewModel }
+    var vpnViewModel: VpnViewModel { container.vpnViewModel }
     var downloadViewModel: DownloadViewModel { container.downloadViewModel }
     var focusViewModel: FocusViewModel { container.focusViewModel }
     var settingsViewModel: SettingsViewModel { container.settingsViewModel }

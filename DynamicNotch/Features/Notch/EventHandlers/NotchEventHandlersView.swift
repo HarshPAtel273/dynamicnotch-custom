@@ -12,7 +12,8 @@ struct NotchEventHandlersView: View {
     let notchEventCoordinator: NotchEventCoordinator
     let powerViewModel: PowerViewModel
     let bluetoothViewModel: BluetoothViewModel
-    let networkViewModel: NetworkViewModel
+    let wifiViewModel: WifiViewModel
+    let vpnViewModel: VpnViewModel
     let downloadViewModel: DownloadViewModel
     let focusViewModel: FocusViewModel
     let airDropViewModel: AirDropNotchViewModel
@@ -31,8 +32,11 @@ struct NotchEventHandlersView: View {
             .onReceive(bluetoothViewModel.$event.compactMap { $0 }) { event in
                 notchEventCoordinator.handleBluetoothEvent(event)
             }
-            .onReceive(networkViewModel.$networkEvent.compactMap { $0 }) { event in
-                notchEventCoordinator.handleNetworkEvent(event)
+            .onReceive(wifiViewModel.$wifiEvent.compactMap { $0 }) { event in
+                notchEventCoordinator.handleWifiEvent(event)
+            }
+            .onReceive(vpnViewModel.$vpnEvent.compactMap { $0 }) { event in
+                notchEventCoordinator.handleVpnEvent(event)
             }
             .onReceive(downloadViewModel.$event.compactMap { $0 }) { event in
                 notchEventCoordinator.handleDownloadEvent(event)

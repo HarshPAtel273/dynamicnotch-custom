@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct NetworkSettingsView: View {
+struct WifiSettingsView: View {
     @ObservedObject var connectivitySettings: ConnectivitySettingsStore
     @ObservedObject var appearanceSettings: ApplicationSettingsStore
     
@@ -26,14 +26,14 @@ struct NetworkSettingsView: View {
     
     var body: some View {
         SettingsPageScrollView {
-            networkActivity
-            networkDuration
+            wifiActivity
+            wifiDuration
             hotspotAppearance
         }
     }
     
-    private var networkActivity: some View {
-        SettingsCard(title: "Network activity") {
+    private var wifiActivity: some View {
+        SettingsCard(title: "Wi-Fi activity") {
             SettingsToggleRow(
                 title: "Wi-Fi temporary activity",
                 description: "Show a short notification when Wi-Fi reconnects.",
@@ -72,8 +72,8 @@ struct NetworkSettingsView: View {
         }
     }
     
-    private var networkDuration: some View {
-        SettingsCard(title: "Network duration") {
+    private var wifiDuration: some View {
+        SettingsCard(title: "Wi-Fi duration") {
             SettingsSliderRow(
                 title: "Wi-Fi duration",
                 description: "Choose how long the Wi-Fi reconnect notification stays visible.",

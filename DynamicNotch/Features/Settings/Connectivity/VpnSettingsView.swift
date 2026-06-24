@@ -57,7 +57,7 @@ struct VpnSettingsView: View {
             SettingsToggleRow(
                 title: "VPN temporary activity",
                 description: "Show a short notification when a VPN connection becomes active.",
-                systemImage: "network",
+                systemImage: "network.badge.shield.half.filled",
                 color: .blue,
                 isOn: $connectivitySettings.isVpnTemporaryActivityEnabled,
                 accessibilityIdentifier: "settings.activities.temporary.vpn"

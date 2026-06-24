@@ -10,11 +10,11 @@ import SwiftUI
 struct WifiConnectedNotchView: View {
     @Environment(\.notchScale) var scale
     @Environment(\.isDynamicIsland) var isDynamicIsland
-    @ObservedObject var networkViewModel: NetworkViewModel
+    @ObservedObject var wifiViewModel: WifiViewModel
     
     var body: some View {
         HStack(spacing: 0) {
-            AnimatedWifiIcon(targetLevel: networkViewModel.wifiSignalLevel)
+            AnimatedWifiIcon(targetLevel: wifiViewModel.wifiSignalLevel)
                 .frame(width: 20, height: 18)
             
             Spacer()

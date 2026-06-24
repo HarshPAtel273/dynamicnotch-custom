@@ -84,7 +84,7 @@ final class FakePowerStateProvider: PowerStateProviding {
     }
 }
 
-final class FakeNetworkMonitor: NetworkMonitoring {
+final class FakeWifiMonitor: WifiMonitoring {
     var onStatusChange: ((_ wifi: Bool, _ hotspot: Bool, _ vpn: Bool) -> Void)?
     var currentWiFiName: String?
     var currentVPNName: String?

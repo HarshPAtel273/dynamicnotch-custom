@@ -1211,7 +1211,36 @@
         }
       }
     },
+    "Artwork cover" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Artwork cover"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Color de la carátula"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В цвет обложки"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "封面颜色"
+          }
+        }
+      }
+    },
     "Artwork-tinted progress" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2987,6 +3016,34 @@
         }
       }
     },
+    "Choose how to color the progress bar and timer labels." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose how to color the progress bar and timer labels."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige cómo colorear la barra de progreso y las etiquetas del temporizador."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выберите способ окрашивания прогресс-бара и меток времени."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择如何为进度条和计时器标签着色。"
+          }
+        }
+      }
+    },
     "Choose Lock Sound" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4213,6 +4270,7 @@
       }
     },
     "Color the progress bar and timer labels using the current artwork palette." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -6941,7 +6999,6 @@
       }
     },
     "Home Page" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -8848,6 +8905,7 @@
       }
     },
     "Network activity" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -8876,6 +8934,7 @@
       }
     },
     "Network duration" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9648,6 +9707,7 @@
       }
     },
     "Pages" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10381,6 +10441,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "预览持续的屏幕录制指示器。"
+          }
+        }
+      }
+    },
+    "Progress bar tint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progress bar tint"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tinte de la barra de progreso"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Окрашивание прогресс-бара"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "进度条着色"
           }
         }
       }
@@ -11560,6 +11648,7 @@
       }
     },
     "settings.activities.calendar.hideWhenFocused" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -16677,64 +16766,6 @@
         }
       }
     },
-    "settings.section.network.subtitle" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wi-Fi, VPN, and Hotspot activity in one place."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Actividad de Wi-Fi, VPN y Hotspot en un solo lugar."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wi‑Fi, VPN и активность Hotspot в одном месте."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wi-Fi、VPN 和热点活动集中在一处。"
-          }
-        }
-      }
-    },
-    "settings.section.network.title" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Network"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Red"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сеть"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "网络"
-          }
-        }
-      }
-    },
     "settings.section.notch.subtitle" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -17055,6 +17086,64 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "VPN"
+          }
+        }
+      }
+    },
+    "settings.section.wifi.subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wi-Fi and Personal Hotspot activity."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actividad de Wi-Fi y Hotspot personal."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Активность Wi-Fi и режима модема."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wi-Fi 和个人热点活动。"
+          }
+        }
+      }
+    },
+    "settings.section.wifi.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wi-Fi"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wi-Fi"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wi-Fi"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wi-Fi"
           }
         }
       }
@@ -20696,6 +20785,9 @@
           }
         }
       }
+    },
+    "Wi-Fi activity" : {
+
     },
     "Wi-Fi Connected" : {
       "localizations" : {
