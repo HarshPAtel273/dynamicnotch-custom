@@ -283,7 +283,7 @@ private enum SettingsSectionCatalog {
                 ],
                 systemImage: "house.fill",
                 imageName: nil,
-                tint: .blue,
+                tint: .black,
                 resetGroup: .homePage
             )
             

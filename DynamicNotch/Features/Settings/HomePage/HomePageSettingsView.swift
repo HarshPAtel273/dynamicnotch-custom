@@ -25,7 +25,7 @@ struct HomePageSettingsView: View {
                 title: "Home Page live activity",
                 description: "Show the Home Page in the notch.",
                 systemImage: "house.fill",
-                color: .blue,
+                color: .black,
                 isOn: $settings.isHomePageLiveActivityEnabled,
                 accessibilityIdentifier: "settings.activities.live.homePage"
             )
