@@ -9,7 +9,7 @@ class SettingsWindowController: NSWindowController {
     private init() {
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: SettingsWindowLayout.width, height: SettingsWindowLayout.height),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+            styleMask: [.titled, .closable, .miniaturizable, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
@@ -37,11 +37,13 @@ class SettingsWindowController: NSWindowController {
         window.toolbarStyle = .unified
         window.level = .normal
         
-        window.collectionBehavior = [.managed, .participatesInCycle]
+        window.collectionBehavior = [.managed, .participatesInCycle, .fullScreenNone]
         window.hidesOnDeactivate = false
         window.isExcludedFromWindowsMenu = false
         window.isRestorable = true
         window.identifier = NSUserInterfaceItemIdentifier("DynamicNotchSettingsWindow")
+        
+        window.standardWindowButton(.zoomButton)?.isEnabled = false
         
         window.delegate = self
     }
@@ -73,7 +75,8 @@ class SettingsWindowController: NSWindowController {
         _ = window
 
         window?.level = .normal
-        window?.collectionBehavior = [.managed, .participatesInCycle]
+        window?.collectionBehavior = [.managed, .participatesInCycle, .fullScreenNone]
+        window?.standardWindowButton(.zoomButton)?.isEnabled = false
         
         if window?.isVisible == true {
             NSApp.activate(ignoringOtherApps: true)
