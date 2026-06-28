@@ -1,36 +1,14 @@
-internal import AppKit
+//
+//  OverlayPanelFactory.swift
+//  DynamicNotch
+//
+//  Created by Евгений Петрукович on 6/28/26.
+//
 
-final class OverlayPanelWindow: NSPanel {
-    override var canBecomeKey: Bool { true }
-    override var canBecomeMain: Bool { true }
-}
-
-enum OverlayWindowLevel {
-    static let interactiveNotch = NSWindow.Level.mainMenu + 3
-    static let shieldingOverlay = NSWindow.Level(rawValue: Int(CGShieldingWindowLevel()))
-    static let lockScreenPanel = shieldingOverlay
-    static let lockScreenNotch = NSWindow.Level(rawValue: shieldingOverlay.rawValue + 1)
-}
-
-enum OverlayWindowLayout {
-    static let appCanvasSize = CGSize(width: 1000, height: 1000)
-
-    static func lockScreenCanvasFrame(on screen: NSScreen) -> NSRect {
-        screen.frame
-    }
-
-    static func topAnchoredFrame(on screen: NSScreen, size: CGSize, yOffset: CGFloat = 1) -> NSRect {
-        let x = floor(screen.frame.midX - size.width / 2)
-        let y = screen.frame.maxY - size.height + yOffset
-
-        return NSRect(origin: CGPoint(x: x, y: y), size: size)
-    }
-}
+import SwiftUI
 
 enum OverlayPanelFactory {
-    static func collectionBehavior(
-        includesFullscreenAuxiliary: Bool = true
-    ) -> NSWindow.CollectionBehavior {
+    static func collectionBehavior(includesFullscreenAuxiliary: Bool = true) -> NSWindow.CollectionBehavior {
         var behavior: NSWindow.CollectionBehavior = [
             .canJoinAllSpaces,
             .stationary,
