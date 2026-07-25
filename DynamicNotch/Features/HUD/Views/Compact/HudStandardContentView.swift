@@ -20,8 +20,9 @@ struct HudStandardContentView: View {
             
             indicatorView
         }
-        .padding(.vertical, verticalPadding)
-        .padding(.horizontal, horizontalPadding)
+        .padding(.vertical, 10)
+        .padding(.leading, leadingPadding.scaled(by: scale))
+        .padding(.trailing, trailingPadding.scaled(by: scale))
     }
     
     private var indicatorView: some View {
@@ -37,15 +38,18 @@ struct HudStandardContentView: View {
         )
     }
     
-    private var verticalPadding: CGFloat {
-        10
-    }
-    
-    private var horizontalPadding: CGFloat {
+    private var trailingPadding: CGFloat {
         let basePadding = indicatorStyle == .circle
             ? (isDynamicIsland ? 4 : 16)
             : (isDynamicIsland ? 8 : 16)
-        return basePadding.scaled(by: scale)
+        return CGFloat(basePadding)
+    }
+    
+    private var leadingPadding: CGFloat {
+        let basePadding = indicatorStyle == .circle
+            ? (isDynamicIsland ? 8 : 16)
+            : (isDynamicIsland ? 8 : 16)
+        return CGFloat(basePadding)
     }
     
     private var barIndicatorWidth: CGFloat {
