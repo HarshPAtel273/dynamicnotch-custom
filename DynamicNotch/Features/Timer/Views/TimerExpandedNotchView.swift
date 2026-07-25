@@ -65,8 +65,7 @@ struct TimerExpandedNotchView: View {
                 }
             } label: {
                 Image(systemName: "xmark")
-                    .font(.system(size: 20))
-                    .bold()
+                    .font(.system(size: 20, weight: .semibold))
                     .foregroundStyle(.white.opacity(0.8))
             }
             .buttonStyle(PrimaryButtonStyle(width: 45, height: 45, backgroundColor: .gray.opacity(0.3)))
