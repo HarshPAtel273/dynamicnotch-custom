@@ -18531,6 +18531,7 @@
       }
     },
     "settings.permissions.page.subtitle" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18559,6 +18560,7 @@
       }
     },
     "settings.permissions.page.title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
