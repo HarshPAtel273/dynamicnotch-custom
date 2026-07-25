@@ -18,15 +18,15 @@ struct FileConverterActiveNotchView: View {
     var body: some View {
         HStack {
             Image(systemName: "document.fill")
-                .font(.system(size: isDynamicIsland ? 16 : 18, weight: .semibold))
+                .font(.system(size: isDynamicIsland ? 14 : 18, weight: .semibold))
                 .foregroundStyle(.white)
 
             Spacer()
 
             statusIcon
         }
-        .padding(.leading, isDynamicIsland ? 8.scaled(by: scale) : 14.scaled(by: scale))
-        .padding(.trailing, isDynamicIsland ? 4.scaled(by: scale) : 12.scaled(by: scale))
+        .padding(.leading, isDynamicIsland ? 6.scaled(by: scale) : 14.scaled(by: scale))
+        .padding(.trailing, isDynamicIsland ? 3.scaled(by: scale) : 12.scaled(by: scale))
     }
 
     @ViewBuilder

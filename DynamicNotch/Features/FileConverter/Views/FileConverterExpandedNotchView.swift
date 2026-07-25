@@ -31,63 +31,43 @@ struct FileConverterExpandedActiveNotchView: View {
     
     @ViewBuilder
     private var statusIcon: some View {
-        ZStack {
-            Circle()
-                .fill(.white.opacity(0.1))
-                .frame(width: 32, height: 32)
+        switch fileConverterViewModel.status {
+        case .idle:
+            Image(systemName: "arrow.right")
+                .foregroundStyle(.white.opacity(0.6))
+                .font(.system(size: 18, weight: .semibold))
             
-            switch fileConverterViewModel.status {
-            case .idle:
-                Image(systemName: "arrow.right")
-                    .foregroundStyle(.white.opacity(0.6))
-                    .font(.system(size: 14, weight: .semibold))
-
-            case .converting:
-                FileConverterConvertingIndicator()
-                    .frame(width: 18, height: 18)
-
-            case .converted:
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(.green)
-                    .font(.system(size: 18, weight: .semibold))
-
-            case .failed:
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundStyle(.orange)
-                    .font(.system(size: 16, weight: .semibold))
-            }
+        case .converting:
+            FileConverterConvertingIndicator()
+                .frame(width: 20, height: 20)
+            
+        case .converted:
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(.green)
+                .font(.system(size: 20, weight: .semibold))
+            
+        case .failed:
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(.yellow)
+                .font(.system(size: 20, weight: .semibold))
         }
     }
     
     var body: some View {
         VStack(spacing: 12) {
             Spacer()
-            
             selectedFileRow
-            
-            if fileConverterViewModel.item != nil {
-                buttonActionRow
-            }
+            buttonActionRow
         }
         .padding(.horizontal, isDynamicIsland ? 12 : 36)
         .padding(.bottom, 10)
     }
     
     private var selectedFileRow: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 18)
-                .fill(.white.opacity(0.06))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 18)
-                        .stroke(.white.opacity(0.12), lineWidth: 1)
-                )
-                .frame(height: 76)
-            
-            HStack(spacing: 0) {
-                chooseFileRow
-                statusIcon
-                menuFormatRow
-            }
+        HStack(spacing: 6) {
+            chooseFileRow
+            statusIcon
+            menuFormatRow
         }
     }
     
@@ -99,14 +79,9 @@ struct FileConverterExpandedActiveNotchView: View {
             }
         }) {
             ZStack {
-                UnevenRoundedRectangle(
-                    topLeadingRadius: 18,
-                    bottomLeadingRadius: 18,
-                    bottomTrailingRadius: 0,
-                    topTrailingRadius: 0
-                )
-                .fill(.white.opacity(0.04))
-                .frame(height: 76)
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(.white.opacity(0.1))
+                    .frame(height: 76)
                 
                 VStack(alignment: .center, spacing: 3) {
                     if let item = fileConverterViewModel.item {
@@ -127,7 +102,6 @@ struct FileConverterExpandedActiveNotchView: View {
                         )
                     }
                 }
-                .padding(.horizontal, 8)
             }
         }
         .disabled(fileConverterViewModel.isConverting)
@@ -143,33 +117,27 @@ struct FileConverterExpandedActiveNotchView: View {
             }
         } label: {
             ZStack {
-                UnevenRoundedRectangle(
-                    topLeadingRadius: 0,
-                    bottomLeadingRadius: 0,
-                    bottomTrailingRadius: 18,
-                    topTrailingRadius: 18
-                )
-                .fill(.white.opacity(0.04))
-                .frame(height: 76)
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(.white.opacity(0.1))
+                    .frame(height: 76)
                 
-                VStack(spacing: 2) {
-                    HStack(spacing: 4) {
+                HStack(spacing: 8) {
+                    VStack(spacing: 2) {
                         Text(fileConverterViewModel.selectedFormat.title)
                             .lineLimit(1)
                             .font(.system(size: 15, weight: .bold))
                             .foregroundStyle(.white)
                         
-                        Image(systemName: "chevron.up.chevron.down")
-                            .font(.system(size: 9, weight: .bold))
+                        Text(verbatim: "Format")
+                            .lineLimit(1)
+                            .font(.system(size: 10, weight: .medium))
                             .foregroundStyle(.white.opacity(0.5))
                     }
                     
-                    Text(verbatim: "Format")
-                        .lineLimit(1)
-                        .font(.system(size: 10, weight: .medium))
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(.white.opacity(0.5))
                 }
-                .padding(.horizontal, 8)
             }
         }
         .menuStyle(.button)
@@ -179,47 +147,49 @@ struct FileConverterExpandedActiveNotchView: View {
     
     private var buttonActionRow: some View {
         HStack {
-            if fileConverterViewModel.item != nil && !fileConverterViewModel.isConverting {
-                Button(action: {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                        fileConverterViewModel.clear()
-                    }
-                }) {
-                    Text(verbatim: "Close Converter")
+            Button(action: { fileConverterViewModel.clear()}) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.8))
+            }
+            .buttonStyle(PrimaryButtonStyle(width: 40, height: 40, backgroundColor: .white.opacity(0.12)))
+            .disabled(fileConverterViewModel.isConverting)
+            .opacity(fileConverterViewModel.isConverting ? 0.6 : 1.0)
+            
+            Button(action: {
+                onRequestCollapse?()
+                SettingsWindowController.shared.showWindow(selecting: .fileConverter)
+            }) {
+                Image(systemName: "gearshape.fill")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.8))
+            }
+            .buttonStyle(PrimaryButtonStyle(width: 40, height: 40, backgroundColor: .white.opacity(0.12)))
+            
+            Spacer()
+            
+            if case .converted(let outputURL) = fileConverterViewModel.status {
+                Button(action: { NSWorkspace.shared.activateFileViewerSelecting([outputURL])}) {
+                    Text("Show in Finder")
                         .fontWeight(.medium)
-                        .foregroundStyle(.white.opacity(0.85))
+                        .foregroundStyle(.blue)
                 }
-                .buttonStyle(PrimaryButtonStyle(height: 36, backgroundColor: .white.opacity(0.12)))
+                .buttonStyle(PrimaryButtonStyle(height: 40, backgroundColor: .blue.opacity(0.2)))
+                
+            } else {
+                Button(action: {
+                    fileConverterViewModel.convert(options: FileConverterConversionOptions(settings: mediaSettings))
+                    onRequestCollapse?()
+                }) {
+                    Text(verbatim: fileConverterViewModel.isConverting
+                         ? "Converting file to \(fileConverterViewModel.selectedFormat.title)..."
+                         : "Convert file to \(fileConverterViewModel.selectedFormat.title)")
+                    .fontWeight(.medium)
+                    .foregroundStyle(.blue)
+                }
+                .buttonStyle(PrimaryButtonStyle(height: 40, backgroundColor: .blue.opacity(0.2)))
                 .disabled(fileConverterViewModel.isConverting)
-                
-                Spacer()
-                
-                if case .converted(let outputURL) = fileConverterViewModel.status {
-                    Button(action: {
-                        NSWorkspace.shared.activateFileViewerSelecting([outputURL])
-                    }) {
-                        Text("Show in Finder")
-                            .fontWeight(.medium)
-                            .foregroundStyle(.blue)
-                    }
-                    .buttonStyle(PrimaryButtonStyle(height: 36, backgroundColor: .blue.opacity(0.2)))
-                    
-                } else {
-                    Button(action: {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                            fileConverterViewModel.convert(
-                                options: FileConverterConversionOptions(settings: mediaSettings)
-                            )
-                        }
-                        onRequestCollapse?()
-                    }) {
-                        Text(verbatim: fileConverterViewModel.isConverting ? "Converting..." : "Convert to \(fileConverterViewModel.selectedFormat.title)")
-                            .fontWeight(.medium)
-                            .foregroundStyle(.blue)
-                    }
-                    .buttonStyle(PrimaryButtonStyle(height: 36, backgroundColor: .blue.opacity(0.2)))
-                    .disabled(fileConverterViewModel.isConverting || fileConverterViewModel.item == nil)
-                }
+                .opacity(fileConverterViewModel.isConverting ? 0.6 : 1.0)
             }
         }
     }

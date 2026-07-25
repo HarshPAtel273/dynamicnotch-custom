@@ -100,6 +100,11 @@ class SettingsWindowController: NSWindowController {
         NotificationCenter.default.post(name: NSNotification.Name("SelectSettingsSection"), object: section)
     }
     
+    func showWindow(selecting subPage: SettingsSubPage) {
+        showWindow()
+        NotificationCenter.default.post(name: NSNotification.Name("SelectSettingsSubPage"), object: subPage)
+    }
+    
     override func close() {
         super.close()
         relinquishFocus()
