@@ -479,12 +479,11 @@ final class DebugSettingsViewModel: ObservableObject {
         )
         
         shazamPreviewViewModel.matchedResult = sampleResult
-        shazamPreviewViewModel.state = .matched(sampleResult)
         
         notchViewModel.send(
             .showLiveActivity(
                 makeSequenceContent(
-                    ShazamNotchContent(shazamViewModel: shazamPreviewViewModel),
+                    ShazamMatchedContent(result: sampleResult, shazamViewModel: shazamPreviewViewModel),
                     id: Self.sequenceShazamID,
                     priorityBoost: 1_000
                 )

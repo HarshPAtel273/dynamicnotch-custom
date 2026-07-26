@@ -11,8 +11,20 @@ internal import AppKit
 struct ShazamMatchedView: View {
     let result: ShazamResult
     @ObservedObject var shazamViewModel: ShazamViewModel
-    var notchViewModel: NotchViewModel? = nil
-    var onRequestCollapse: (@MainActor () -> Void)? = nil
+    var notchViewModel: NotchViewModel?
+    var onRequestCollapse: (@MainActor () -> Void)?
+
+    init(
+        result: ShazamResult,
+        shazamViewModel: ShazamViewModel,
+        notchViewModel: NotchViewModel? = nil,
+        onRequestCollapse: (@MainActor () -> Void)? = nil
+    ) {
+        self.result = result
+        self.shazamViewModel = shazamViewModel
+        self.notchViewModel = notchViewModel
+        self.onRequestCollapse = onRequestCollapse
+    }
 
     var body: some View {
         HStack(spacing: 14) {

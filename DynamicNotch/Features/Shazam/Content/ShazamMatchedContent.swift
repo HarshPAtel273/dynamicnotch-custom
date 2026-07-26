@@ -24,6 +24,7 @@ struct ShazamMatchedContent: NotchContentProtocol, DynamicIslandCustomizable {
     }
     
     var priority: Int { NotchContentRegistry.Shazam.matched.priority }
+    
     var isExpandable: Bool { true }
     
     var strokeColor: Color {
@@ -35,7 +36,7 @@ struct ShazamMatchedContent: NotchContentProtocol, DynamicIslandCustomizable {
     }
 
     func expandedSize(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
-        .init(width: baseWidth + 140, height: baseHeight + 50)
+        .init(width: baseWidth + 140, height: baseHeight + 80)
     }
 
     func expandedCornerRadius(baseRadius: CGFloat) -> (top: CGFloat, bottom: CGFloat) {
@@ -51,7 +52,7 @@ struct ShazamMatchedContent: NotchContentProtocol, DynamicIslandCustomizable {
     }
     
     func expandedDynamicIslandSize(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
-        .init(width: baseWidth + 180, height: baseHeight + 50)
+        .init(width: baseWidth + 180, height: baseHeight + 80)
     }
     
     @MainActor

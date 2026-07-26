@@ -38,6 +38,7 @@ struct ShazamHomePageView: View {
 
             Button {
                 onRequestCollapse?()
+                shazamViewModel.notchViewModel = notchViewModel
                 shazamViewModel.startListening()
                 notchViewModel.send(
                     .showLiveActivity(

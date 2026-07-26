@@ -18,20 +18,21 @@ struct ShazamExpandedNotchView: View {
         VStack {
             Spacer()
             
-            switch shazamViewModel.state {
-            case .listening:
-                listeningView
-            case .matched(let result):
-                ShazamMatchedView(
-                    result: result,
-                    shazamViewModel: shazamViewModel,
-                    onRequestCollapse: onRequestClose
-                )
-            case .notFound:
-                notFoundView
-            case .error(let message):
-                errorView(message)
+            Group {
+                switch shazamViewModel.state {
+                case .listening:
+                    listeningView
+                case .notFound:
+                    notFoundView
+                case .error(let message):
+                    errorView(message)
+                }
             }
+            .transition(
+                .blurAndFade
+                    .combined(with: .opacity)
+                    .animation(.spring(response: 0.6))
+            )
         }
         .padding(.leading, isDynamicIsland ? 10 : 32)
         .padding(.trailing, isDynamicIsland ? 13 : 35)
@@ -53,6 +54,7 @@ struct ShazamExpandedNotchView: View {
                 
                 Text(verbatim: "Listening...")
                     .font(.system(size: 14, weight: .semibold))
+                    .lineLimit(1)
             }
             
             Spacer()
@@ -85,6 +87,7 @@ struct ShazamExpandedNotchView: View {
             Text(verbatim: "Couldn't identify song")
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.5))
+                .lineLimit(1)
             
             Spacer()
             
@@ -97,13 +100,15 @@ struct ShazamExpandedNotchView: View {
             }
             .buttonStyle(PrimaryButtonStyle(width: 45, height: 45, backgroundColor: .blue.opacity(0.2)))
         }
+        .padding(.leading)
+        .padding(.bottom, 5)
     }
     
     private func errorView(_ message: String) -> some View {
         HStack {
             Text(message)
-                .font(.system(size: 11))
-                .foregroundStyle(.secondary)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.5))
                 .lineLimit(2)
             
             Spacer()
@@ -112,10 +117,12 @@ struct ShazamExpandedNotchView: View {
                 onRequestClose?()
             } label: {
                 Image(systemName: "xmark")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundStyle(.white)
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundStyle(.blue)
             }
-            .buttonStyle(PrimaryButtonStyle(width: 40, height: 40, backgroundColor: .blue.opacity(0.3)))
+            .buttonStyle(PrimaryButtonStyle(width: 45, height: 45, backgroundColor: .blue.opacity(0.2)))
         }
+        .padding(.leading)
+        .padding(.bottom, 5)
     }
 }

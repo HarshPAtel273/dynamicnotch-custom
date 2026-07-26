@@ -13,7 +13,6 @@ import Combine
 
 enum ShazamState: Equatable {
     case listening
-    case matched(ShazamResult)
     case notFound
     case error(String)
 }
@@ -35,6 +34,8 @@ final class ShazamViewModel: ObservableObject {
     @Published var audioLevel: Float = 0.0
     @Published var bandLevels: [Float] = [0.18, 0.18, 0.18, 0.18, 0.18]
     @Published var matchedResult: ShazamResult? = nil
+    
+    var notchViewModel: NotchViewModel? = nil
     
     private var managedSession: SHManagedSession?
     private var listeningTask: Task<Void, Never>?
@@ -67,7 +68,7 @@ final class ShazamViewModel: ObservableObject {
                 }
             }
         case .denied, .restricted:
-            state = .error("Microphone access denied. Enable it in System Settings > Privacy & Security.")
+            state = .error("Microphone access denied.")
         @unknown default:
             performStartListening()
         }
@@ -180,7 +181,10 @@ final class ShazamViewModel: ObservableObject {
                         )
                         self.stopListening()
                         self.matchedResult = result
-                        self.state = .matched(result)
+                        if let notchVM = self.notchViewModel {
+                            notchVM.send(.hideLiveActivity(id: NotchContentRegistry.Shazam.active.id))
+                            notchVM.send(.showLiveActivity(ShazamMatchedContent(result: result, shazamViewModel: self, notchViewModel: notchVM)))
+                        }
                     }
                 case .noMatch:
                     break
