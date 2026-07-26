@@ -181,10 +181,6 @@ final class ShazamViewModel: ObservableObject {
                         )
                         self.stopListening()
                         self.matchedResult = result
-                        if let notchVM = self.notchViewModel {
-                            notchVM.send(.hideLiveActivity(id: NotchContentRegistry.Shazam.active.id))
-                            notchVM.send(.showLiveActivity(ShazamMatchedContent(result: result, shazamViewModel: self, notchViewModel: notchVM)))
-                        }
                     }
                 case .noMatch:
                     break

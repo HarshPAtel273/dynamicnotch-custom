@@ -10,9 +10,10 @@ internal import AppKit
 
 struct ShazamMatchedView: View {
     let result: ShazamResult
-    @ObservedObject var shazamViewModel: ShazamViewModel
     var notchViewModel: NotchViewModel?
     var onRequestCollapse: (@MainActor () -> Void)?
+    
+    @ObservedObject var shazamViewModel: ShazamViewModel
 
     init(
         result: ShazamResult,

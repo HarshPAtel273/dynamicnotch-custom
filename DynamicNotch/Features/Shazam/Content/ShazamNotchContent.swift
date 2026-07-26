@@ -56,14 +56,28 @@ struct ShazamNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
     
     @MainActor
     func makeExpandedView() -> AnyView {
-        AnyView(
-            ShazamExpandedNotchView(
-                shazamViewModel: shazamViewModel,
-                onRequestClose: { [weak shazamViewModel, weak notchViewModel] in
-                    shazamViewModel?.stopListening()
-                    notchViewModel?.send(.hideLiveActivity(id: NotchContentRegistry.Shazam.active.id))
-                }
+        if let result = shazamViewModel.matchedResult {
+            return AnyView(
+                ShazamMatchedView(
+                    result: result,
+                    shazamViewModel: shazamViewModel,
+                    notchViewModel: notchViewModel,
+                    onRequestCollapse: { [weak shazamViewModel, weak notchViewModel] in
+                        shazamViewModel?.matchedResult = nil
+                        notchViewModel?.send(.hideLiveActivity(id: NotchContentRegistry.Shazam.active.id))
+                    }
+                )
             )
-        )
+        } else {
+            return AnyView(
+                ShazamExpandedNotchView(
+                    shazamViewModel: shazamViewModel,
+                    onRequestClose: { [weak shazamViewModel, weak notchViewModel] in
+                        shazamViewModel?.stopListening()
+                        notchViewModel?.send(.hideLiveActivity(id: NotchContentRegistry.Shazam.active.id))
+                    }
+                )
+            )
+        }
     }
 }

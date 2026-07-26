@@ -483,7 +483,7 @@ final class DebugSettingsViewModel: ObservableObject {
         notchViewModel.send(
             .showLiveActivity(
                 makeSequenceContent(
-                    ShazamMatchedContent(result: sampleResult, shazamViewModel: shazamPreviewViewModel),
+                    ShazamNotchContent(shazamViewModel: shazamPreviewViewModel),
                     id: Self.sequenceShazamID,
                     priorityBoost: 1_000
                 )
