@@ -2688,6 +2688,7 @@
       }
     },
     "Choose how Drag&Drop target zones are colored." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -9912,6 +9913,7 @@
       }
     },
     "Motion animation" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10831,6 +10833,7 @@
       }
     },
     "Original" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11199,6 +11202,7 @@
       }
     },
     "Play animation of cell movement when hovering a file over an area." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22486,6 +22490,7 @@
       }
     },
     "Target colors" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

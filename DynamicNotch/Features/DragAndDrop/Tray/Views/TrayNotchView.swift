@@ -9,13 +9,48 @@ import SwiftUI
 
 struct TrayNotchView: View {
     @ObservedObject var airDropViewModel: AirDropNotchViewModel
-    let targetColorStyle: DragAndDropTargetColorStyle
+
+    private var isTargeted: Bool {
+        airDropViewModel.targetedDropTarget == .tray
+    }
 
     var body: some View {
-        DragAndDropDropZoneView(
-            target: .tray,
-            isTargeted: airDropViewModel.targetedDropTarget == .tray,
-            targetColorStyle: targetColorStyle
-        )
+        VStack {
+            Spacer()
+
+            TrayDropZoneContent(isTargeted: isTargeted)
+                .frame(maxWidth: .infinity, maxHeight: AirDropDropZoneMetrics.height)
+        }
+        .padding(.horizontal, AirDropDropZoneMetrics.horizontalPadding)
+        .padding(.vertical, AirDropDropZoneMetrics.verticalPadding)
+    }
+}
+
+struct TrayDropZoneContent: View {
+    let isTargeted: Bool
+
+    private var fillColor: Color {
+        isTargeted ? Color.white.opacity(0.2) : .clear.opacity(0)
+    }
+
+    private var strokeColor: Color {
+        Color.white.opacity(0.6)
+    }
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: AirDropDropZoneMetrics.cornerRadius)
+            .fill(fillColor)
+            .stroke(strokeColor, style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
+            .overlay {
+                HStack {
+                    VStack(spacing: 4) {
+                        DragAndDropTarget.tray.icon()
+                        DragAndDropTarget.tray.titleIcon()
+                    }
+
+                    Spacer()
+                }
+                .padding(.leading)
+            }
     }
 }

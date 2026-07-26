@@ -24,7 +24,7 @@ struct AirDropNotchContent: NotchContentProtocol {
     var strokeColor: Color {
         settingsViewModel.isDefaultActivityStrokeEnabled ?
         .white.opacity(0.2) :
-        DragAndDropTarget.airDrop.activityStrokeColor(for: settingsViewModel.mediaAndFiles.dragAndDropTargetColorStyle)
+        DragAndDropTarget.airDrop.activityStrokeColor
     }
     
     func cornerRadius(baseRadius: CGFloat) -> (top: CGFloat, bottom: CGFloat) {
@@ -39,8 +39,7 @@ struct AirDropNotchContent: NotchContentProtocol {
     func makeView() -> AnyView {
         AnyView(
             AirDropNotchView(
-                airDropViewModel: airDropViewModel,
-                targetColorStyle: settingsViewModel.mediaAndFiles.dragAndDropTargetColorStyle
+                airDropViewModel: airDropViewModel
             )
         )
     }

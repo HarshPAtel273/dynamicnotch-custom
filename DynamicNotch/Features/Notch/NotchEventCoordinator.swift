@@ -641,14 +641,6 @@ final class NotchEventCoordinator: ObservableObject {
             }
             .store(in: &cancellables)
 
-        settingsViewModel.mediaAndFiles.$dragAndDropTargetColorStyle
-            .removeDuplicates()
-            .sink { [weak self] _ in
-                self?.dragAndDropHandler.refreshDragAndDropPresentation()
-                self?.syncFileConverterLiveActivity()
-            }
-            .store(in: &cancellables)
-
         settingsViewModel.mediaAndFiles.$isTrayLiveActivityEnabled
             .removeDuplicates()
             .sink { [weak self] isEnabled in
@@ -676,13 +668,6 @@ final class NotchEventCoordinator: ObservableObject {
                         .hideLiveActivity(id: NotchContentRegistry.DragAndDrop.fileConverterActive.id)
                     )
                 }
-            }
-            .store(in: &cancellables)
-
-        settingsViewModel.mediaAndFiles.$isDropMotionAnimationEnabled
-            .removeDuplicates()
-            .sink { [weak self] _ in
-                self?.dragAndDropHandler.refreshDragAndDropPresentation()
             }
             .store(in: &cancellables)
 

@@ -15,47 +15,17 @@ enum DragAndDropTarget: String, Hashable, CaseIterable {
     }
 
     var color: Color {
-        color(for: .original)
-    }
-
-    func color(for style: DragAndDropTargetColorStyle) -> Color {
-        switch style {
-        case .white:
-            return .white
-
-        case .original:
-            return originalColor
-
-        case .accent:
-            return .accentColor
-        }
-    }
-
-    func activityStrokeColor(for style: DragAndDropTargetColorStyle) -> Color {
-        switch style {
-        case .white:
-            return .white.opacity(0.2)
-
-        case .original, .accent:
-            return color(for: style).opacity(0.3)
-        }
-    }
-
-    private var originalColor: Color {
         switch self {
         case .airDrop:
             return .blue
-            
+
         case .tray:
             return .white
         }
     }
 
-    private func titleColor(for style: DragAndDropTargetColorStyle) -> Color {
-        switch style {
-        case .white, .original, .accent:
-            return color(for: style)
-        }
+    var activityStrokeColor: Color {
+        color.opacity(0.3)
     }
 
     var acceptsDrop: Bool {
@@ -64,26 +34,24 @@ enum DragAndDropTarget: String, Hashable, CaseIterable {
             return true
         }
     }
-    
+
     @ViewBuilder
-    func titleIcon(colorStyle: DragAndDropTargetColorStyle = .original) -> some View {
+    func titleIcon() -> some View {
         switch self {
         case .airDrop:
             Text(verbatim: "AirDrop")
                 .font(.system(size: 12))
-                .foregroundStyle(titleColor(for: colorStyle))
-            
+                .foregroundStyle(.white)
+
         case .tray:
             Text(verbatim: "Tray")
                 .font(.system(size: 12))
-                .foregroundStyle(titleColor(for: colorStyle))
+                .foregroundStyle(color)
         }
     }
 
     @ViewBuilder
-    func icon(colorStyle: DragAndDropTargetColorStyle = .original) -> some View {
-        let color = color(for: colorStyle)
-
+    func icon() -> some View {
         switch self {
         case .airDrop:
             Image("airdrop.white")
@@ -91,7 +59,7 @@ enum DragAndDropTarget: String, Hashable, CaseIterable {
                 .renderingMode(.template)
                 .foregroundStyle(color)
                 .frame(width: 28, height: 28)
-            
+
         case .tray:
             Image(systemName: "tray.full.fill")
                 .font(.system(size: 22))

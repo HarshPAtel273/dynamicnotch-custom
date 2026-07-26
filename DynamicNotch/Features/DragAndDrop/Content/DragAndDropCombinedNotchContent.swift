@@ -20,22 +20,16 @@ struct DragAndDropCombinedNotchContent: NotchContentProtocol, DynamicIslandCusto
             return .white.opacity(0.2)
         }
 
-        let colorStyle = settingsViewModel.mediaAndFiles.dragAndDropTargetColorStyle
-
         switch airDropViewModel.targetedDropTarget {
         case .airDrop:
-            return DragAndDropTarget.airDrop.activityStrokeColor(for: colorStyle)
+            return DragAndDropTarget.airDrop.activityStrokeColor
 
         case .tray:
-            return DragAndDropTarget.tray.activityStrokeColor(for: colorStyle)
+            return DragAndDropTarget.tray.activityStrokeColor
 
         case nil:
-            return colorStyle == .accent ? .accentColor.opacity(0.3) : .white.opacity(0.2)
+            return .white.opacity(0.2)
         }
-    }
-
-    private var targetColorStyle: DragAndDropTargetColorStyle {
-        settingsViewModel.mediaAndFiles.dragAndDropTargetColorStyle
     }
 
     func cornerRadius(baseRadius: CGFloat) -> (top: CGFloat, bottom: CGFloat) {
@@ -58,9 +52,7 @@ struct DragAndDropCombinedNotchContent: NotchContentProtocol, DynamicIslandCusto
     func makeView() -> AnyView {
         AnyView(
             DragAndDropCombinedNotchView(
-                airDropViewModel: airDropViewModel,
-                isMotionAnimationEnabled: settingsViewModel.mediaAndFiles.isDropMotionAnimationEnabled,
-                targetColorStyle: targetColorStyle
+                airDropViewModel: airDropViewModel
             )
         )
     }

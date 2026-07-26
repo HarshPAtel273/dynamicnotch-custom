@@ -93,12 +93,6 @@ final class MediaAndFilesSettingsStore: SettingsStoreBase {
             persist(isDragAndDropDefaultStrokeEnabled, for: GeneralSettingsStorage.Keys.airDropDefaultStrokeEnabled)
         }
     }
-    
-    @Published var isDropMotionAnimationEnabled: Bool {
-        didSet {
-            persist(isDropMotionAnimationEnabled, for: GeneralSettingsStorage.Keys.dropMotionAnimationEnabled)
-        }
-    }
 
     @Published var isTrayLiveActivityEnabled: Bool {
         didSet {
@@ -199,15 +193,6 @@ final class MediaAndFilesSettingsStore: SettingsStoreBase {
         }
     }
 
-    @Published var dragAndDropTargetColorStyle: DragAndDropTargetColorStyle {
-        didSet {
-            persist(
-                dragAndDropTargetColorStyle.rawValue,
-                for: GeneralSettingsStorage.Keys.dragAndDropTargetColorStyle
-            )
-        }
-    }
-
     @Published var isTimerLiveActivityEnabled: Bool {
         didSet {
             persist(isTimerLiveActivityEnabled, for: GeneralSettingsStorage.Keys.timerLiveActivityEnabled)
@@ -259,10 +244,6 @@ final class MediaAndFilesSettingsStore: SettingsStoreBase {
         )
         self.isDragAndDropLiveActivityEnabled = defaults.bool(forKey: GeneralSettingsStorage.Keys.airDropLiveActivityEnabled)
         self.isDragAndDropDefaultStrokeEnabled = defaults.bool(forKey: GeneralSettingsStorage.Keys.airDropDefaultStrokeEnabled)
-        self.isDropMotionAnimationEnabled = Self.resolvedBool(
-            defaults: defaults,
-            key: GeneralSettingsStorage.Keys.dropMotionAnimationEnabled
-        )
         self.isTrayLiveActivityEnabled = Self.resolvedBool(
             defaults: defaults,
             key: GeneralSettingsStorage.Keys.trayLiveActivityEnabled
@@ -309,9 +290,6 @@ final class MediaAndFilesSettingsStore: SettingsStoreBase {
         self.dragAndDropActivityMode = DragAndDropActivityMode.resolved(
             defaults.string(forKey: GeneralSettingsStorage.Keys.dragAndDropActivityMode)
         )
-        self.dragAndDropTargetColorStyle = DragAndDropTargetColorStyle.resolved(
-            defaults.string(forKey: GeneralSettingsStorage.Keys.dragAndDropTargetColorStyle)
-        )
         self.isTimerLiveActivityEnabled = defaults.bool(forKey: GeneralSettingsStorage.Keys.timerLiveActivityEnabled)
         self.isTimerDefaultStrokeEnabled = defaults.bool(forKey: GeneralSettingsStorage.Keys.timerDefaultStrokeEnabled)
         super.init(defaults: defaults)
@@ -349,12 +327,8 @@ final class MediaAndFilesSettingsStore: SettingsStoreBase {
     func resetDragAndDrop() {
         isDragAndDropLiveActivityEnabled = defaultBool(for: GeneralSettingsStorage.Keys.airDropLiveActivityEnabled)
         isDragAndDropDefaultStrokeEnabled = defaultBool(for: GeneralSettingsStorage.Keys.airDropDefaultStrokeEnabled)
-        isDropMotionAnimationEnabled = defaultBool(for: GeneralSettingsStorage.Keys.dropMotionAnimationEnabled)
         dragAndDropActivityMode = DragAndDropActivityMode.resolved(
             defaultString(for: GeneralSettingsStorage.Keys.dragAndDropActivityMode)
-        )
-        dragAndDropTargetColorStyle = DragAndDropTargetColorStyle.resolved(
-            defaultString(for: GeneralSettingsStorage.Keys.dragAndDropTargetColorStyle)
         )
         resetFileTray()
         resetFileConverter()
