@@ -13,6 +13,7 @@ enum HomePages: String, CaseIterable, Hashable, Codable, Identifiable {
     case vpn
     case systemStats
     case fileConverter
+    case shazam
     
     var id: String { rawValue }
     
@@ -23,6 +24,7 @@ enum HomePages: String, CaseIterable, Hashable, Codable, Identifiable {
         case .vpn: return "VPN"
         case .systemStats: return "Stats"
         case .fileConverter: return "Converter"
+        case .shazam: return "Shazam"
         }
     }
     
@@ -33,6 +35,7 @@ enum HomePages: String, CaseIterable, Hashable, Codable, Identifiable {
         case .vpn: return "Manage VPN connections."
         case .systemStats: return "Monitor system resources."
         case .fileConverter: return "Convert files to multiple formats."
+        case .shazam: return "Recognize music around you."
         }
     }
     
@@ -43,6 +46,7 @@ enum HomePages: String, CaseIterable, Hashable, Codable, Identifiable {
         case .vpn: return "network.badge.shield.half.filled"
         case .systemStats: return "cpu"
         case .fileConverter: return "arrow.trianglehead.2.clockwise.rotate.90"
+        case .shazam: return "shazam.logo.fill"
         }
     }
     
@@ -53,6 +57,7 @@ enum HomePages: String, CaseIterable, Hashable, Codable, Identifiable {
         case .vpn: return .blue
         case .systemStats: return .green
         case .fileConverter: return .blue
+        case .shazam: return .blue
         }
     }
     
@@ -63,6 +68,7 @@ enum HomePages: String, CaseIterable, Hashable, Codable, Identifiable {
         case .vpn: return .white
         case .systemStats: return .white
         case .fileConverter: return .white
+        case .shazam: return .white
         }
     }
 }
@@ -75,6 +81,7 @@ struct HomePageNotchView: View {
     let localTimerViewModel: LocalTimerViewModel
     let nowPlayingViewModel: NowPlayingViewModel
     let fileConverterViewModel: FileConverterViewModel
+    let shazamViewModel: ShazamViewModel
     let mediaAndFilesSettings: MediaAndFilesSettingsStore
     let applicationSettings: ApplicationSettingsStore
     let initialPage: HomePages
@@ -85,12 +92,13 @@ struct HomePageNotchView: View {
     @State private var isPageSettled = true
     @State private var settleTask: Task<Void, Never>? = nil
     
-    init(notchViewModel: NotchViewModel, settings: HomePageSettingsStore, localTimerViewModel: LocalTimerViewModel, nowPlayingViewModel: NowPlayingViewModel, fileConverterViewModel: FileConverterViewModel, mediaAndFilesSettings: MediaAndFilesSettingsStore, applicationSettings: ApplicationSettingsStore, initialPage: HomePages) {
+    init(notchViewModel: NotchViewModel, settings: HomePageSettingsStore, localTimerViewModel: LocalTimerViewModel, nowPlayingViewModel: NowPlayingViewModel, fileConverterViewModel: FileConverterViewModel, shazamViewModel: ShazamViewModel, mediaAndFilesSettings: MediaAndFilesSettingsStore, applicationSettings: ApplicationSettingsStore, initialPage: HomePages) {
         self.notchViewModel = notchViewModel
         self.settings = settings
         self.localTimerViewModel = localTimerViewModel
         self.nowPlayingViewModel = nowPlayingViewModel
         self.fileConverterViewModel = fileConverterViewModel
+        self.shazamViewModel = shazamViewModel
         self.mediaAndFilesSettings = mediaAndFilesSettings
         self.applicationSettings = applicationSettings
         self.initialPage = initialPage
@@ -221,6 +229,7 @@ struct HomePageNotchView: View {
                             localTimerViewModel: localTimerViewModel,
                             nowPlayingViewModel: nowPlayingViewModel,
                             fileConverterViewModel: fileConverterViewModel,
+                            shazamViewModel: shazamViewModel,
                             mediaAndFilesSettings: mediaAndFilesSettings,
                             applicationSettings: applicationSettings
                         )
@@ -243,6 +252,7 @@ struct HomePageNotchView: View {
                         localTimerViewModel: localTimerViewModel,
                         nowPlayingViewModel: nowPlayingViewModel,
                         fileConverterViewModel: fileConverterViewModel,
+                        shazamViewModel: shazamViewModel,
                         mediaAndFilesSettings: mediaAndFilesSettings,
                         applicationSettings: applicationSettings
                     )
@@ -257,7 +267,7 @@ struct HomePageNotchView: View {
     private func pageView(for page: HomePages) -> some View {
         switch page {
         case .camera:
-            CameraNotchView(notchViewModel: notchViewModel, settings: settings, localTimerViewModel: localTimerViewModel, nowPlayingViewModel: nowPlayingViewModel, fileConverterViewModel: fileConverterViewModel, mediaAndFilesSettings: mediaAndFilesSettings, applicationSettings: applicationSettings)
+            CameraNotchView(notchViewModel: notchViewModel, settings: settings, localTimerViewModel: localTimerViewModel, nowPlayingViewModel: nowPlayingViewModel, fileConverterViewModel: fileConverterViewModel, shazamViewModel: shazamViewModel, mediaAndFilesSettings: mediaAndFilesSettings, applicationSettings: applicationSettings)
         case .localTimer:
             LocalTimerSetupNotchView(localTimerViewModel: localTimerViewModel)
         case .vpn:
@@ -271,6 +281,25 @@ struct HomePageNotchView: View {
                     notchViewModel.handleOutsideClick()
                 }
             )
+        case .shazam:
+            if let result = shazamViewModel.matchedResult {
+                ShazamMatchedView(
+                    result: result,
+                    shazamViewModel: shazamViewModel,
+                    notchViewModel: notchViewModel,
+                    onRequestCollapse: {
+                        notchViewModel.handleOutsideClick()
+                    }
+                )
+            } else {
+                ShazamHomePageView(
+                    shazamViewModel: shazamViewModel,
+                    notchViewModel: notchViewModel,
+                    onRequestCollapse: {
+                        notchViewModel.handleOutsideClick()
+                    }
+                )
+            }
         }
     }
 }

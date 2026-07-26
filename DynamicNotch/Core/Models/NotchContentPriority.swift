@@ -13,6 +13,7 @@ enum NotchContentPriority {
         case calendar
         case fileConverterActive
         case screenRecording
+        case shazam
 
         var id: String { rawValue }
 
@@ -38,6 +39,8 @@ enum NotchContentPriority {
                 NotchContentPriority.fileConverterActive
             case .screenRecording:
                 NotchContentPriority.screenRecording
+            case .shazam:
+                NotchContentPriority.shazam
             }
         }
         
@@ -63,6 +66,8 @@ enum NotchContentPriority {
                 "settings.notch.priorities.row.fileConverterActive"
             case .calendar:
                 "settings.notch.priorities.row.calendar"
+            case .shazam:
+                "settings.notch.priorities.row.shazam"
             }
         }
         
@@ -88,6 +93,8 @@ enum NotchContentPriority {
                 return "record.circle"
             case .calendar:
                 return "calendar"
+            case .shazam:
+                return "shazam.logo.fill"
             }
         }
         
@@ -113,6 +120,8 @@ enum NotchContentPriority {
                     .red
             case .calendar:
                     .blue
+            case .shazam:
+                    .blue
             }
         }
     }
@@ -129,6 +138,7 @@ enum NotchContentPriority {
         .calendar,
         .fileConverterActive,
         .screenRecording,
+        .shazam,
     ]
 
     static let `default` = 0
@@ -141,6 +151,7 @@ enum NotchContentPriority {
     static let calendar = 7
     static let fileConverterActive = 8
     static let screenRecording = 9
+    static let shazam = 10
 
     static let homePage = -10000
     static let notchSizeWidth = 10000

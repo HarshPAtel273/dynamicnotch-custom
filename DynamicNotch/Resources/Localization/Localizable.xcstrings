@@ -11727,6 +11727,9 @@
         }
       }
     },
+    "Preview the Shazam live activity and audio wave equalizer." : {
+
+    },
     "Preview the software update available live activity." : {
 
     },
@@ -11899,6 +11902,9 @@
           }
         }
       }
+    },
+    "Recognize music around you." : {
+
     },
     "Red" : {
       "extractionState" : "stale",
@@ -17692,6 +17698,9 @@
         }
       }
     },
+    "settings.notch.priorities.row.shazam" : {
+
+    },
     "settings.notch.priorities.row.timer" : {
       "localizations" : {
         "en" : {
@@ -18385,6 +18394,64 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Камера"
+          }
+        }
+      }
+    },
+    "settings.permissions.microphone.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow Microphone access for song recognition via Shazam."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permite el acceso al micrófono para el reconocimiento de canciones con Shazam."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разрешите доступ к микрофону для распознавания музыки с помощью Shazam."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "允许麦克风权限以通过 Shazam 识别音乐。"
+          }
+        }
+      }
+    },
+    "settings.permissions.microphone.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microphone"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Micrófono"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Микрофон"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "麦克风"
           }
         }
       }
@@ -20325,6 +20392,12 @@
     "settings.title" : {
 
     },
+    "Shazam" : {
+
+    },
+    "Shazam Match" : {
+
+    },
     "Short-lived overlays appear above live activities so quick system events still feel prominent." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -21834,6 +21907,9 @@
           }
         }
       }
+    },
+    "Simulate finding a matched track in Shazam." : {
+
     },
     "Slightly enlarge the notch when the pointer enters the interactive area." : {
       "extractionState" : "stale",

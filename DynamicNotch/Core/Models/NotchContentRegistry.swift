@@ -71,6 +71,17 @@ enum NotchContentRegistry {
             priorityKey: .timer
         )
     }
+
+    enum Shazam {
+        static let active = NotchContentDescriptor(
+            id: "shazam.active",
+            priorityKey: .shazam
+        )
+        static let matched = NotchContentDescriptor(
+            id: "shazam.matched",
+            priorityKey: .shazam
+        )
+    }
     
     enum HomePage {
         static let active = NotchContentDescriptor(
@@ -200,6 +211,7 @@ enum NotchContentRegistry {
         static let notchSizeHeight = id(NotchSize.height.id)
         static let lockScreen = id(LockScreen.activity.id)
         static let softwareUpdate = id(Settings.softwareUpdate.id)
+        static let shazam = id(Shazam.active.id)
 
         static func id(_ suffix: String) -> String {
             "\(prefix)\(suffix)"

@@ -8,6 +8,7 @@ final class AppContainer {
     let airDropViewModel = AirDropNotchViewModel()
     let fileTrayViewModel = FileTrayViewModel()
     let fileConverterViewModel = FileConverterViewModel()
+    let shazamViewModel = ShazamViewModel()
     let settingsViewModel: SettingsViewModel
     let wifiViewModel: WifiViewModel
     let vpnViewModel: VpnViewModel
@@ -54,6 +55,7 @@ final class AppContainer {
         airDropViewModel: airDropViewModel,
         fileTrayViewModel: fileTrayViewModel,
         fileConverterViewModel: fileConverterViewModel,
+        shazamViewModel: shazamViewModel,
         settingsViewModel: settingsViewModel,
         nowPlayingViewModel: nowPlayingViewModel,
         timerViewModel: timerViewModel,

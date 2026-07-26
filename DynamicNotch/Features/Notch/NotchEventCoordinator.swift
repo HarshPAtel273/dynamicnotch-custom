@@ -18,6 +18,7 @@ final class NotchEventCoordinator: ObservableObject {
     private let nowPlayingViewModel: NowPlayingViewModel
     private let fileTrayViewModel: FileTrayViewModel
     private let fileConverterViewModel: FileConverterViewModel
+    private let shazamViewModel: ShazamViewModel
     private let timerViewModel: TimerViewModel
     private let screenRecordingViewModel: ScreenRecordingViewModel
     private let localTimerViewModel: LocalTimerViewModel
@@ -44,10 +45,10 @@ final class NotchEventCoordinator: ObservableObject {
         OnboardingSteps.contains(id: notchViewModel.notchModel.temporaryNotificationContent?.id) ||
         {
             #if DEBUG
-            OnboardingSteps.containsDebug(id: notchViewModel.notchModel.liveActivityContent?.id) ||
+            return OnboardingSteps.containsDebug(id: notchViewModel.notchModel.liveActivityContent?.id) ||
             OnboardingSteps.containsDebug(id: notchViewModel.notchModel.temporaryNotificationContent?.id)
             #else
-            false
+            return false
             #endif
         }()
     }
@@ -67,6 +68,7 @@ final class NotchEventCoordinator: ObservableObject {
         airDropViewModel: AirDropNotchViewModel,
         fileTrayViewModel: FileTrayViewModel,
         fileConverterViewModel: FileConverterViewModel,
+        shazamViewModel: ShazamViewModel,
         settingsViewModel: SettingsViewModel,
         nowPlayingViewModel: NowPlayingViewModel,
         timerViewModel: TimerViewModel,
@@ -84,6 +86,7 @@ final class NotchEventCoordinator: ObservableObject {
         self.nowPlayingViewModel = nowPlayingViewModel
         self.fileTrayViewModel = fileTrayViewModel
         self.fileConverterViewModel = fileConverterViewModel
+        self.shazamViewModel = shazamViewModel
         self.timerViewModel = timerViewModel
         self.screenRecordingViewModel = screenRecordingViewModel
         self.localTimerViewModel = localTimerViewModel
@@ -140,7 +143,8 @@ final class NotchEventCoordinator: ObservableObject {
             settingsViewModel: settingsViewModel,
             localTimerViewModel: localTimerViewModel,
             nowPlayingViewModel: nowPlayingViewModel,
-            fileConverterViewModel: fileConverterViewModel
+            fileConverterViewModel: fileConverterViewModel,
+            shazamViewModel: shazamViewModel
         )
         self.calendarHandler = NotchCalendarEventsHandler(
             notchViewModel: notchViewModel,

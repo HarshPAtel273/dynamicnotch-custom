@@ -15,6 +15,7 @@ enum Kind: String {
     case bluetooth
     case mediaControls
     case camera
+    case microphone
     case calendar
     case fullDiskAccess
 }
@@ -42,6 +43,7 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
     @Published private(set) var bluetoothAuthorization: CBManagerAuthorization
     @Published private(set) var canPostMediaKeyEvents: Bool
     @Published private(set) var cameraAuthorization: AVAuthorizationStatus
+    @Published private(set) var microphoneAuthorization: AVAuthorizationStatus
     @Published private(set) var calendarAuthorization: EKAuthorizationStatus
     @Published private(set) var isFullDiskAccessGranted: Bool
 
@@ -61,6 +63,9 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
     private static let cameraPrivacySettingsURL = URL(
         string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera"
     )
+    private static let microphonePrivacySettingsURL = URL(
+        string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone"
+    )
     private static let calendarPrivacySettingsURL = URL(
         string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars"
     )
@@ -73,6 +78,7 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
         self.isAccessibilityTrusted = Self.currentAccessibilityTrustState()
         self.canPostMediaKeyEvents = Self.currentPostEventAccessState()
         self.cameraAuthorization = AVCaptureDevice.authorizationStatus(for: .video)
+        self.microphoneAuthorization = AVCaptureDevice.authorizationStatus(for: .audio)
         self.calendarAuthorization = EKEventStore.authorizationStatus(for: .event)
         self.isFullDiskAccessGranted = FullDiskAccessAuthorization.hasPermission()
 
@@ -91,6 +97,7 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
         isAccessibilityTrusted = Self.currentAccessibilityTrustState()
         canPostMediaKeyEvents = Self.currentPostEventAccessState()
         cameraAuthorization = AVCaptureDevice.authorizationStatus(for: .video)
+        microphoneAuthorization = AVCaptureDevice.authorizationStatus(for: .audio)
         calendarAuthorization = EKEventStore.authorizationStatus(for: .event)
         isFullDiskAccessGranted = FullDiskAccessAuthorization.hasPermission()
     }
@@ -166,6 +173,20 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
                 accessibilityIdentifier: "settings.permissions.camera"
             ),
             PermissionItem(
+                kind: .microphone,
+                titleKey: "settings.permissions.microphone.title",
+                fallbackTitle: "Microphone",
+                descriptionKey: "settings.permissions.microphone.description",
+                fallbackDescription: "Allow Microphone access for song recognition via Shazam.",
+                assetImageName: nil,
+                systemImage: "mic.fill",
+                tintColor: .orange,
+                isGranted: microphoneAuthorization == .authorized,
+                actionTitleKey: microphoneActionTitleKey,
+                fallbackActionTitle: microphoneFallbackActionTitle,
+                accessibilityIdentifier: "settings.permissions.microphone"
+            ),
+            PermissionItem(
                 kind: .calendar,
                 titleKey: "settings.permissions.calendar.title",
                 fallbackTitle: "Calendar",
@@ -206,6 +227,8 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
             requestPostEventAccess()
         case .camera:
             requestCameraAccess()
+        case .microphone:
+            requestMicrophoneAccess()
         case .calendar:
             requestCalendarAccess()
         case .fullDiskAccess:
@@ -309,6 +332,32 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
         }
     }
 
+    private var microphoneActionTitleKey: String? {
+        switch microphoneAuthorization {
+        case .authorized:
+            return nil
+        case .notDetermined:
+            return "settings.permissions.action.grantAccess"
+        case .restricted, .denied:
+            return "settings.permissions.action.openPrivacySettings"
+        @unknown default:
+            return "settings.permissions.action.openPrivacySettings"
+        }
+    }
+
+    private var microphoneFallbackActionTitle: String? {
+        switch microphoneAuthorization {
+        case .authorized:
+            return nil
+        case .notDetermined:
+            return "Grant Access"
+        case .restricted, .denied:
+            return "Open Privacy Settings"
+        @unknown default:
+            return "Open Privacy Settings"
+        }
+    }
+
     private var calendarActionTitleKey: String? {
         switch calendarAuthorization {
         case .fullAccess, .writeOnly:
@@ -349,6 +398,23 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
             Self.openCameraPrivacySettings()
         @unknown default:
             Self.openCameraPrivacySettings()
+        }
+    }
+
+    private func requestMicrophoneAccess() {
+        switch microphoneAuthorization {
+        case .authorized:
+            refresh()
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .audio) { [weak self] _ in
+                DispatchQueue.main.async {
+                    self?.refresh()
+                }
+            }
+        case .restricted, .denied:
+            Self.openMicrophonePrivacySettings()
+        @unknown default:
+            Self.openMicrophonePrivacySettings()
         }
     }
 
@@ -410,6 +476,11 @@ final class SettingsPermissionController: NSObject, ObservableObject, CBCentralM
     private static func openCameraPrivacySettings() {
         guard let cameraPrivacySettingsURL else { return }
         NSWorkspace.shared.open(cameraPrivacySettingsURL)
+    }
+
+    private static func openMicrophonePrivacySettings() {
+        guard let microphonePrivacySettingsURL else { return }
+        NSWorkspace.shared.open(microphonePrivacySettingsURL)
     }
 
     private static func openCalendarPrivacySettings() {

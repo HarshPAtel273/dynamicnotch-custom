@@ -4,6 +4,8 @@
 <dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Мы используем камеру для отображения превью</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Мы используем микрофон для распознавания музыки с помощью Shazam.</string>
 	<key>NSCalendarsUsageDescription</key>
 	<string>DynamicNotch needs access to your calendar to display upcoming events in the notch.</string>
 	<key>NSCalendarsFullAccessUsageDescription</key>

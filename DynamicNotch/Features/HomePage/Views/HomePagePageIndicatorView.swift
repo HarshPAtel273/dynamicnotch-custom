@@ -204,6 +204,7 @@ struct HomePagePageIndicatorView: View {
                     localTimerViewModel: homePageContent.localTimerViewModel,
                     nowPlayingViewModel: homePageContent.nowPlayingViewModel,
                     fileConverterViewModel: homePageContent.fileConverterViewModel,
+                    shazamViewModel: homePageContent.shazamViewModel,
                     mediaAndFilesSettings: settingsViewModel.mediaAndFiles,
                     applicationSettings: settingsViewModel.application
                 )
