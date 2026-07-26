@@ -169,26 +169,24 @@ final class NotchViewModel: ObservableObject {
                     SwipeFeedbackMetrics.expandedDismissMaximumHeight
                 )
                 
-                let widthExpansion = baseSize.width * SwipeFeedbackMetrics.expandedDismissWidthExpansionFactor
-                
-                return CGSize(
-                    width: baseSize.width + (widthExpansion * progress),
+                calculatedSize = CGSize(
+                    width: baseSize.width,
                     height: max(model.baseHeight, baseSize.height - (heightCompression * progress))
+                )
+            } else {
+                let widthCompression = min(
+                    max(baseSize.width * SwipeFeedbackMetrics.collapsedDismissWidthFactor, SwipeFeedbackMetrics.collapsedDismissMinimumWidth),
+                    SwipeFeedbackMetrics.collapsedDismissMaximumWidth
+                )
+                
+                calculatedSize = CGSize(
+                    width: max(baseSize.height, baseSize.width - (widthCompression * progress)),
+                    height: baseSize.height
                 )
             }
             
-            let widthCompression = min(
-                max(baseSize.width * SwipeFeedbackMetrics.collapsedDismissWidthFactor, SwipeFeedbackMetrics.collapsedDismissMinimumWidth),
-                SwipeFeedbackMetrics.collapsedDismissMaximumWidth
-            )
-            
-            return CGSize(
-                width: max(baseSize.height, baseSize.width - (widthCompression * progress)),
-                height: baseSize.height
-            )
-            
         case .restore:
-            return CGSize(
+            calculatedSize = CGSize(
                 width: baseSize.width,
                 height: baseSize.height + (SwipeFeedbackMetrics.restoreHeightExpansion * progress)
             )
@@ -206,45 +204,12 @@ final class NotchViewModel: ObservableObject {
     var interactiveCornerRadius: (top: CGFloat, bottom: CGFloat) {
         let model = displayedNotchModel
         let baseCornerRadius = model.cornerRadius
-        let progress = easedSwipeStretchProgress
         let radiusOffset = focusCloseStretchHeight * 0.3
         
-        switch swipeInteraction {
-        case .dismiss:
-            if model.isPresentingExpandedLiveActivity || model.size.height > model.baseHeight + 1 {
-                let isHeightGreater = model.size.height > model.baseHeight
-                let widthDiff = max(0, model.size.width - model.baseWidth)
-                let widthFactor = widthDiff / model.baseWidth
-                let topProgress = isHeightGreater ? (SwipeFeedbackMetrics.dismissTopCornerRadiusReduction * progress * widthFactor) : 0
-                
-                return (
-                    top: max(0, baseCornerRadius.top - topProgress),
-                    bottom: max(
-                        baseCornerRadius.top,
-                        baseCornerRadius.bottom - (SwipeFeedbackMetrics.expandedDismissCornerRadiusReduction * progress)
-                    )
-                )
-            }
-            
-            return baseCornerRadius
-            
-        case .restore:
-            let isHeightGreater = model.size.height > model.baseHeight
-            let widthDiff = max(0, model.size.width - model.baseWidth)
-            let widthFactor = widthDiff / model.baseWidth
-            let topProgress = isHeightGreater ? (SwipeFeedbackMetrics.restoreTopCornerRadiusExpansion * progress * widthFactor) : 0
-            
-            return (
-                top: baseCornerRadius.top + topProgress,
-                bottom: baseCornerRadius.bottom + (SwipeFeedbackMetrics.restoreCornerRadiusExpansion * progress)
-            )
-            
-        case nil:
-            return (
-                top: baseCornerRadius.top + radiusOffset,
-                bottom: baseCornerRadius.bottom + radiusOffset
-            )
-        }
+        return (
+            top: baseCornerRadius.top + radiusOffset,
+            bottom: baseCornerRadius.bottom + radiusOffset
+        )
     }
     
     var dynamicIslandCornerRadius: CGFloat {

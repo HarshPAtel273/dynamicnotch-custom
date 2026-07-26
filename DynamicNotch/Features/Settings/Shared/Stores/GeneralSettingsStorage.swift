@@ -64,11 +64,9 @@ enum GeneralSettingsStorage {
         static let airDropLiveActivityEnabled = "settings.live.airDrop"
         static let airDropDefaultStrokeEnabled = "settings.live.airDrop.defaultStroke"
         static let dragAndDropActivityMode = "settings.live.dragAndDrop.mode"
-        static let dragAndDropTargetColorStyle = "settings.live.dragAndDrop.targetColorStyle"
         static let fileTrayUsageMode = "settings.live.tray.usageMode"
         static let fileTrayScrollDirection = "settings.live.tray.scrollDirection"
         static let fileTrayRemoveButtonHidden = "settings.live.tray.removeButtonHidden"
-        static let dropMotionAnimationEnabled = "settings.live.drop.motionAnimation"
         static let trayLiveActivityEnabled = "settings.live.tray"
         static let fileConverterLiveActivityEnabled = "settings.live.fileConverter"
         static let fileConverterConvertedTemporaryActivityDuration = "settings.temporary.fileConverter.converted.duration"
@@ -198,8 +196,6 @@ enum GeneralSettingsStorage {
         Keys.airDropLiveActivityEnabled: true,
         Keys.airDropDefaultStrokeEnabled: false,
         Keys.dragAndDropActivityMode: DragAndDropActivityMode.combined.rawValue,
-        Keys.dragAndDropTargetColorStyle: DragAndDropTargetColorStyle.original.rawValue,
-        Keys.dropMotionAnimationEnabled: true,
         Keys.trayLiveActivityEnabled: true,
         Keys.fileConverterLiveActivityEnabled: true,
         Keys.fileConverterConvertedTemporaryActivityDuration: 3,

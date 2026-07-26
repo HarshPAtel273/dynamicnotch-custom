@@ -24,7 +24,7 @@ struct TrayNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
     var strokeColor: Color {
         settingsViewModel.isDefaultActivityStrokeEnabled ?
         .white.opacity(0.2) :
-        DragAndDropTarget.tray.activityStrokeColor(for: settingsViewModel.mediaAndFiles.dragAndDropTargetColorStyle)
+        DragAndDropTarget.tray.activityStrokeColor
     }
     
     func cornerRadius(baseRadius: CGFloat) -> (top: CGFloat, bottom: CGFloat) {
@@ -39,8 +39,7 @@ struct TrayNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
     func makeView() -> AnyView {
         AnyView(
             TrayNotchView(
-                airDropViewModel: airDropViewModel,
-                targetColorStyle: settingsViewModel.mediaAndFiles.dragAndDropTargetColorStyle
+                airDropViewModel: airDropViewModel
             )
         )
     }

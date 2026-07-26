@@ -19,9 +19,9 @@ struct ResizeAwareBlurModifier: AnimatableModifier {
     private let swipeInteraction: SwipeInteraction?
 
     private enum Metrics {
-        static let maxBlurRadius: CGFloat = 5
-        static let maxNormalizedDelta: CGFloat = 0.18
-        static let maxOpacityReduction: Double = 0.28
+        static let maxBlurRadius: CGFloat = 3
+        static let maxNormalizedDelta: CGFloat = 0.2
+        static let maxOpacityReduction: Double = 0.3
     }
 
     init(size: CGSize, baseHeight: CGFloat = 38, interactiveBlur: CGFloat, interactiveOpacity: Double, swipeProgress: CGFloat, swipeInteraction: SwipeInteraction?) {
@@ -64,19 +64,19 @@ struct ResizeAwareBlurModifier: AnimatableModifier {
             switch interaction {
             case .dismiss:
                 if isBaseHeight {
-                    yScale = 1.0 + animatedProgress * 0.2
-                    xScale = max(0.8, 1.0 - animatedProgress * 0.001)
+                    yScale = 1.0 + animatedProgress * 0.05
+                    xScale = 1.0
                 } else {
-                    xScale = 1.0 + animatedProgress * 0.07
-                    yScale = max(0.8, 1.0 - animatedProgress * 0.07)
+                    yScale = max(0.8, 1.0 - animatedProgress * 0.1)
+                    xScale = 1.0
                 }
             case .restore:
                 if isBaseHeight {
-                    yScale = 1.0 + animatedProgress * 0.2
-                    xScale = max(0.8, 1.0 - animatedProgress * 0.001)
+                    yScale = 1.0 + animatedProgress * 0.5
+                    xScale = 1.0
                 } else {
-                    yScale = 1.0 + animatedProgress * 0.05
-                    xScale = max(0.8, 1.0 - animatedProgress * 0.05)
+                    yScale = 1.0 + animatedProgress * 0.02
+                    xScale = 1.0
                 }
             }
         } else {
@@ -98,7 +98,13 @@ struct ResizeAwareBlurModifier: AnimatableModifier {
 }
 
 extension View {
-    func resizeAwareBlur(size: CGSize, baseHeight: CGFloat = 38, interactiveBlur: CGFloat, interactiveOpacity: Double, swipeProgress: CGFloat, swipeInteraction: SwipeInteraction?) -> some View {
+    func resizeAwareBlur(
+        size: CGSize,
+        baseHeight: CGFloat = 38,
+        interactiveBlur: CGFloat,
+        interactiveOpacity: Double,
+        swipeProgress: CGFloat,
+        swipeInteraction: SwipeInteraction?) -> some View {
         modifier(
             ResizeAwareBlurModifier(
                 size: size,

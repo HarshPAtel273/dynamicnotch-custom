@@ -221,9 +221,11 @@ final class FakeFileDownloadMonitor: DownloadMonitoring {
 @MainActor
 final class FakeScreenRecordingMonitor: ScreenRecordingMonitoring {
     var onRecordingStateChange: ((Bool) -> Void)?
+    var formattedDuration: String = "00:00"
 
     private(set) var startCalls = 0
     private(set) var stopCalls = 0
+    private(set) var stopRecordingCalls = 0
 
     func startMonitoring() {
         startCalls += 1
@@ -231,6 +233,10 @@ final class FakeScreenRecordingMonitor: ScreenRecordingMonitoring {
 
     func stopMonitoring() {
         stopCalls += 1
+    }
+
+    func stopRecording() {
+        stopRecordingCalls += 1
     }
 
     func publish(isRecording: Bool) {

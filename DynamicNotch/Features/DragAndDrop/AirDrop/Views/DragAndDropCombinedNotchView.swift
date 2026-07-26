@@ -10,57 +10,8 @@ import SwiftUI
 struct DragAndDropCombinedNotchView: View {
     @Environment(\.isDynamicIsland) private var isDynamicIsland
     @ObservedObject var airDropViewModel: AirDropNotchViewModel
-    
-    let isMotionAnimationEnabled: Bool
-    let targetColorStyle: DragAndDropTargetColorStyle
 
     var body: some View {
-        if isMotionAnimationEnabled {
-            motionLayout
-        } else {
-            staticLayout
-        }
-    }
-
-    private var motionLayout: some View {
-        GeometryReader { proxy in
-            let spacing = AirDropDropZoneMetrics.combinedSpacing
-            let horizontalPadding = isDynamicIsland ? 10 : AirDropDropZoneMetrics.horizontalPadding
-            let targets = DragAndDropActivityMode.combined.targets
-            let availableWidth = max(proxy.size.width - (horizontalPadding * 2) - (spacing * CGFloat(targets.count - 1)), 0)
-            let targetedDropTarget = airDropViewModel.targetedDropTarget
-            let expandedPortion: CGFloat = 0.5
-            let collapsedPortion: CGFloat = targets.count > 1 ? (1 - expandedPortion) / CGFloat(targets.count - 1) : 1
-            let equalPortion = 1 / CGFloat(targets.count)
-
-            VStack {
-                Spacer()
-
-                HStack(spacing: spacing) {
-                    ForEach(targets, id: \.self) { target in
-                        let isTargeted = targetedDropTarget == target
-                        let width = availableWidth * (
-                            targetedDropTarget == nil ?
-                            equalPortion :
-                            (isTargeted ? expandedPortion : collapsedPortion)
-                        )
-
-                        DragAndDropDropZoneContent(
-                            target: target,
-                            isTargeted: isTargeted,
-                            targetColorStyle: targetColorStyle
-                        )
-                        .frame(width: width, height: AirDropDropZoneMetrics.height)
-                    }
-                }
-            }
-            .padding(.horizontal, horizontalPadding)
-            .padding(.vertical, isDynamicIsland ? 10 : AirDropDropZoneMetrics.verticalPadding)
-            .animation(.spring(response: 0.3, dampingFraction: 0.8), value: airDropViewModel.targetedDropTarget)
-        }
-    }
-
-    private var staticLayout: some View {
         VStack {
             Spacer()
 
@@ -68,8 +19,7 @@ struct DragAndDropCombinedNotchView: View {
                 ForEach(DragAndDropActivityMode.combined.targets, id: \.self) { target in
                     DragAndDropDropZoneContent(
                         target: target,
-                        isTargeted: airDropViewModel.targetedDropTarget == target,
-                        targetColorStyle: targetColorStyle
+                        isTargeted: airDropViewModel.targetedDropTarget == target
                     )
                     .frame(
                         maxWidth: .infinity,

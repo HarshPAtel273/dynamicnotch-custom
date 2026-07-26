@@ -68,31 +68,6 @@ struct DragAndDropSettingsView: View {
                 accessibilityIdentifier: "settings.activities.live.drop.mode",
                 selection: $mediaSettings.dragAndDropActivityMode
             )
-
-            Divider().opacity(0.6)
-
-            SettingsMenuRow(
-                title: "Target colors",
-                description: "Choose how Drag&Drop target zones are colored.",
-                options: Array(DragAndDropTargetColorStyle.allCases),
-                optionTitle: { $0.title },
-                accessibilityIdentifier: "settings.activities.live.drop.targetColors",
-                selection: $mediaSettings.dragAndDropTargetColorStyle
-            )
-
-            Divider()
-                .opacity(0.6)
-                .padding(.leading, 43)
-                .frame(maxWidth: .infinity, alignment: .trailing)
-
-            SettingsToggleRow(
-                title: "Motion animation",
-                description: "Play animation of cell movement when hovering a file over an area.",
-                systemImage: "cursorarrow.motionlines",
-                color: .pink,
-                isOn: $mediaSettings.isDropMotionAnimationEnabled,
-                accessibilityIdentifier: "settings.activities.live.drop.motionAnimation"
-            )
         }
     }
 
@@ -141,23 +116,12 @@ struct DragAndDropSettingsView: View {
     }
 
     private var dragAndDropPreviewBaseStrokeColor: Color {
-        switch mediaSettings.dragAndDropTargetColorStyle {
-        case .white:
-            return .white.opacity(0.2)
-
-        case .accent:
-            return .accentColor.opacity(0.3)
-
-        case .original:
-            break
-        }
-
         switch mediaSettings.dragAndDropActivityMode {
         case .tray:
-            return DragAndDropTarget.tray.activityStrokeColor(for: .original)
+            return DragAndDropTarget.tray.activityStrokeColor
 
         case .airDrop:
-            return DragAndDropTarget.airDrop.activityStrokeColor(for: .original)
+            return DragAndDropTarget.airDrop.activityStrokeColor
 
         case .combined:
             return .white.opacity(0.2)
@@ -171,8 +135,7 @@ struct DragAndDropSettingsView: View {
     private func dragAndDropPreviewTarget(_ target: DragAndDropTarget) -> some View {
         DragAndDropDropZoneContent(
             target: target,
-            isTargeted: false,
-            targetColorStyle: mediaSettings.dragAndDropTargetColorStyle
+            isTargeted: false
         )
             .frame(maxWidth: .infinity)
     }

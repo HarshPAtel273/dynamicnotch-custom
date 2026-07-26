@@ -540,6 +540,7 @@ private extension NotchEventCoordinatorIntegrationTests {
         downloadViewModel.startMonitoring()
         nowPlayingViewModel.startMonitoring()
         lockScreenManager.startMonitoring()
+        let screenRecordingViewModel = ScreenRecordingViewModel(monitor: FakeScreenRecordingMonitor())
         let homePageViewModel = HomePageViewModel()
         let localTimerViewModel = LocalTimerViewModel()
         let calendarViewModel = CalendarViewModel()
@@ -556,6 +557,7 @@ private extension NotchEventCoordinatorIntegrationTests {
             settingsViewModel: settingsViewModel,
             nowPlayingViewModel: nowPlayingViewModel,
             timerViewModel: timerViewModel,
+            screenRecordingViewModel: screenRecordingViewModel,
             lockScreenManager: lockScreenManager,
             homePageViewModel: homePageViewModel,
             localTimerViewModel: localTimerViewModel,
