@@ -35,11 +35,11 @@ struct ShazamHomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizab
     }
     
     func expandedSize(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
-        .init(width: baseWidth + 70, height: baseHeight + 50)
+        .init(width: baseWidth + 65, height: baseHeight + 125)
     }
     
     func expandedDynamicIslandSize(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
-        .init(width: baseWidth + 100, height: baseHeight + 50)
+        .init(width: baseWidth + 95, height: baseHeight + 125)
     }
     
     func expandedDynamicIslandCornerRadius(baseHeight: CGFloat) -> CGFloat {
@@ -55,9 +55,9 @@ struct ShazamHomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizab
     func makeExpandedView() -> AnyView {
         AnyView(
             ShazamHomePageView(
-                shazamViewModel: shazamViewModel,
                 notchViewModel: notchViewModel,
-                onRequestCollapse: onRequestCollapse
+                onRequestCollapse: onRequestCollapse,
+                shazamViewModel: shazamViewModel
             )
         )
     }

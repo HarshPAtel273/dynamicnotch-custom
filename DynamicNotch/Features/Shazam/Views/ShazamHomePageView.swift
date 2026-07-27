@@ -8,64 +8,47 @@
 import SwiftUI
 
 struct ShazamHomePageView: View {
-    @ObservedObject var shazamViewModel: ShazamViewModel
     let notchViewModel: NotchViewModel
     var onRequestCollapse: (@MainActor () -> Void)? = nil
+    
+    @ObservedObject var shazamViewModel: ShazamViewModel
 
     var body: some View {
-        HStack(spacing: 14) {
-            ZStack {
-                Circle()
-                    .fill(Color.blue.opacity(0.18))
-                    .frame(width: 44, height: 44)
-
-                Image(systemName: "shazam.logo.fill")
-                    .font(.system(size: 22, weight: .bold))
-                    .foregroundStyle(.blue)
-            }
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(verbatim: "Shazam")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundStyle(.white)
-
-                Text(verbatim: "Identify music around you")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.7))
-            }
-
+        VStack {
             Spacer()
-
-            Button {
-                onRequestCollapse?()
-                shazamViewModel.notchViewModel = notchViewModel
-                shazamViewModel.startListening()
-                notchViewModel.send(
-                    .showLiveActivity(
-                        ShazamNotchContent(
-                            shazamViewModel: shazamViewModel,
-                            notchViewModel: notchViewModel
-                        )
-                    )
-                )
-            } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: "mic.fill")
-                        .font(.system(size: 12, weight: .bold))
-                    Text(verbatim: "Listen")
-                        .font(.system(size: 13, weight: .bold))
-                }
-                .foregroundStyle(.white)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 7)
-                .background(
-                    Capsule()
-                        .fill(Color.blue)
-                )
-            }
-            .buttonStyle(.plain)
+            button
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
+    }
+    
+    private var button: some View {
+        Button {
+            onRequestCollapse?()
+            shazamViewModel.notchViewModel = notchViewModel
+            shazamViewModel.startListening()
+            notchViewModel.send(.showLiveActivity(ShazamNotchContent(shazamViewModel: shazamViewModel, notchViewModel: notchViewModel)))
+            
+        } label: {
+            ZStack {
+                RoundedRectangle(cornerRadius: 24)
+                    .fill(.blue.opacity(0.2))
+                    .frame(height: 110)
+                
+                VStack(spacing: 8) {
+                    ZStack {
+                        Circle()
+                            .fill(.white)
+                            .frame(width: 40, height: 40)
+                        
+                        Image(systemName: "shazam.logo.fill")
+                            .font(.system(size: 45, weight: .semibold))
+                            .foregroundStyle(.blue)
+                    }
+                    Text(verbatim: "Start listening")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+            }
+        }
+        .buttonStyle(.plain)
     }
 }

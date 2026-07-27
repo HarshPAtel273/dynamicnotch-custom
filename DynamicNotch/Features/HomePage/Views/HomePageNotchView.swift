@@ -293,11 +293,10 @@ struct HomePageNotchView: View {
                 )
             } else {
                 ShazamHomePageView(
-                    shazamViewModel: shazamViewModel,
                     notchViewModel: notchViewModel,
                     onRequestCollapse: {
                         notchViewModel.handleOutsideClick()
-                    }
+                    }, shazamViewModel: shazamViewModel
                 )
             }
         }

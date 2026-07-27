@@ -177,11 +177,11 @@ struct CameraNotchView: View {
                     
                     VStack(spacing: 10) {
                         Image(systemName: "web.camera.fill")
-                            .font(.system(size: 32))
+                            .font(.system(size: 36))
                             .foregroundStyle(.white)
                         
                         Text(verbatim: "Start Camera")
-                            .font(.headline)
+                            .font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(.white)
                     }
                 }

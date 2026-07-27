@@ -28,19 +28,19 @@ struct FileConverterHomePageView: View {
             }
         }) {
             ZStack {
-                RoundedRectangle(cornerRadius: 20)
+                RoundedRectangle(cornerRadius: 24)
                     .fill(.gray.opacity(0.12))
-                    .stroke(.gray.opacity(0.6), style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round, dash: [16, 10]))
-                    .frame(height: 95)
+                    .stroke(.gray.opacity(0.6), style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round, dash: [12, 10]))
+                    .frame(height: 110)
 
-                VStack(spacing: 6) {
+                VStack(spacing: 10) {
                     Image(systemName: "document.fill")
-                        .font(.system(size: 26, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.9))
+                        .font(.system(size: 30, weight: .semibold))
+                        .foregroundStyle(.white)
 
                     Text(verbatim: "Click to select file")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.7))
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.white)
                 }
             }
         }

@@ -17699,7 +17699,32 @@
       }
     },
     "settings.notch.priorities.row.shazam" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shazam"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shazam"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shazam"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shazam"
+          }
+        }
+      }
     },
     "settings.notch.priorities.row.timer" : {
       "localizations" : {
