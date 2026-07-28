@@ -25,7 +25,7 @@ struct ShazamNotchView: View {
                     isListening: shazamViewModel.isListening || shazamViewModel.state == .listening,
                     audioLevel: shazamViewModel.audioLevel,
                     bandLevels: shazamViewModel.bandLevels,
-                    colors: [.blue, .systemMint, .blue],
+                    colors: [.cyan],
                     barHeight: isDynamicIsland ? 12 : 16,
                     barWidth: isDynamicIsland ? 1.8 : 2.0
                 )

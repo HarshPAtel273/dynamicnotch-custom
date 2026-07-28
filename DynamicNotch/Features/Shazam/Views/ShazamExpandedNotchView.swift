@@ -45,7 +45,7 @@ struct ShazamExpandedNotchView: View {
                 ZStack {
                     Circle()
                         .fill(.white)
-                        .frame(width: 40, height: 40)
+                        .frame(width: 45, height: 45)
                     
                     Image(systemName: "shazam.logo.fill")
                         .font(.system(size: 45, weight: .semibold))

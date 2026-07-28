@@ -31,7 +31,7 @@ struct ShazamHomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizab
     }
     
     func expandedCornerRadius(baseRadius: CGFloat) -> (top: CGFloat, bottom: CGFloat) {
-        (top: 24, bottom: 38)
+        (top: 24, bottom: 48)
     }
     
     func expandedSize(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {

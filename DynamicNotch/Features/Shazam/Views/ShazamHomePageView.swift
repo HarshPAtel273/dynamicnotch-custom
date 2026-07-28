@@ -12,7 +12,7 @@ struct ShazamHomePageView: View {
     var onRequestCollapse: (@MainActor () -> Void)? = nil
     
     @ObservedObject var shazamViewModel: ShazamViewModel
-
+    
     var body: some View {
         VStack {
             Spacer()
@@ -29,23 +29,18 @@ struct ShazamHomePageView: View {
             
         } label: {
             ZStack {
-                RoundedRectangle(cornerRadius: 24)
+                RoundedRectangle(cornerRadius: 34)
                     .fill(.blue.opacity(0.2))
                     .frame(height: 110)
                 
-                VStack(spacing: 8) {
-                    ZStack {
-                        Circle()
-                            .fill(.white)
-                            .frame(width: 40, height: 40)
-                        
-                        Image(systemName: "shazam.logo.fill")
-                            .font(.system(size: 45, weight: .semibold))
-                            .foregroundStyle(.blue)
-                    }
-                    Text(verbatim: "Start listening")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(.white)
+                ZStack {
+                    Circle()
+                        .fill(.white)
+                        .frame(width: 55, height: 55)
+                    
+                    Image(systemName: "shazam.logo.fill")
+                        .font(.system(size: 55, weight: .semibold))
+                        .foregroundStyle(.blue)
                 }
             }
         }
