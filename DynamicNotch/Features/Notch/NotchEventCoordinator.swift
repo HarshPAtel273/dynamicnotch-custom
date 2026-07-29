@@ -44,10 +44,10 @@ final class NotchEventCoordinator: ObservableObject {
         OnboardingSteps.contains(id: notchViewModel.notchModel.temporaryNotificationContent?.id) ||
         {
             #if DEBUG
-            OnboardingSteps.containsDebug(id: notchViewModel.notchModel.liveActivityContent?.id) ||
+            return OnboardingSteps.containsDebug(id: notchViewModel.notchModel.liveActivityContent?.id) ||
             OnboardingSteps.containsDebug(id: notchViewModel.notchModel.temporaryNotificationContent?.id)
             #else
-            false
+            return false
             #endif
         }()
     }

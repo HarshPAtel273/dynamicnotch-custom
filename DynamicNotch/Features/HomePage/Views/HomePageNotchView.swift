@@ -266,10 +266,10 @@ struct HomePageNotchView: View {
             SystemStatsPageNotchView(notchViewModel: notchViewModel)
         case .fileConverter:
             FileConverterHomePageView(
-                fileConverterViewModel: fileConverterViewModel,
                 onRequestCollapse: {
                     notchViewModel.handleOutsideClick()
-                }
+                },
+                fileConverterViewModel: fileConverterViewModel
             )
         }
     }

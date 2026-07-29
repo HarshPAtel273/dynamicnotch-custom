@@ -171,6 +171,7 @@ struct DebugSettingsView: View {
                 isOn: $viewModel.isSoftwareUpdatePreviewEnabled,
                 accessibilityIdentifier: "settings.debug.softwareUpdate"
             )
+
         }
     }
     

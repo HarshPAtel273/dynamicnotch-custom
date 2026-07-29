@@ -71,7 +71,7 @@ enum NotchContentRegistry {
             priorityKey: .timer
         )
     }
-    
+
     enum HomePage {
         static let active = NotchContentDescriptor(
             id: "home.active",

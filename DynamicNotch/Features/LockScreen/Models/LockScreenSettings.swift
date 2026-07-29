@@ -101,7 +101,7 @@ enum LockScreenSettings {
             let rawValue = defaults.string(forKey: mediaPanelBackgroundStyleKey),
             let style = LockScreenMediaPanelBackgroundStyle(rawValue: rawValue)
         else {
-            return .wallpaper
+            return .animatedArtwork
         }
         return style
     }

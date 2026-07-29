@@ -12,7 +12,7 @@ struct CameraActiveNotchContent: NotchContentProtocol, DynamicIslandCustomizable
     
     func expandedCornerRadius(baseRadius: CGFloat) -> (top: CGFloat, bottom: CGFloat) {
         let isStarted = UserDefaults.standard.bool(forKey: "isCameraStarted")
-        return (top: isStarted ? 34 : 24, bottom: isStarted ? 48 : 38)
+        return (top: isStarted ? 34 : 24, bottom: isStarted ? 48 : 48)
     }
     
     func expandedSize(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {

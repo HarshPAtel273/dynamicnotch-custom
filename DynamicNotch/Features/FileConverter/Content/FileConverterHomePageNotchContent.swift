@@ -28,15 +28,15 @@ struct FileConverterHomePageNotchContent: NotchContentProtocol, DynamicIslandCus
     }
 
     func expandedCornerRadius(baseRadius: CGFloat) -> (top: CGFloat, bottom: CGFloat) {
-        (top: 24, bottom: 38)
+        (top: 24, bottom: 48)
     }
 
     func expandedSize(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
-        .init(width: baseWidth + 70, height: baseHeight + 115)
+        .init(width: baseWidth + 65, height: baseHeight + 125)
     }
 
     func expandedDynamicIslandSize(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
-        .init(width: baseWidth + 100, height: baseHeight + 115)
+        .init(width: baseWidth + 95, height: baseHeight + 125)
     }
 
     func expandedDynamicIslandCornerRadius(baseHeight: CGFloat) -> CGFloat {
@@ -52,8 +52,8 @@ struct FileConverterHomePageNotchContent: NotchContentProtocol, DynamicIslandCus
     func makeExpandedView() -> AnyView {
         AnyView(
             FileConverterHomePageView(
-                fileConverterViewModel: fileConverterViewModel,
-                onRequestCollapse: onRequestCollapse
+                onRequestCollapse: onRequestCollapse,
+                fileConverterViewModel: fileConverterViewModel
             )
         )
     }

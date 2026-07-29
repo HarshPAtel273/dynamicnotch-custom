@@ -37,7 +37,6 @@ struct LockScreenNowPlayingPanelView: View {
     @State private var onTapArtwork: Bool = false
     @State private var backgroundRotation: Double = 0
     @State private var backgroundScale: CGFloat = 1
-    @State private var wallpaperImage: NSImage?
     
     private let animationTick: TimeInterval = 1.0 / 10.0
     
@@ -100,21 +99,6 @@ struct LockScreenNowPlayingPanelView: View {
         }
         .onChange(of: nowPlayingViewModel.snapshot?.lyricsLookupKey) {
             syncLyricsPresentationState()
-        }
-        .onAppear {
-            if mediaPanelBackgroundStyle == .wallpaper {
-                loadWallpaperImage()
-            }
-        }
-        .onChange(of: mediaPanelBackgroundStyle) {
-            if mediaPanelBackgroundStyle == .wallpaper {
-                loadWallpaperImage()
-            }
-        }
-        .onReceive(NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.activeSpaceDidChangeNotification)) { _ in
-            if mediaPanelBackgroundStyle == .wallpaper {
-                loadWallpaperImage()
-            }
         }
     }
 
@@ -245,26 +229,15 @@ struct LockScreenNowPlayingPanelView: View {
                 Color.black
 
                 if mediaPanelBackgroundStyle != .black {
-                    if mediaPanelBackgroundStyle == .wallpaper {
-                        NowPlayingArtworkBackground(
-                            artworkImage: resolvedArtworkImage,
-                            blurRadius: 5,
-                            darkeningOpacity: 0.6,
-                            saturation: 1.0,
-                            scale: 1.0
-                        )
-                        .frame(width: proxy.size.width, height: proxy.size.height)
-                    } else {
-                        NowPlayingArtworkBackground(
-                            artworkImage: resolvedArtworkImage,
-                            blurRadius: 200,
-                            darkeningOpacity: 0.6,
-                            saturation: 1.45,
-                            scale: mediaPanelBackgroundScale
-                        )
-                        .frame(width: diagonal, height: diagonal)
-                        .rotationEffect(mediaPanelBackgroundRotation)
-                    }
+                    NowPlayingArtworkBackground(
+                        artworkImage: resolvedArtworkImage,
+                        blurRadius: 200,
+                        darkeningOpacity: 0.6,
+                        saturation: 1.45,
+                        scale: mediaPanelBackgroundScale
+                    )
+                    .frame(width: diagonal, height: diagonal)
+                    .rotationEffect(mediaPanelBackgroundRotation)
                 }
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
@@ -283,22 +256,7 @@ struct LockScreenNowPlayingPanelView: View {
     }
 
     private var resolvedArtworkImage: NSImage? {
-        if mediaPanelBackgroundStyle == .wallpaper {
-            return wallpaperImage ?? artworkImage ?? nowPlayingViewModel.artworkImage
-        }
-        return artworkImage ?? nowPlayingViewModel.artworkImage
-    }
-
-    private func loadWallpaperImage() {
-        DispatchQueue.global(qos: .userInitiated).async {
-            guard let url = NSWorkspace.shared.desktopImageURL(for: screen) else {
-                return
-            }
-            let image = NSImage(contentsOf: url)
-            DispatchQueue.main.async {
-                self.wallpaperImage = image
-            }
-        }
+        artworkImage ?? nowPlayingViewModel.artworkImage
     }
 
     private func syncLyricsPresentationState() {

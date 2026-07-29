@@ -55,7 +55,6 @@ struct NowPlayingMinimalNotchView: View {
             )
             .frame(width: isDynamicIsland ? 14 : 18, height: isDynamicIsland ? 12 : 16)
         }
-        .padding(.leading, isDynamicIsland ? 8.scaled(by: scale) : 14.scaled(by: scale))
-        .padding(.trailing, isDynamicIsland ? 8.scaled(by: scale) : 14.scaled(by: scale))
+        .padding(.horizontal, isDynamicIsland ? 8.scaled(by: scale) : 14.scaled(by: scale))
     }
 }

@@ -8,16 +8,18 @@
 import SwiftUI
 
 struct FileConverterHomePageView: View {
-    @ObservedObject var fileConverterViewModel: FileConverterViewModel
     var onRequestCollapse: (@MainActor () -> Void)? = nil
     
+    @ObservedObject var fileConverterViewModel: FileConverterViewModel
+    @Environment(\.isDynamicIsland) private var isDynamicIsland
+    
     var body: some View {
-        VStack(spacing: 12) {
+        VStack {
             Spacer()
             emptyStateDropRow
         }
-        .padding(.horizontal, 4)
-        .padding(.bottom, 2)
+        .padding(.horizontal, 1)
+        .padding(.bottom, 1)
     }
     
     private var emptyStateDropRow: some View {
@@ -28,19 +30,19 @@ struct FileConverterHomePageView: View {
             }
         }) {
             ZStack {
-                RoundedRectangle(cornerRadius: 20)
+                RoundedRectangle(cornerRadius: isDynamicIsland ? 24 : 34)
                     .fill(.gray.opacity(0.12))
-                    .stroke(.gray.opacity(0.6), style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round, dash: [16, 10]))
-                    .frame(height: 95)
+                    .stroke(.gray.opacity(0.6), style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round, dash: [10, 10]))
+                    .frame(height: 110)
 
-                VStack(spacing: 6) {
-                    Image(systemName: "document.fill")
-                        .font(.system(size: 26, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.9))
+                VStack(spacing: 10) {
+                    Image(systemName: "arrow.triangle.2.circlepath")
+                        .font(.system(size: 30, weight: .semibold))
+                        .foregroundStyle(.white)
 
                     Text(verbatim: "Click to select file")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.7))
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.white)
                 }
             }
         }

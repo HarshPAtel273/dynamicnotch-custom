@@ -5519,34 +5519,6 @@
         }
       }
     },
-    "Current wallpaper" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Current wallpaper"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fondo de pantalla actual"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Текущие обои"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "当前壁纸"
-          }
-        }
-      }
-    },
     "Cursor leaves" : {
       "localizations" : {
         "en" : {
@@ -17692,6 +17664,35 @@
         }
       }
     },
+    "settings.notch.priorities.row.shazam" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shazam"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shazam"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shazam"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shazam"
+          }
+        }
+      }
+    },
     "settings.notch.priorities.row.timer" : {
       "localizations" : {
         "en" : {
@@ -18530,6 +18531,64 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "媒体控制"
+          }
+        }
+      }
+    },
+    "settings.permissions.microphone.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow Microphone access for song recognition via Shazam."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permite el acceso al micrófono para el reconocimiento de canciones con Shazam."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разрешите доступ к микрофону для распознавания музыки с помощью Shazam."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "允许麦克风权限以通过 Shazam 识别音乐。"
+          }
+        }
+      }
+    },
+    "settings.permissions.microphone.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microphone"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Micrófono"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Микрофон"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "麦克风"
           }
         }
       }

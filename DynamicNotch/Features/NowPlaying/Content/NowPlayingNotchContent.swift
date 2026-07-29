@@ -27,6 +27,7 @@ struct NowPlayingNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
     }
     
     var priority: Int { NotchContentRegistry.Media.nowPlaying.priority }
+    
     var isExpandable: Bool { true }
 
     var windowLink: (@MainActor () -> Void)? {
@@ -43,6 +44,10 @@ struct NowPlayingNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
     
     func size(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
         .init(width: baseWidth + 70, height: baseHeight)
+    }
+    
+    func dynamicIslandSize(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
+        .init(width: baseWidth + 30, height: baseHeight)
     }
     
     func expandedSize(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
