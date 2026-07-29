@@ -276,10 +276,10 @@ struct HomePageNotchView: View {
             SystemStatsPageNotchView(notchViewModel: notchViewModel)
         case .fileConverter:
             FileConverterHomePageView(
-                fileConverterViewModel: fileConverterViewModel,
                 onRequestCollapse: {
                     notchViewModel.handleOutsideClick()
-                }
+                },
+                fileConverterViewModel: fileConverterViewModel
             )
         case .shazam:
             if let result = shazamViewModel.matchedResult {

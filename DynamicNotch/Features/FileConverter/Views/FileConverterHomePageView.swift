@@ -8,16 +8,18 @@
 import SwiftUI
 
 struct FileConverterHomePageView: View {
-    @ObservedObject var fileConverterViewModel: FileConverterViewModel
     var onRequestCollapse: (@MainActor () -> Void)? = nil
     
+    @ObservedObject var fileConverterViewModel: FileConverterViewModel
+    @Environment(\.isDynamicIsland) private var isDynamicIsland
+    
     var body: some View {
-        VStack(spacing: 12) {
+        VStack {
             Spacer()
             emptyStateDropRow
         }
-        .padding(.horizontal, 4)
-        .padding(.bottom, 2)
+        .padding(.horizontal, 1)
+        .padding(.bottom, 1)
     }
     
     private var emptyStateDropRow: some View {
@@ -28,13 +30,13 @@ struct FileConverterHomePageView: View {
             }
         }) {
             ZStack {
-                RoundedRectangle(cornerRadius: 24)
+                RoundedRectangle(cornerRadius: isDynamicIsland ? 24 : 34)
                     .fill(.gray.opacity(0.12))
-                    .stroke(.gray.opacity(0.6), style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round, dash: [12, 10]))
+                    .stroke(.gray.opacity(0.6), style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round, dash: [10, 10]))
                     .frame(height: 110)
 
                 VStack(spacing: 10) {
-                    Image(systemName: "document.fill")
+                    Image(systemName: "arrow.triangle.2.circlepath")
                         .font(.system(size: 30, weight: .semibold))
                         .foregroundStyle(.white)
 

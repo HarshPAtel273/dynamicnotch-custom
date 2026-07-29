@@ -12,6 +12,7 @@ struct ShazamHomePageView: View {
     var onRequestCollapse: (@MainActor () -> Void)? = nil
     
     @ObservedObject var shazamViewModel: ShazamViewModel
+    @Environment(\.isDynamicIsland) private var isDynamicIsland
     
     var body: some View {
         VStack {
@@ -29,19 +30,13 @@ struct ShazamHomePageView: View {
             
         } label: {
             ZStack {
-                RoundedRectangle(cornerRadius: 34)
+                RoundedRectangle(cornerRadius: isDynamicIsland ? 24 : 34)
                     .fill(.blue.opacity(0.2))
                     .frame(height: 110)
                 
-                ZStack {
-                    Circle()
-                        .fill(.white)
-                        .frame(width: 55, height: 55)
-                    
-                    Image(systemName: "shazam.logo.fill")
-                        .font(.system(size: 55, weight: .semibold))
-                        .foregroundStyle(.blue)
-                }
+                Image(systemName: "shazam.logo.fill")
+                    .font(.system(size: 55, weight: .semibold))
+                    .foregroundStyle(.blue)
             }
         }
         .buttonStyle(.plain)

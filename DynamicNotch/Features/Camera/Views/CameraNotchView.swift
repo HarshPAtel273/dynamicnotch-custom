@@ -171,7 +171,7 @@ struct CameraNotchView: View {
                 ))
             }) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 34)
+                    RoundedRectangle(cornerRadius: isDynamicIsland ? 24 : 34)
                         .fill(.gray.opacity(0.2))
                         .frame(height: 110)
                     
