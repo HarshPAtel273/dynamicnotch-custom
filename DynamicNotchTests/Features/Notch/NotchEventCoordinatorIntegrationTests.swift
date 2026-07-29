@@ -544,8 +544,6 @@ private extension NotchEventCoordinatorIntegrationTests {
         let homePageViewModel = HomePageViewModel()
         let localTimerViewModel = LocalTimerViewModel()
         let calendarViewModel = CalendarViewModel()
-        let fileConverterViewModel = FileConverterViewModel()
-        let shazamViewModel = ShazamViewModel()
         let coordinator = NotchEventCoordinator(
             notchViewModel: notchViewModel,
             bluetoothViewModel: BluetoothViewModel(),
@@ -556,7 +554,6 @@ private extension NotchEventCoordinatorIntegrationTests {
             airDropViewModel: airDropViewModel,
             fileTrayViewModel: fileTrayViewModel,
             fileConverterViewModel: fileConverterViewModel,
-            shazamViewModel: shazamViewModel,
             settingsViewModel: settingsViewModel,
             nowPlayingViewModel: nowPlayingViewModel,
             timerViewModel: timerViewModel,

@@ -55,10 +55,6 @@ final class DebugSettingsViewModel: ObservableObject {
         didSet { guard isReady else { return }; updateSoftwareUpdatePreview() }
     }
 
-    @Published var isShazamPreviewEnabled = false {
-        didSet { guard isReady else { return }; updateShazamPreview() }
-    }
-
     @Published private(set) var isPreviewSequenceRunning = false
 
     private static let sequenceContentPrefix = NotchContentRegistry.DebugSequence.prefix
@@ -76,7 +72,6 @@ final class DebugSettingsViewModel: ObservableObject {
     private static let sequenceFileConverterActiveID = NotchContentRegistry.DebugSequence.fileConverterActive
     private static let sequenceLockScreenID = NotchContentRegistry.DebugSequence.lockScreen
     private static let sequenceSoftwareUpdateID = NotchContentRegistry.DebugSequence.softwareUpdate
-    private static let sequenceShazamID = NotchContentRegistry.DebugSequence.shazam
     private static let livePreviewDuration: TimeInterval = 4
     private static let previewGapDuration: TimeInterval = 1
     private static let transitionBufferDuration: TimeInterval = 0.35
@@ -95,8 +90,7 @@ final class DebugSettingsViewModel: ObservableObject {
         sequenceTrayActiveID,
         sequenceFileConverterActiveID,
         sequenceLockScreenID,
-        sequenceSoftwareUpdateID,
-        sequenceShazamID
+        sequenceSoftwareUpdateID
     ]
 
     private let notchViewModel: NotchViewModel
@@ -113,7 +107,6 @@ final class DebugSettingsViewModel: ObservableObject {
     private let dragAndDropPreviewViewModel = AirDropNotchViewModel()
     private let fileTrayPreviewViewModel: FileTrayViewModel
     private let fileConverterPreviewViewModel = FileConverterViewModel()
-    private let shazamPreviewViewModel = ShazamViewModel()
 
     private var isReady = false
     private var previewSequenceTask: Task<Void, Never>?
@@ -337,8 +330,6 @@ final class DebugSettingsViewModel: ObservableObject {
         isFileTrayPreviewEnabled = false
         isFileConverterPreviewEnabled = false
         isLockScreenPreviewEnabled = false
-        isShazamPreviewEnabled = false
-        shazamPreviewViewModel.stopListening()
         hideDragAndDropTargetPreviews()
         notchViewModel.hideTemporaryNotification()
     }
@@ -444,51 +435,6 @@ final class DebugSettingsViewModel: ObservableObject {
         } else {
             SparkleUpdater.shared.isUpdateAvailable = false
         }
-    }
-
-    private func updateShazamPreview() {
-        if isShazamPreviewEnabled {
-            shazamPreviewViewModel.startListening()
-            notchViewModel.send(
-                .showLiveActivity(
-                    makeSequenceContent(
-                        ShazamNotchContent(shazamViewModel: shazamPreviewViewModel),
-                        id: Self.sequenceShazamID,
-                        priorityBoost: 1_000
-                    )
-                )
-            )
-        } else {
-            shazamPreviewViewModel.stopListening()
-            notchViewModel.send(.hideLiveActivity(id: Self.sequenceShazamID))
-        }
-    }
-
-    func triggerShazamMatchedPreview() {
-        if isShazamPreviewEnabled {
-            isShazamPreviewEnabled = false
-        }
-        
-        let sampleResult = ShazamResult(
-            title: "Midnight City",
-            artist: "M83",
-            artworkURL: URL(string: "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/31/53/78/315378a5-d85c-ef66-3d2d-208b8b0e8b7c/886443419958.jpg/300x300bb.jpg"),
-            appleMusicURL: URL(string: "https://music.apple.com"),
-            shazamURL: URL(string: "https://shazam.com"),
-            genres: ["Alternative", "Electronic"]
-        )
-        
-        shazamPreviewViewModel.matchedResult = sampleResult
-        
-        notchViewModel.send(
-            .showLiveActivity(
-                makeSequenceContent(
-                    ShazamNotchContent(shazamViewModel: shazamPreviewViewModel),
-                    id: Self.sequenceShazamID,
-                    priorityBoost: 1_000
-                )
-            )
-        )
     }
 
     private func startPreviewSequence() {

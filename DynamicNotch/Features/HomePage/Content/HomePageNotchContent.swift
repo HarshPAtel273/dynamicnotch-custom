@@ -16,7 +16,6 @@ struct HomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
     let localTimerViewModel: LocalTimerViewModel
     let nowPlayingViewModel: NowPlayingViewModel
     let fileConverterViewModel: FileConverterViewModel
-    let shazamViewModel: ShazamViewModel
     let mediaAndFilesSettings: MediaAndFilesSettingsStore
     let applicationSettings: ApplicationSettingsStore
 
@@ -43,14 +42,6 @@ struct HomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
         case .fileConverter:
             return FileConverterHomePageNotchContent(
                 fileConverterViewModel: fileConverterViewModel,
-                onRequestCollapse: { [weak notchViewModel] in
-                    notchViewModel?.handleOutsideClick()
-                }
-            )
-        case .shazam:
-            return ShazamHomePageNotchContent(
-                shazamViewModel: shazamViewModel,
-                notchViewModel: notchViewModel,
                 onRequestCollapse: { [weak notchViewModel] in
                     notchViewModel?.handleOutsideClick()
                 }
@@ -101,7 +92,6 @@ struct HomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
                 localTimerViewModel: localTimerViewModel,
                 nowPlayingViewModel: nowPlayingViewModel,
                 fileConverterViewModel: fileConverterViewModel,
-                shazamViewModel: shazamViewModel,
                 mediaAndFilesSettings: mediaAndFilesSettings,
                 applicationSettings: applicationSettings,
                 initialPage: homePages

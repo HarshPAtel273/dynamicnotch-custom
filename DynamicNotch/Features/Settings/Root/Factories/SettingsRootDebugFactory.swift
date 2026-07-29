@@ -96,7 +96,6 @@ extension SettingsRootViewModel {
         let resolvedAirDropViewModel = AirDropNotchViewModel()
         let resolvedFileTrayViewModel = FileTrayViewModel()
         let resolvedFileConverterViewModel = FileConverterViewModel()
-        let resolvedShazamViewModel = ShazamViewModel()
         let resolvedNowPlayingViewModel = nowPlayingViewModel ?? NowPlayingViewModel(
             service: InactiveNowPlayingService()
         )
@@ -123,7 +122,6 @@ extension SettingsRootViewModel {
             airDropViewModel: resolvedAirDropViewModel,
             fileTrayViewModel: resolvedFileTrayViewModel,
             fileConverterViewModel: resolvedFileConverterViewModel,
-            shazamViewModel: resolvedShazamViewModel,
             settingsViewModel: settingsViewModel,
             nowPlayingViewModel: resolvedNowPlayingViewModel,
             timerViewModel: resolvedTimerViewModel,

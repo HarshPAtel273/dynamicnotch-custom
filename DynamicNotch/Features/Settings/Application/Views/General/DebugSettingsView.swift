@@ -172,19 +172,6 @@ struct DebugSettingsView: View {
                 accessibilityIdentifier: "settings.debug.softwareUpdate"
             )
 
-            Divider()
-                .opacity(0.6)
-                .padding(.leading, 43)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
-
-            SettingsToggleRow(
-                title: "Shazam",
-                description: "Preview the Shazam live activity and audio wave equalizer.",
-                systemImage: "shazam.logo.fill",
-                color: .blue,
-                isOn: $viewModel.isShazamPreviewEnabled,
-                accessibilityIdentifier: "settings.debug.shazam"
-            )
         }
     }
     
@@ -290,16 +277,6 @@ struct DebugSettingsView: View {
                 systemImage: "checkmark.seal.fill",
                 color: .green,
                 action: viewModel.triggerFileConverterConvertedPreview
-            )
-
-            debugDivider
-
-            DebugActionRow(
-                title: "Shazam Match",
-                description: "Simulate finding a matched track in Shazam.",
-                systemImage: "shazam.logo.fill",
-                color: .blue,
-                action: viewModel.triggerShazamMatchedPreview
             )
 
             debugDivider
