@@ -9,8 +9,9 @@ import SwiftUI
 
 enum HomePages: String, CaseIterable, Hashable, Codable, Identifiable {
     case camera
+    case appleMusic
+    case todos
     case localTimer
-    case vpn
     case systemStats
     case fileConverter
     
@@ -19,8 +20,9 @@ enum HomePages: String, CaseIterable, Hashable, Codable, Identifiable {
     var title: LocalizedStringKey {
         switch self {
         case .camera: return "settings.homePage.pages.camera.title"
+        case .appleMusic: return "Apple Music"
+        case .todos: return "To-Dos"
         case .localTimer: return "settings.homePage.pages.timer.title"
-        case .vpn: return "settings.homePage.pages.vpn.title"
         case .systemStats: return "settings.homePage.pages.stats.title"
         case .fileConverter: return "settings.homePage.pages.converter.title"
         }
@@ -29,8 +31,9 @@ enum HomePages: String, CaseIterable, Hashable, Codable, Identifiable {
     var subtitle: LocalizedStringKey {
         switch self {
         case .camera: return "settings.homePage.pages.camera.subtitle"
+        case .appleMusic: return "Control system audio and Music playback"
+        case .todos: return "Add and complete tasks from the notch"
         case .localTimer: return "settings.homePage.pages.timer.subtitle"
-        case .vpn: return "settings.homePage.pages.vpn.subtitle"
         case .systemStats: return "settings.homePage.pages.stats.subtitle"
         case .fileConverter: return "settings.homePage.pages.converter.subtitle"
         }
@@ -39,8 +42,9 @@ enum HomePages: String, CaseIterable, Hashable, Codable, Identifiable {
     var icon: String {
         switch self {
         case .camera: return "camera.fill"
+        case .appleMusic: return "music.note"
+        case .todos: return "checklist"
         case .localTimer: return "timer"
-        case .vpn: return "network.badge.shield.half.filled"
         case .systemStats: return "cpu"
         case .fileConverter: return "arrow.trianglehead.2.clockwise.rotate.90"
         }
@@ -49,8 +53,9 @@ enum HomePages: String, CaseIterable, Hashable, Codable, Identifiable {
     var tint: Color {
         switch self {
         case .camera: return .gray
+        case .appleMusic: return Color(red: 0.98, green: 0.14, blue: 0.31)
+        case .todos: return Color(red: 0.39, green: 0.66, blue: 0.96)
         case .localTimer: return .orange
-        case .vpn: return .blue
         case .systemStats: return .green
         case .fileConverter: return .blue
         }
@@ -59,10 +64,22 @@ enum HomePages: String, CaseIterable, Hashable, Codable, Identifiable {
     var iconTint: Color {
         switch self {
         case .camera: return .black
+        case .appleMusic: return .white
+        case .todos: return .white
         case .localTimer: return .white
-        case .vpn: return .white
         case .systemStats: return .white
         case .fileConverter: return .white
+        }
+    }
+
+    static func resolved(from rawValue: String) -> HomePages? {
+        switch rawValue {
+        case "mediaPlayer":
+            return .appleMusic
+        case "vpn":
+            return nil
+        default:
+            return HomePages(rawValue: rawValue)
         }
     }
 }
@@ -258,10 +275,12 @@ struct HomePageNotchView: View {
         switch page {
         case .camera:
             CameraNotchView(notchViewModel: notchViewModel, settings: settings, localTimerViewModel: localTimerViewModel, nowPlayingViewModel: nowPlayingViewModel, fileConverterViewModel: fileConverterViewModel, mediaAndFilesSettings: mediaAndFilesSettings, applicationSettings: applicationSettings)
+        case .appleMusic:
+            AppleMusicHomePageNotchView(nowPlayingViewModel: nowPlayingViewModel)
+        case .todos:
+            TodoHomePageNotchView()
         case .localTimer:
             LocalTimerSetupNotchView(localTimerViewModel: localTimerViewModel)
-        case .vpn:
-            VpnPageNotchView(notchViewModel: notchViewModel)
         case .systemStats:
             SystemStatsPageNotchView(notchViewModel: notchViewModel)
         case .fileConverter:

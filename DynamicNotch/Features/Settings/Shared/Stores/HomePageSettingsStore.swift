@@ -80,7 +80,7 @@ final class HomePageSettingsStore: SettingsStoreBase {
         
         let savedOrder = (defaults.array(forKey: GeneralSettingsStorage.Keys.homePageOrder) as? [String]) ?? 
             ((GeneralSettingsStorage.defaultValues[GeneralSettingsStorage.Keys.homePageOrder] as? [String]) ?? [])
-        var parsedOrder = savedOrder.compactMap { HomePages(rawValue: $0) }
+        var parsedOrder = savedOrder.compactMap { HomePages.resolved(from: $0) }
         if parsedOrder.isEmpty {
             parsedOrder = HomePages.allCases
         } else {
@@ -94,9 +94,14 @@ final class HomePageSettingsStore: SettingsStoreBase {
         
         let savedDisabled = (defaults.array(forKey: GeneralSettingsStorage.Keys.homePageDisabled) as? [String]) ??
             ((GeneralSettingsStorage.defaultValues[GeneralSettingsStorage.Keys.homePageDisabled] as? [String]) ?? [])
-        self.homePageDisabled = Set(savedDisabled.compactMap { HomePages(rawValue: $0) })
+        self.homePageDisabled = Set(savedDisabled.compactMap { HomePages.resolved(from: $0) })
         
         super.init(defaults: defaults)
+
+        if savedOrder.contains("vpn") || savedDisabled.contains("vpn") {
+            persist(homePageOrder.map(\.rawValue), for: GeneralSettingsStorage.Keys.homePageOrder)
+            persist(Array(homePageDisabled).map(\.rawValue), for: GeneralSettingsStorage.Keys.homePageDisabled)
+        }
     }
     
     private static func resolvedBool(defaults: UserDefaults, key: String) -> Bool {

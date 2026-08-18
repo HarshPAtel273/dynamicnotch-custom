@@ -51,7 +51,7 @@ final class SettingsRootViewModel {
     }
 
     var sections: [Section] {
-        Section.allCases
+        Section.allCases.filter { $0 != .vpn }
     }
 
     func initialSelection() -> Section {

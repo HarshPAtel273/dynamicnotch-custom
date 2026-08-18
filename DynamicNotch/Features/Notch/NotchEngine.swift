@@ -54,11 +54,14 @@ final class NotchEngine: ObservableObject {
     }
 
     var canExpandActiveLiveActivity: Bool {
-        guard let content = notchModel.content else { return false }
+        guard !notchModel.isLiveActivityExpanded else { return false }
 
-        return !notchModel.isLiveActivityExpanded &&
-        content.isExpandable &&
-        content.expandsOnTap
+        if homePageActivityIfAvailable?.isExpandable == true {
+            return true
+        }
+
+        guard let content = notchModel.content else { return false }
+        return content.isExpandable && content.expandsOnTap
     }
 
     var canRestoreDismissedContent: Bool {
@@ -243,6 +246,12 @@ final class NotchEngine: ObservableObject {
         }
 
         withAnimation(animations.expandLiveActivity) {
+            if let homePage = homePageActivityIfAvailable {
+                notchModel.temporaryNotificationContent = nil
+                currentTemporaryNotificationDuration = nil
+                notchModel.liveActivityContent = homePage
+            }
+
             notchModel.isLiveActivityExpanded = true
         }
     }
@@ -275,7 +284,7 @@ final class NotchEngine: ObservableObject {
             return
         }
 
-        guard let liveActivityContent = notchModel.liveActivityContent else { return }
+        guard notchModel.liveActivityContent != nil else { return }
 
         transition(
             hide: {
@@ -286,7 +295,7 @@ final class NotchEngine: ObservableObject {
             },
             show: {
                 withAnimation(self.animations.contentShow) {
-                    self.notchModel.liveActivityContent = liveActivityContent
+                    self.notchModel.liveActivityContent = self.highestPriorityVisibleActivity
                 }
             }
         )
@@ -307,6 +316,13 @@ final class NotchEngine: ObservableObject {
 
     private var highestPriorityVisibleActivity: NotchContentProtocol? {
         activeLiveActivities.first { dismissedLiveActivityIDs.contains($0.id) == false }
+    }
+
+    private var homePageActivityIfAvailable: NotchContentProtocol? {
+        activeLiveActivities.first {
+            $0.id == NotchContentRegistry.HomePage.active.id &&
+            dismissedLiveActivityIDs.contains($0.id) == false
+        }
     }
 
     private func recordDismissedLiveActivity(id: String) {

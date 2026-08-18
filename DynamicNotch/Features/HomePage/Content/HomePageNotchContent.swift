@@ -33,10 +33,12 @@ struct HomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
         switch homePages {
         case .camera:
             return CameraActiveNotchContent()
+        case .appleMusic:
+            return AppleMusicHomePageNotchContent()
+        case .todos:
+            return TodoHomePageNotchContent()
         case .localTimer:
             return LocalTimerHomePageNotchContent()
-        case .vpn:
-            return VpnHomePageNotchContent()
         case .systemStats:
             return SystemStatsHomePageNotchContent()
         case .fileConverter:

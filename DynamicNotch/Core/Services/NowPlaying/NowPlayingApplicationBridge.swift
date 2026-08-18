@@ -13,6 +13,64 @@ struct NowPlayingApplicationPlaybackState: Equatable {
     let repeatMode: NowPlayingRepeatMode?
     let volume: Double?
     let refreshedAt: Date
+
+    var hasVisibleMetadata: Bool {
+        !(title?.trimmed.isEmpty ?? true) ||
+        !(artist?.trimmed.isEmpty ?? true) ||
+        !(album?.trimmed.isEmpty ?? true) ||
+        (duration ?? 0) > 0
+    }
+
+    var trackKey: String {
+        [
+            bundleIdentifier,
+            title?.trimmed,
+            artist?.trimmed,
+            album?.trimmed
+        ]
+            .compactMap { $0 }
+            .filter { !$0.isEmpty }
+            .joined(separator: "|")
+    }
+
+    func asNowPlayingSnapshot(
+        artworkData: Data? = nil,
+        processIdentifier: Int? = nil
+    ) -> NowPlayingSnapshot? {
+        guard hasVisibleMetadata else { return nil }
+
+        let source = NowPlayingPlaybackSource(
+            bundleIdentifier: bundleIdentifier,
+            parentBundleIdentifier: nil,
+            processIdentifier: processIdentifier
+        )
+
+        return NowPlayingSnapshot(
+            title: title?.trimmed ?? "",
+            artist: artist?.trimmed ?? "",
+            album: album?.trimmed ?? "",
+            duration: duration ?? 0,
+            elapsedTime: elapsedTime ?? 0,
+            playbackRate: isPlaying ? 1 : 0,
+            artworkData: artworkData,
+            playbackSource: source,
+            isShuffled: isShuffled ?? false,
+            repeatMode: repeatMode ?? .off,
+            volume: volume,
+            supportsFavorite: source.supportsFavoriteCommand,
+            supportsVolumeControl: source.supportsVolumeCommand,
+            refreshedAt: refreshedAt
+        )
+    }
+}
+
+protocol AppleMusicControlling: AnyObject {
+    var isMusicRunning: Bool { get }
+
+    func playbackState() async -> NowPlayingApplicationPlaybackState?
+    func artworkData() async -> Data?
+    func send(_ command: NowPlayingCommand) -> Bool
+    func openMusicApp()
 }
 
 final class NowPlayingApplicationBridge {
@@ -59,6 +117,32 @@ final class NowPlayingApplicationBridge {
         default:
             return nil
         }
+    }
+}
+
+extension NowPlayingApplicationBridge: AppleMusicControlling {
+    var isMusicRunning: Bool {
+        isApplicationRunning(bundleIdentifier: "com.apple.Music")
+    }
+
+    func playbackState() async -> NowPlayingApplicationPlaybackState? {
+        await appleMusicPlaybackState()
+    }
+
+    func artworkData() async -> Data? {
+        await appleMusicArtworkData()
+    }
+
+    func send(_ command: NowPlayingCommand) -> Bool {
+        sendAppleMusic(command)
+    }
+
+    func openMusicApp() {
+        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.Music") else {
+            return
+        }
+
+        NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration())
     }
 }
 
@@ -205,6 +289,30 @@ private extension NowPlayingApplicationBridge {
         }
 
         return true
+    }
+
+    func appleMusicArtworkData() async -> Data? {
+        guard isApplicationRunning(bundleIdentifier: "com.apple.Music") else { return nil }
+
+        let script = """
+        tell application "Music"
+            try
+                if (count of artworks of current track) is 0 then
+                    return missing value
+                end if
+                return raw data of artwork 1 of current track
+            on error
+                return missing value
+            end try
+        end tell
+        """
+
+        guard let descriptor = try? await NowPlayingAppleScriptRunner.execute(script) else {
+            return nil
+        }
+
+        let artworkData = descriptor.data
+        return artworkData.isEmpty ? nil : artworkData
     }
 
     func appleMusicFavoriteState() async -> Bool? {

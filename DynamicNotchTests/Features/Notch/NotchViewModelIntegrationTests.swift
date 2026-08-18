@@ -1274,4 +1274,68 @@ final class NotchViewModelIntegrationTests: XCTestCase {
         XCTAssertEqual(newRadius.top, initialRadius.top, accuracy: 0.001)
         XCTAssertEqual(newRadius.bottom, initialRadius.bottom, accuracy: 0.001)
     }
+
+    @MainActor
+    func testTappingNotchOpensHomePageWhileFocusAndNowPlayingAreActive() async {
+        let viewModel = NotchViewModel(
+            settings: TestNotchSettings(),
+            hideDelay: 0.01,
+            queueDelay: 0
+        )
+        TestLifetime.retain(viewModel)
+
+        viewModel.send(
+            .showLiveActivity(
+                TestNotchContent(
+                    id: NotchContentRegistry.HomePage.active.id,
+                    priority: NotchContentPriority.homePage,
+                    isExpandable: true,
+                    expandedWidthOffset: 180,
+                    expandedHeightOffset: 120
+                )
+            )
+        )
+        viewModel.send(
+            .showLiveActivity(
+                TestNotchContent(
+                    id: NotchContentRegistry.Focus.active.id,
+                    priority: NotchContentPriority.focus,
+                    isExpandable: true
+                )
+            )
+        )
+        viewModel.send(
+            .showLiveActivity(
+                TestNotchContent(
+                    id: NotchContentRegistry.Media.nowPlaying.id,
+                    priority: NotchContentPriority.nowPlaying,
+                    isExpandable: true
+                )
+            )
+        )
+
+        await assertEventually {
+            await MainActor.run {
+                viewModel.notchModel.liveActivityContent?.id == NotchContentRegistry.Media.nowPlaying.id
+            }
+        }
+
+        viewModel.handleActiveContentTap()
+
+        await assertEventually {
+            await MainActor.run {
+                viewModel.notchModel.liveActivityContent?.id == NotchContentRegistry.HomePage.active.id &&
+                viewModel.notchModel.isLiveActivityExpanded
+            }
+        }
+
+        viewModel.handleOutsideClick()
+
+        await assertEventually {
+            await MainActor.run {
+                viewModel.notchModel.liveActivityContent?.id == NotchContentRegistry.Media.nowPlaying.id &&
+                viewModel.notchModel.isLiveActivityExpanded == false
+            }
+        }
+    }
 }

@@ -79,29 +79,6 @@ final class NotchConnectivityEventsHandler {
     }
 
     func handleVpn(_ event: VpnEvent) {
-        switch event {
-        case .vpnConnected:
-            guard settingsViewModel.isTemporaryActivityEnabled(.vpn) else { return }
-            notchViewModel.send(
-                .showTemporaryNotification(
-                    VpnConnectedNotchContent(
-                        vpnViewModel: vpnViewModel,
-                        settings: settingsViewModel.connectivity
-                    ),
-                    duration: settingsViewModel.temporaryActivityDuration(for: .vpn)
-                )
-            )
-        case .vpnDisconnected:
-            guard settingsViewModel.isTemporaryActivityEnabled(.vpnDisconnected) else { return }
-            notchViewModel.send(
-                .showTemporaryNotification(
-                    VpnDisconnectedNotchContent(
-                        vpnViewModel: vpnViewModel,
-                        settings: settingsViewModel.connectivity
-                    ),
-                    duration: settingsViewModel.temporaryActivityDuration(for: .vpnDisconnected)
-                )
-            )
-        }
+        _ = event
     }
 }

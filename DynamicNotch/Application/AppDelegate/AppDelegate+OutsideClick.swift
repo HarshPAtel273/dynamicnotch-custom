@@ -60,11 +60,13 @@ extension AppDelegate {
         guard shouldHandleOutsideClick else { return }
         guard let activeNotchScreenRect else {
             notchViewModel.handleOutsideClick()
+            window?.resignKey()
             return
         }
 
         guard !activeNotchScreenRect.contains(screenLocation) else { return }
         notchViewModel.handleOutsideClick()
+        window?.resignKey()
     }
 
     @MainActor
@@ -72,11 +74,13 @@ extension AppDelegate {
         guard shouldHandleOutsideClick else { return }
         guard let activeNotchScreenRect else {
             notchViewModel.handleOutsideClick()
+            window?.resignKey()
             return
         }
 
         guard !activeNotchScreenRect.contains(screenLocation) else { return }
         notchViewModel.handleOutsideClick()
+        window?.resignKey()
     }
 
     @MainActor
@@ -88,9 +92,14 @@ extension AppDelegate {
 
     @MainActor
     var activeNotchScreenRect: CGRect? {
+        interactiveNotchScreenRect
+    }
+
+    @MainActor
+    var interactiveNotchScreenRect: CGRect? {
         guard let window else { return nil }
 
-        let notchSize = notchViewModel.notchModel.size
+        let notchSize = notchViewModel.presentedNotchSize
         guard notchSize.width > 0, notchSize.height > 0 else { return nil }
 
         let isVertical = settingsViewModel.homePage.homePageScrollAxis == .vertical

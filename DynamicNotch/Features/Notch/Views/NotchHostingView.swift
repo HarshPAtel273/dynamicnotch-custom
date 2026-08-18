@@ -1,6 +1,9 @@
 import SwiftUI
 
 final class NotchHostingView: NSHostingView<AnyView> {
+    var allowsHitThroughEmptyAreas = false
+    var isPointInsideInteractiveArea: ((NSPoint) -> Bool)?
+
     required init(rootView: AnyView) {
         super.init(rootView: rootView)
     }
@@ -14,7 +17,7 @@ final class NotchHostingView: NSHostingView<AnyView> {
     }
 
     override var acceptsFirstResponder: Bool {
-        true
+        false
     }
 
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
@@ -22,6 +25,18 @@ final class NotchHostingView: NSHostingView<AnyView> {
     }
 
     override func hitTest(_ point: NSPoint) -> NSView? {
-        super.hitTest(point)
+        guard allowsHitThroughEmptyAreas else {
+            return super.hitTest(point)
+        }
+
+        if let isPointInsideInteractiveArea, isPointInsideInteractiveArea(point) == false {
+            return nil
+        }
+
+        guard let hitView = super.hitTest(point) else {
+            return nil
+        }
+
+        return hitView === self ? nil : hitView
     }
 }

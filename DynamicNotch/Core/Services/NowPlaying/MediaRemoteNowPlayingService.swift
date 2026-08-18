@@ -55,6 +55,7 @@ final class MediaRemoteNowPlayingService: NowPlayingMonitoring, NowPlayingDetail
     private var applicationPlaybackRefreshKeys: [String: String] = [:]
     private var applicationPlaybackObservers: [NSObjectProtocol] = []
     private var applicationPlaybackPollTimer: DispatchSourceTimer?
+    private var appleMusicFallbackTask: Task<Void, Never>?
     private var isDetailPollingEnabled = false
     private var isMonitoring = false
     private var restartWorkItem: DispatchWorkItem?
@@ -69,6 +70,7 @@ final class MediaRemoteNowPlayingService: NowPlayingMonitoring, NowPlayingDetail
         isMonitoring = true
         startApplicationPlaybackObservers()
         launchHelperProcess()
+        scheduleAppleMusicFallbackRefresh()
     }
 
     func stopMonitoring() {
@@ -97,6 +99,8 @@ final class MediaRemoteNowPlayingService: NowPlayingMonitoring, NowPlayingDetail
         favoriteRefreshKey = nil
         applicationPlaybackRefreshTask?.cancel()
         applicationPlaybackRefreshTask = nil
+        appleMusicFallbackTask?.cancel()
+        appleMusicFallbackTask = nil
         isDetailPollingEnabled = false
         applicationPlaybackStates.removeAll()
         applicationPlaybackRefreshKeys.removeAll()
@@ -255,7 +259,16 @@ private extension MediaRemoteNowPlayingService {
         do {
             let message = try decoder.decode(AdapterStreamMessage.self, from: data)
             guard message.type == nil || message.type == "data" else { return }
-            publish(snapshot: makeSnapshot(from: message.payload))
+            let snapshot = makeSnapshot(from: message.payload)
+
+            if snapshot == nil {
+                scheduleAppleMusicFallbackRefresh()
+                if shouldDeferNilSnapshotForAppleMusicFallback {
+                    return
+                }
+            }
+
+            publish(snapshot: snapshot)
         } catch {
             return
         }
@@ -325,6 +338,10 @@ private extension MediaRemoteNowPlayingService {
                         for: self?.lastSnapshot,
                         force: true
                     )
+
+                    if notificationName == "com.apple.Music.playerInfo" {
+                        self?.scheduleAppleMusicFallbackRefresh()
+                    }
                 }
             }
 
@@ -473,6 +490,69 @@ private extension MediaRemoteNowPlayingService {
         default:
             return false
         }
+    }
+
+    var shouldDeferNilSnapshotForAppleMusicFallback: Bool {
+        lastSnapshot == nil || lastSnapshot?.playbackSource?.preferredBundleIdentifier == "com.apple.Music"
+    }
+
+    func scheduleAppleMusicFallbackRefresh(delay: TimeInterval = 0.2) {
+        appleMusicFallbackTask?.cancel()
+        appleMusicFallbackTask = Task { [weak self, applicationBridge] in
+            if delay > 0 {
+                try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+            }
+
+            guard !Task.isCancelled else { return }
+
+            let appleMusicSource = NowPlayingPlaybackSource(
+                bundleIdentifier: "com.apple.Music",
+                parentBundleIdentifier: nil,
+                processIdentifier: nil
+            )
+            let state = await applicationBridge.playbackState(for: appleMusicSource)
+            let artworkData: Data?
+            if state?.hasVisibleMetadata == true {
+                artworkData = await applicationBridge.artworkData()
+            } else {
+                artworkData = nil
+            }
+
+            self?.callbackQueue.async { [weak self] in
+                self?.applyAppleMusicFallback(state, artworkData: artworkData)
+            }
+        }
+    }
+
+    func applyAppleMusicFallback(
+        _ state: NowPlayingApplicationPlaybackState?,
+        artworkData: Data?
+    ) {
+        if let lastSnapshot,
+           lastSnapshot.playbackSource?.preferredBundleIdentifier != "com.apple.Music",
+           lastSnapshot.hasVisibleMetadata {
+            return
+        }
+
+        let resolvedArtworkData: Data?
+        if let artworkData, !artworkData.isEmpty {
+            resolvedArtworkData = artworkData
+        } else if lastSnapshot?.playbackSource?.preferredBundleIdentifier == "com.apple.Music",
+                  lastSnapshot?.trackMatches(state) == true {
+            resolvedArtworkData = lastSnapshot?.artworkData
+        } else {
+            resolvedArtworkData = nil
+        }
+
+        let snapshot = state?.asNowPlayingSnapshot(artworkData: resolvedArtworkData)
+
+        if snapshot == nil,
+           lastSnapshot != nil,
+           lastSnapshot?.playbackSource?.preferredBundleIdentifier != "com.apple.Music" {
+            return
+        }
+
+        publish(snapshot: snapshot)
     }
 
     func refreshFavoriteStateIfNeeded(for snapshot: NowPlayingSnapshot?) {
@@ -709,6 +789,14 @@ private extension NowPlayingSnapshot {
             supportsVolumeControl: supportsVolumeControl,
             refreshedAt: state.refreshedAt
         )
+    }
+
+    func trackMatches(_ state: NowPlayingApplicationPlaybackState?) -> Bool {
+        guard let state else { return false }
+
+        return title.trimmed == (state.title?.trimmed ?? "") &&
+            artist.trimmed == (state.artist?.trimmed ?? "") &&
+            album.trimmed == (state.album?.trimmed ?? "")
     }
 
     func settingFavorite(_ isFavorite: Bool) -> Self {

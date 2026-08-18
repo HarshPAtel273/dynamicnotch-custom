@@ -1,7 +1,18 @@
 import CoreAudio
 import Foundation
 
-final class SystemAudioVolumeService {
+protocol SystemAudioVolumeControlling: AnyObject {
+    var currentEffectiveVolume: Float { get }
+    var isMuted: Bool { get }
+    var currentDeviceName: String? { get }
+
+    @discardableResult
+    func setVolume(_ value: Float) -> Int
+
+    func toggleMute() -> Int
+}
+
+final class SystemAudioVolumeService: SystemAudioVolumeControlling {
     private let candidateElements: [AudioObjectPropertyElement] = [
         kAudioObjectPropertyElementMain,
         AudioObjectPropertyElement(1),

@@ -153,6 +153,64 @@ final class FakeNowPlayingService: NowPlayingMonitoring, NowPlayingDetailPolling
     }
 }
 
+final class FakeAppleMusicController: AppleMusicControlling {
+    var isMusicRunning: Bool
+    var state: NowPlayingApplicationPlaybackState?
+    var artwork: Data?
+    private(set) var commands: [NowPlayingCommand] = []
+    private(set) var openCalls = 0
+
+    init(
+        isMusicRunning: Bool = true,
+        state: NowPlayingApplicationPlaybackState? = nil,
+        artwork: Data? = nil
+    ) {
+        self.isMusicRunning = isMusicRunning
+        self.state = state
+        self.artwork = artwork
+    }
+
+    func playbackState() async -> NowPlayingApplicationPlaybackState? {
+        state
+    }
+
+    func artworkData() async -> Data? {
+        artwork
+    }
+
+    func send(_ command: NowPlayingCommand) -> Bool {
+        commands.append(command)
+        return true
+    }
+
+    func openMusicApp() {
+        openCalls += 1
+    }
+}
+
+func makeAppleMusicPlaybackState(
+    isPlaying: Bool = true,
+    title: String? = "Blinding Lights",
+    artist: String? = "The Weeknd",
+    album: String? = "After Hours",
+    elapsedTime: TimeInterval? = 32,
+    duration: TimeInterval? = 200
+) -> NowPlayingApplicationPlaybackState {
+    NowPlayingApplicationPlaybackState(
+        bundleIdentifier: "com.apple.Music",
+        isPlaying: isPlaying,
+        title: title,
+        artist: artist,
+        album: album,
+        elapsedTime: elapsedTime,
+        duration: duration,
+        isShuffled: false,
+        repeatMode: .off,
+        volume: 0.5,
+        refreshedAt: .now
+    )
+}
+
 @MainActor
 final class FakePlaybackSourceOpener: PlaybackSourceOpening {
     private(set) var openedSources: [NowPlayingPlaybackSource] = []
@@ -196,6 +254,34 @@ final class FakeAudioOutputRoutingService: AudioOutputRouting {
         }
 
         return true
+    }
+}
+
+final class FakeSystemAudioVolumeService: SystemAudioVolumeControlling {
+    var volume: Float
+    var isMuted: Bool
+    var currentDeviceName: String?
+
+    var currentEffectiveVolume: Float {
+        isMuted ? 0 : volume
+    }
+
+    init(volume: Float = 0.5, isMuted: Bool = false, currentDeviceName: String? = "MacBook Speakers") {
+        self.volume = volume
+        self.isMuted = isMuted
+        self.currentDeviceName = currentDeviceName
+    }
+
+    @discardableResult
+    func setVolume(_ value: Float) -> Int {
+        volume = max(0, min(1, value))
+        isMuted = volume < 0.001
+        return Int((currentEffectiveVolume * 100).rounded())
+    }
+
+    func toggleMute() -> Int {
+        isMuted.toggle()
+        return Int((currentEffectiveVolume * 100).rounded())
     }
 }
 
