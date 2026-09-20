@@ -55,6 +55,15 @@ final class SystemAudioHomePageViewModel: ObservableObject {
 
     func setVolume(_ value: Double) {
         let clamped = min(max(value, 0), 1)
+        // #region agent log
+        AgentDebugLog.write(
+            hypothesisId: "F",
+            location: "SystemAudioHomePageViewModel.setVolume",
+            message: "music page volume changed",
+            data: ["volume": clamped],
+            runId: "post-fix"
+        )
+        // #endregion
         _ = volumeService.setVolume(Float(clamped))
         refresh()
     }

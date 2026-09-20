@@ -33,10 +33,6 @@ final class NotchHostingView: NSHostingView<AnyView> {
             return nil
         }
 
-        guard let hitView = super.hitTest(point) else {
-            return nil
-        }
-
-        return hitView === self ? nil : hitView
+        return super.hitTest(point) ?? self
     }
 }

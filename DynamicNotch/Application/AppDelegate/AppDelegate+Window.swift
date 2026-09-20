@@ -45,13 +45,12 @@ extension AppDelegate {
         )
         hostingView.allowsHitThroughEmptyAreas = true
         hostingView.isPointInsideInteractiveArea = { [weak self, weak hostingView] point in
-            guard let self, let hostingView, let window = hostingView.window else {
+            guard let self, let hostingView else {
                 return false
             }
 
-            let windowPoint = hostingView.convert(point, to: nil)
-            let screenPoint = window.convertToScreen(NSRect(origin: windowPoint, size: .zero)).origin
-            return self.interactiveNotchScreenRect?.contains(screenPoint) == true
+            let rect = self.interactiveNotchViewRect(in: hostingView)
+            return rect?.contains(point) == true
         }
 
         window.contentView = hostingView

@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct TodoHomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
+struct AIUsageHomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
     let id = NotchContentRegistry.HomePage.active.id
 
     var priority: Int { NotchContentRegistry.HomePage.active.priority }
@@ -15,11 +15,11 @@ struct TodoHomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizable
     }
 
     func expandedSize(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
-        .init(width: baseWidth + 150, height: baseHeight + 184)
+        .init(width: baseWidth + 170, height: baseHeight + 170)
     }
 
     func expandedDynamicIslandSize(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
-        .init(width: baseWidth + 190, height: baseHeight + 184)
+        .init(width: baseWidth + 210, height: baseHeight + 170)
     }
 
     func expandedDynamicIslandCornerRadius(baseHeight: CGFloat) -> CGFloat {

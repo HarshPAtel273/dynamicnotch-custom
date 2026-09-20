@@ -11,9 +11,11 @@ enum HomePages: String, CaseIterable, Hashable, Codable, Identifiable {
     case camera
     case appleMusic
     case todos
+    case fileTray
     case localTimer
     case systemStats
     case fileConverter
+    case aiUsage
     
     var id: String { rawValue }
     
@@ -22,9 +24,11 @@ enum HomePages: String, CaseIterable, Hashable, Codable, Identifiable {
         case .camera: return "settings.homePage.pages.camera.title"
         case .appleMusic: return "Apple Music"
         case .todos: return "To-Dos"
+        case .fileTray: return "File Tray"
         case .localTimer: return "settings.homePage.pages.timer.title"
         case .systemStats: return "settings.homePage.pages.stats.title"
         case .fileConverter: return "settings.homePage.pages.converter.title"
+        case .aiUsage: return "AI Usage"
         }
     }
     
@@ -33,9 +37,11 @@ enum HomePages: String, CaseIterable, Hashable, Codable, Identifiable {
         case .camera: return "settings.homePage.pages.camera.subtitle"
         case .appleMusic: return "Control system audio and Music playback"
         case .todos: return "Add and complete tasks from the notch"
+        case .fileTray: return "Keep files in the notch for a little while"
         case .localTimer: return "settings.homePage.pages.timer.subtitle"
         case .systemStats: return "settings.homePage.pages.stats.subtitle"
         case .fileConverter: return "settings.homePage.pages.converter.subtitle"
+        case .aiUsage: return "See remaining Cursor, Claude, and ChatGPT usage"
         }
     }
     
@@ -44,9 +50,11 @@ enum HomePages: String, CaseIterable, Hashable, Codable, Identifiable {
         case .camera: return "camera.fill"
         case .appleMusic: return "music.note"
         case .todos: return "checklist"
+        case .fileTray: return "tray.full.fill"
         case .localTimer: return "timer"
         case .systemStats: return "cpu"
         case .fileConverter: return "arrow.trianglehead.2.clockwise.rotate.90"
+        case .aiUsage: return "brain.head.profile"
         }
     }
     
@@ -55,9 +63,11 @@ enum HomePages: String, CaseIterable, Hashable, Codable, Identifiable {
         case .camera: return .gray
         case .appleMusic: return Color(red: 0.98, green: 0.14, blue: 0.31)
         case .todos: return Color(red: 0.39, green: 0.66, blue: 0.96)
+        case .fileTray: return Color(red: 0.45, green: 0.78, blue: 0.62)
         case .localTimer: return .orange
         case .systemStats: return .green
         case .fileConverter: return .blue
+        case .aiUsage: return Color(red: 0.62, green: 0.45, blue: 0.95)
         }
     }
     
@@ -66,9 +76,11 @@ enum HomePages: String, CaseIterable, Hashable, Codable, Identifiable {
         case .camera: return .black
         case .appleMusic: return .white
         case .todos: return .white
+        case .fileTray: return .white
         case .localTimer: return .white
         case .systemStats: return .white
         case .fileConverter: return .white
+        case .aiUsage: return .white
         }
     }
 
@@ -92,6 +104,7 @@ struct HomePageNotchView: View {
     let localTimerViewModel: LocalTimerViewModel
     let nowPlayingViewModel: NowPlayingViewModel
     let fileConverterViewModel: FileConverterViewModel
+    let fileTrayViewModel: FileTrayViewModel
     let mediaAndFilesSettings: MediaAndFilesSettingsStore
     let applicationSettings: ApplicationSettingsStore
     let initialPage: HomePages
@@ -102,12 +115,13 @@ struct HomePageNotchView: View {
     @State private var isPageSettled = true
     @State private var settleTask: Task<Void, Never>? = nil
     
-    init(notchViewModel: NotchViewModel, settings: HomePageSettingsStore, localTimerViewModel: LocalTimerViewModel, nowPlayingViewModel: NowPlayingViewModel, fileConverterViewModel: FileConverterViewModel, mediaAndFilesSettings: MediaAndFilesSettingsStore, applicationSettings: ApplicationSettingsStore, initialPage: HomePages) {
+    init(notchViewModel: NotchViewModel, settings: HomePageSettingsStore, localTimerViewModel: LocalTimerViewModel, nowPlayingViewModel: NowPlayingViewModel, fileConverterViewModel: FileConverterViewModel, fileTrayViewModel: FileTrayViewModel, mediaAndFilesSettings: MediaAndFilesSettingsStore, applicationSettings: ApplicationSettingsStore, initialPage: HomePages) {
         self.notchViewModel = notchViewModel
         self.settings = settings
         self.localTimerViewModel = localTimerViewModel
         self.nowPlayingViewModel = nowPlayingViewModel
         self.fileConverterViewModel = fileConverterViewModel
+        self.fileTrayViewModel = fileTrayViewModel
         self.mediaAndFilesSettings = mediaAndFilesSettings
         self.applicationSettings = applicationSettings
         self.initialPage = initialPage
@@ -238,6 +252,7 @@ struct HomePageNotchView: View {
                             localTimerViewModel: localTimerViewModel,
                             nowPlayingViewModel: nowPlayingViewModel,
                             fileConverterViewModel: fileConverterViewModel,
+                            fileTrayViewModel: fileTrayViewModel,
                             mediaAndFilesSettings: mediaAndFilesSettings,
                             applicationSettings: applicationSettings
                         )
@@ -260,6 +275,7 @@ struct HomePageNotchView: View {
                         localTimerViewModel: localTimerViewModel,
                         nowPlayingViewModel: nowPlayingViewModel,
                         fileConverterViewModel: fileConverterViewModel,
+                        fileTrayViewModel: fileTrayViewModel,
                         mediaAndFilesSettings: mediaAndFilesSettings,
                         applicationSettings: applicationSettings
                     )
@@ -274,11 +290,19 @@ struct HomePageNotchView: View {
     private func pageView(for page: HomePages) -> some View {
         switch page {
         case .camera:
-            CameraNotchView(notchViewModel: notchViewModel, settings: settings, localTimerViewModel: localTimerViewModel, nowPlayingViewModel: nowPlayingViewModel, fileConverterViewModel: fileConverterViewModel, mediaAndFilesSettings: mediaAndFilesSettings, applicationSettings: applicationSettings)
+            CameraNotchView(notchViewModel: notchViewModel, settings: settings, localTimerViewModel: localTimerViewModel, nowPlayingViewModel: nowPlayingViewModel, fileConverterViewModel: fileConverterViewModel, fileTrayViewModel: fileTrayViewModel, mediaAndFilesSettings: mediaAndFilesSettings, applicationSettings: applicationSettings)
         case .appleMusic:
             AppleMusicHomePageNotchView(nowPlayingViewModel: nowPlayingViewModel)
         case .todos:
             TodoHomePageNotchView()
+        case .fileTray:
+            FileTrayHomePageNotchView(
+                fileTrayViewModel: fileTrayViewModel,
+                mediaSettings: mediaAndFilesSettings,
+                onRequestCollapse: {
+                    notchViewModel.handleOutsideClick()
+                }
+            )
         case .localTimer:
             LocalTimerSetupNotchView(localTimerViewModel: localTimerViewModel)
         case .systemStats:
@@ -288,8 +312,11 @@ struct HomePageNotchView: View {
                 onRequestCollapse: {
                     notchViewModel.handleOutsideClick()
                 },
-                fileConverterViewModel: fileConverterViewModel
+                fileConverterViewModel: fileConverterViewModel,
+                mediaSettings: mediaAndFilesSettings
             )
+        case .aiUsage:
+            AIUsageHomePageNotchView()
         }
     }
 }

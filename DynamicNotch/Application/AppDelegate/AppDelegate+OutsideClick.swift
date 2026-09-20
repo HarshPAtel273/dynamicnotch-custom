@@ -3,19 +3,8 @@ import Combine
 
 extension AppDelegate {
     func observeOutsideClickDismissal() {
-        notchViewModel.$notchModel
-            .map(\.isLiveActivityExpanded)
-            .removeDuplicates()
-            .sink { [weak self] isEnabled in
-                guard let self else { return }
-
-                if isEnabled {
-                    startOutsideClickMonitoring()
-                } else {
-                    stopOutsideClickMonitoring()
-                }
-            }
-            .store(in: &cancellables)
+        // Clicks must not collapse the expanded notch. Swipe up still dismisses,
+        // and hover-leave collapse still runs when that gesture is enabled.
     }
 
     func startOutsideClickMonitoring() {
@@ -85,14 +74,15 @@ extension AppDelegate {
 
     @MainActor
     var shouldHandleOutsideClick: Bool {
-        guard notchViewModel.notchModel.isLiveActivityExpanded else { return false }
-        guard Date().timeIntervalSince(expansionTime) > 0.35 else { return false }
-        return true
+        false
     }
 
     @MainActor
     var activeNotchScreenRect: CGRect? {
-        interactiveNotchScreenRect
+        guard var rect = interactiveNotchScreenRect else { return nil }
+        rect.origin.y -= 140
+        rect.size.height += 140
+        return rect
     }
 
     @MainActor
@@ -123,6 +113,37 @@ extension AppDelegate {
         )
 
         return CGRect(origin: origin, size: CGSize(width: width, height: height)).insetBy(dx: -12, dy: -8)
+    }
+
+    @MainActor
+    func interactiveNotchViewRect(in view: NSView) -> CGRect? {
+        var notchSize = notchViewModel.presentedNotchSize
+        if notchSize.width <= 0 || notchSize.height <= 0 {
+            notchSize = CGSize(width: 220, height: 48)
+        }
+
+        let isVertical = settingsViewModel.homePage.homePageScrollAxis == .vertical
+        var width = notchSize.width
+        var height = notchSize.height
+
+        if shouldShowPageIndicator {
+            if isVertical {
+                width = notchSize.width + pageIndicatorSize.width + 16
+                height = max(notchSize.height, notchSize.height / 2 + pageIndicatorSize.height / 2 + 12)
+            } else {
+                height += 6 + pageIndicatorSize.height + 35
+            }
+        }
+
+        let yOffset: CGFloat = notchViewModel.topInset == 0 ? 3 : 1
+        let originX = (view.bounds.width - width) / 2
+        // hitTest points in NSHostingView use bottom-left origin even when isFlipped is true.
+        let originY = view.bounds.height - height - yOffset
+
+        return CGRect(
+            origin: CGPoint(x: originX, y: originY),
+            size: CGSize(width: width, height: height)
+        ).insetBy(dx: -24, dy: -16)
     }
 
     @MainActor

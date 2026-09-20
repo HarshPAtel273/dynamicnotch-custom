@@ -145,7 +145,8 @@ final class NotchEventCoordinator: ObservableObject {
             settingsViewModel: settingsViewModel,
             localTimerViewModel: localTimerViewModel,
             nowPlayingViewModel: nowPlayingViewModel,
-            fileConverterViewModel: fileConverterViewModel
+            fileConverterViewModel: fileConverterViewModel,
+            fileTrayViewModel: fileTrayViewModel
         )
         self.calendarHandler = NotchCalendarEventsHandler(
             notchViewModel: notchViewModel,

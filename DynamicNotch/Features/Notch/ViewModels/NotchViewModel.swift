@@ -354,6 +354,18 @@ final class NotchViewModel: ObservableObject {
     }
     
     func dismissActiveContent() {
+        // #region agent log
+        AgentDebugLog.write(
+            hypothesisId: "A",
+            location: "NotchViewModel.dismissActiveContent",
+            message: "dismiss requested",
+            data: [
+                "expanded": notchModel.isLiveActivityExpanded,
+                "locked": isLocked,
+                "contentId": notchModel.liveActivityContent?.id ?? "nil"
+            ]
+        )
+        // #endregion
         if isLocked {
             resetSwipeStretch()
             return
@@ -381,6 +393,19 @@ final class NotchViewModel: ObservableObject {
     }
 
     func openActiveWindowLink() {
+        // #region agent log
+        AgentDebugLog.write(
+            hypothesisId: "D",
+            location: "NotchViewModel.openActiveWindowLink",
+            message: "window-link click path",
+            data: [
+                "contentId": notchModel.content?.id ?? "nil",
+                "hasLink": notchModel.content?.windowLink != nil,
+                "closeAtFocus": settings.isCloseAtFocusLiveActivityEnabled,
+                "expanded": notchModel.isLiveActivityExpanded
+            ]
+        )
+        // #endregion
         guard let content = notchModel.content, content.windowLink != nil else {
             engine.openActiveWindowLink()
             return

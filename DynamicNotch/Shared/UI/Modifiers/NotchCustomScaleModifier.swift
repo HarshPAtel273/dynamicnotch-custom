@@ -88,10 +88,8 @@ private extension NotchCustomScaleModifier {
 
                         resetInteractionState(cancelScaleAnimation: !shouldMaintainHoverScaleAfterRelease)
 
-                        if notchViewModel.shouldExpandActiveContentOnClick && isValidPress {
+                        if isValidPress, notchViewModel.canExpandActiveLiveActivity {
                             notchViewModel.handleActiveContentTap()
-                        } else if isValidPress {
-                            notchViewModel.openActiveWindowLink()
                         }
 
                         didCompleteExpandAction = false
@@ -324,6 +322,14 @@ private extension NotchCustomScaleModifier {
             }
 
             pendingCollapseToken = nil
+            // #region agent log
+            AgentDebugLog.write(
+                hypothesisId: "B",
+                location: "NotchCustomScaleModifier.scheduleHoverCollapseIfNeeded",
+                message: "hover-leave collapse firing",
+                data: ["isHovering": isHovering]
+            )
+            // #endregion
             notchViewModel.handleOutsideClick()
         }
     }

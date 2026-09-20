@@ -278,7 +278,7 @@ struct AppleMusicHomePageNotchView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 .contentShape(Rectangle())
-                .gesture(
+                .highPriorityGesture(
                     DragGesture(minimumDistance: 0)
                         .onChanged { value in
                             let nextVolume = min(max(value.location.x / max(proxy.size.width, 1), 0), 1)

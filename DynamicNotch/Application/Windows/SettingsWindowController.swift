@@ -7,16 +7,7 @@ class SettingsWindowController: NSWindowController {
     private var appDelegate: AppDelegate?
     
     private init() {
-        let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: SettingsWindowLayout.width, height: SettingsWindowLayout.height),
-            styleMask: [.titled, .closable, .miniaturizable, .fullSizeContentView],
-            backing: .buffered,
-            defer: false
-        )
-        
-        super.init(window: window)
-        
-        setupWindow()
+        super.init(window: nil)
     }
     
     required init?(coder: NSCoder) {
@@ -25,6 +16,22 @@ class SettingsWindowController: NSWindowController {
     
     func setupDependencies(appDelegate: AppDelegate) {
         self.appDelegate = appDelegate
+        if window != nil {
+            setupContentView()
+        }
+    }
+
+    private func ensureWindow() {
+        guard window == nil else { return }
+
+        let settingsWindow = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: SettingsWindowLayout.width, height: SettingsWindowLayout.height),
+            styleMask: [.titled, .closable, .miniaturizable, .fullSizeContentView],
+            backing: .buffered,
+            defer: true
+        )
+        window = settingsWindow
+        setupWindow()
         setupContentView()
     }
     
@@ -71,7 +78,7 @@ class SettingsWindowController: NSWindowController {
     }
     
     func showWindow() {
-        _ = window
+        ensureWindow()
 
         window?.level = .normal
         window?.collectionBehavior = [.managed, .participatesInCycle, .fullScreenNone]

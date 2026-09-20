@@ -9,25 +9,55 @@ import SwiftUI
 
 struct FileConverterHomePageView: View {
     var onRequestCollapse: (@MainActor () -> Void)? = nil
-    
+
     @ObservedObject var fileConverterViewModel: FileConverterViewModel
+    @ObservedObject var mediaSettings: MediaAndFilesSettingsStore
     @Environment(\.isDynamicIsland) private var isDynamicIsland
-    
+
     var body: some View {
-        VStack {
-            Spacer()
-            emptyStateDropRow
+        Group {
+            if fileConverterViewModel.hasItem {
+                FileConverterExpandedActiveNotchView(
+                    fileConverterViewModel: fileConverterViewModel,
+                    mediaSettings: mediaSettings,
+                    onRequestCollapse: onRequestCollapse
+                )
+            } else {
+                emptyStateDropRow
+            }
         }
-        .padding(.horizontal, 1)
-        .padding(.bottom, 1)
+        .onAppear {
+            // #region agent log
+            AgentDebugLog.write(
+                hypothesisId: "H",
+                location: "FileConverterHomePageView.body",
+                message: "homepage converter rendered",
+                data: [
+                    "hasItem": fileConverterViewModel.hasItem,
+                    "selectedFormat": fileConverterViewModel.selectedFormat.rawValue,
+                    "status": String(describing: fileConverterViewModel.status)
+                ],
+                runId: "post-fix"
+            )
+            // #endregion
+        }
+        .onChange(of: fileConverterViewModel.hasItem) { _, hasItem in
+            // #region agent log
+            AgentDebugLog.write(
+                hypothesisId: "H",
+                location: "FileConverterHomePageView.onChange",
+                message: "homepage converter hasItem changed",
+                data: ["hasItem": hasItem],
+                runId: "post-fix"
+            )
+            // #endregion
+        }
     }
-    
+
     private var emptyStateDropRow: some View {
         Button(action: {
-            onRequestCollapse?()
-            DispatchQueue.main.async {
-                fileConverterViewModel.chooseFileFromFinder()
-            }
+            // Keep the homepage open so the selected file appears in-place.
+            fileConverterViewModel.chooseFileFromFinder()
         }) {
             ZStack {
                 RoundedRectangle(cornerRadius: isDynamicIsland ? 24 : 34)
@@ -48,5 +78,7 @@ struct FileConverterHomePageView: View {
         }
         .disabled(fileConverterViewModel.isConverting)
         .buttonStyle(.plain)
+        .padding(.horizontal, 1)
+        .padding(.bottom, 1)
     }
 }

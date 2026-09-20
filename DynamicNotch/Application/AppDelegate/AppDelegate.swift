@@ -82,6 +82,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                         w.orderOut(nil)
                     }
                 }
+                self.applyActivationPolicy(
+                    showsDockIcon: self.settingsViewModel.application.isDockIconVisible
+                )
             }
         }
 
@@ -106,6 +109,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         lockScreenManager.startMonitoring()
     }
 
+    func applicationDidBecomeActive(_ notification: Notification) {
+        guard !isRunningUITests else { return }
+        guard SettingsWindowController.shared.window?.isVisible != true else { return }
+        applyActivationPolicy(showsDockIcon: settingsViewModel.application.isDockIconVisible)
+    }
+
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        false
+    }
+
     func applicationWillTerminate(_ notification: Notification) {
         NotificationCenter.default.removeObserver(self)
         NSWorkspace.shared.notificationCenter.removeObserver(self)
@@ -124,10 +137,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applyActivationPolicy(showsDockIcon: Bool) {
         let targetPolicy: NSApplication.ActivationPolicy = showsDockIcon ? .regular : .accessory
-
-        guard NSApp.activationPolicy() != targetPolicy else { return }
-
-        NSApp.setActivationPolicy(targetPolicy)
+        _ = NSApp.setActivationPolicy(targetPolicy)
 
         if showsDockIcon {
             NSApp.activate(ignoringOtherApps: false)

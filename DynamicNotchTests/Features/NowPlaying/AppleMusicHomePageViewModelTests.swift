@@ -73,9 +73,11 @@ final class HomePageSettingsStoreTests: XCTestCase {
     func testDefaultOrderIncludesAppleMusic() {
         XCTAssertEqual(
             GeneralSettingsStorage.defaultValues[GeneralSettingsStorage.Keys.homePageOrder] as? [String],
-            ["camera", "appleMusic", "todos", "localTimer", "systemStats"]
+            ["camera", "appleMusic", "todos", "fileTray", "aiUsage", "localTimer", "systemStats"]
         )
         XCTAssertTrue(HomePages.allCases.contains(.appleMusic))
         XCTAssertTrue(HomePages.allCases.contains(.todos))
+        XCTAssertTrue(HomePages.allCases.contains(.fileTray))
+        XCTAssertTrue(HomePages.allCases.contains(.aiUsage))
     }
 }

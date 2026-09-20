@@ -14,6 +14,7 @@ struct CameraNotchView: View {
     let localTimerViewModel: LocalTimerViewModel
     let nowPlayingViewModel: NowPlayingViewModel
     let fileConverterViewModel: FileConverterViewModel
+    let fileTrayViewModel: FileTrayViewModel
     let mediaAndFilesSettings: MediaAndFilesSettingsStore
     let applicationSettings: ApplicationSettingsStore
     
@@ -117,6 +118,7 @@ struct CameraNotchView: View {
                     localTimerViewModel: localTimerViewModel,
                     nowPlayingViewModel: nowPlayingViewModel,
                     fileConverterViewModel: fileConverterViewModel,
+                    fileTrayViewModel: fileTrayViewModel,
                     mediaAndFilesSettings: mediaAndFilesSettings,
                     applicationSettings: applicationSettings
                 )
@@ -166,6 +168,7 @@ struct CameraNotchView: View {
                         localTimerViewModel: localTimerViewModel,
                         nowPlayingViewModel: nowPlayingViewModel,
                         fileConverterViewModel: fileConverterViewModel,
+                        fileTrayViewModel: fileTrayViewModel,
                         mediaAndFilesSettings: mediaAndFilesSettings,
                         applicationSettings: applicationSettings
                     )

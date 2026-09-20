@@ -152,6 +152,19 @@ final class FileTrayViewModel: ObservableObject {
         items.filter { selectedItemIDs.contains($0.id) }
     }
 
+    func chooseFilesFromFinder(mode: FileTrayUsageMode) {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = true
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = true
+        panel.canCreateDirectories = false
+        panel.prompt = "Add"
+        panel.message = "Choose files to keep in the tray"
+
+        guard panel.runModal() == .OK else { return }
+        try? add(panel.urls, mode: mode)
+    }
+
     func add(_ urls: [URL]) {
         add(urls, removalPolicy: .deleteCopy)
     }

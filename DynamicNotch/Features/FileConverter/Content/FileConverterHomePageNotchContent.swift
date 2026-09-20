@@ -10,13 +10,16 @@ import SwiftUI
 struct FileConverterHomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
     let id = NotchContentRegistry.HomePage.active.id
     let fileConverterViewModel: FileConverterViewModel
+    let mediaSettings: MediaAndFilesSettingsStore
     let onRequestCollapse: (@MainActor () -> Void)?
 
     init(
         fileConverterViewModel: FileConverterViewModel,
+        mediaSettings: MediaAndFilesSettingsStore,
         onRequestCollapse: (@MainActor () -> Void)? = nil
     ) {
         self.fileConverterViewModel = fileConverterViewModel
+        self.mediaSettings = mediaSettings
         self.onRequestCollapse = onRequestCollapse
     }
 
@@ -28,15 +31,15 @@ struct FileConverterHomePageNotchContent: NotchContentProtocol, DynamicIslandCus
     }
 
     func expandedCornerRadius(baseRadius: CGFloat) -> (top: CGFloat, bottom: CGFloat) {
-        (top: 24, bottom: 48)
+        (top: 24, bottom: 38)
     }
 
     func expandedSize(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
-        .init(width: baseWidth + 65, height: baseHeight + 125)
+        .init(width: baseWidth + 150, height: baseHeight + 145)
     }
 
     func expandedDynamicIslandSize(baseWidth: CGFloat, baseHeight: CGFloat) -> CGSize {
-        .init(width: baseWidth + 95, height: baseHeight + 125)
+        .init(width: baseWidth + 180, height: baseHeight + 145)
     }
 
     func expandedDynamicIslandCornerRadius(baseHeight: CGFloat) -> CGFloat {
@@ -53,7 +56,8 @@ struct FileConverterHomePageNotchContent: NotchContentProtocol, DynamicIslandCus
         AnyView(
             FileConverterHomePageView(
                 onRequestCollapse: onRequestCollapse,
-                fileConverterViewModel: fileConverterViewModel
+                fileConverterViewModel: fileConverterViewModel,
+                mediaSettings: mediaSettings
             )
         )
     }

@@ -14,6 +14,7 @@ struct TrayExpandedActiveNotchView: View {
     @Environment(\.isDynamicIsland) private var isDynamicIsland
     @ObservedObject var fileTrayViewModel: FileTrayViewModel
     @ObservedObject var mediaSettings: MediaAndFilesSettingsStore
+    var onAddFiles: (() -> Void)? = nil
 
     var body: some View {
         ZStack {
@@ -23,21 +24,26 @@ struct TrayExpandedActiveNotchView: View {
             }
             .padding(.top, isDynamicIsland ? 8.scaled(by: scale) : 4.scaled(by: scale))
             .padding(.horizontal, isDynamicIsland ? 30 : 42)
-            
-            VStack(alignment: .leading) {
-                Spacer()
 
-                ScrollView(scrollDirection.scrollAxis, showsIndicators: false) {
-                    trayItems
+            if fileTrayViewModel.items.isEmpty, onAddFiles != nil {
+                emptyState
+            } else {
+                VStack(alignment: .leading) {
+                    Spacer()
+
+                    ScrollView(scrollDirection.scrollAxis, showsIndicators: false) {
+                        trayItems
+                    }
+                    .frame(maxHeight: 100)
+                    .mask {
+                        ScrollFadeMask(cornerRadius: 24, maskType: .all)
+                    }
                 }
-                .frame(maxHeight: 100)
-                .mask {
-                    ScrollFadeMask(cornerRadius: 24, maskType: .all)
-                }
+                .padding(.horizontal, isDynamicIsland ? 20 : 34)
+                .padding(.bottom, isDynamicIsland ? 7 : 14)
             }
-            .padding(.horizontal, isDynamicIsland ? 20 : 34)
-            .padding(.bottom, isDynamicIsland ? 7 : 14)
         }
+        .padding(.top, 4)
     }
 
     private var scrollDirection: FileTrayScrollDirection {
@@ -62,9 +68,19 @@ struct TrayExpandedActiveNotchView: View {
                 }
             }
             .buttonStyle(PressedButtonStyle(width: 60, height: 30))
-            
+
             Spacer()
-            
+
+            if onAddFiles != nil {
+                Button {
+                    onAddFiles?()
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 16, weight: .semibold))
+                }
+                .buttonStyle(PressedButtonStyle(width: 30, height: 30))
+            }
+
             Button {
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                     if fileTrayViewModel.hasSelection {
@@ -88,6 +104,37 @@ struct TrayExpandedActiveNotchView: View {
             .buttonStyle(PressedButtonStyle(width: 60, height: 30))
         }
         .foregroundStyle(.white)
+    }
+
+    private var emptyState: some View {
+        VStack {
+            Spacer()
+
+            Button(action: { onAddFiles?() }) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: isDynamicIsland ? 24 : 34)
+                        .fill(.gray.opacity(0.12))
+                        .stroke(
+                            .gray.opacity(0.6),
+                            style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round, dash: [10, 10])
+                        )
+                        .frame(height: 96)
+
+                    VStack(spacing: 8) {
+                        Image(systemName: "tray.and.arrow.down.fill")
+                            .font(.system(size: 26, weight: .semibold))
+                            .foregroundStyle(.white)
+
+                        Text(verbatim: "Drop or choose files to keep")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(.white)
+                    }
+                }
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, isDynamicIsland ? 8 : 20)
+        .padding(.bottom, isDynamicIsland ? 8 : 12)
     }
 
     @ViewBuilder

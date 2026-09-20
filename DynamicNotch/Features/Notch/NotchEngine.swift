@@ -82,6 +82,24 @@ final class NotchEngine: ObservableObject {
     func send(_ notchState: NotchState) {
         switch notchState {
         case .showTemporaryNotification(let content, let duration):
+            // #region agent log
+            AgentDebugLog.write(
+                hypothesisId: "F",
+                location: "NotchEngine.send.showTemporaryNotification",
+                message: notchModel.isLiveActivityExpanded ? "skipped HUD while expanded" : "temporary notification requested",
+                data: [
+                    "contentId": content.id,
+                    "expanded": notchModel.isLiveActivityExpanded,
+                    "holdingHome": isHoldingExpandedHomePage
+                ],
+                runId: "post-fix"
+            )
+            // #endregion
+
+            if notchModel.isLiveActivityExpanded {
+                return
+            }
+
             if notchModel.temporaryNotificationContent?.id == content.id {
                 currentTemporaryNotificationDuration = duration
 
@@ -120,6 +138,37 @@ final class NotchEngine: ObservableObject {
                     notchModel.updateToken = UUID()
                 }
                 return
+            }
+
+            if isHoldingExpandedHomePage,
+               content.id != NotchContentRegistry.HomePage.active.id,
+               content.id != NotchContentRegistry.DragAndDrop.fileConverterActive.id {
+                // #region agent log
+                AgentDebugLog.write(
+                    hypothesisId: "I",
+                    location: "NotchEngine.send.showLiveActivity",
+                    message: "kept expanded homepage; deferred other activity",
+                    data: [
+                        "incomingId": content.id,
+                        "expanded": true
+                    ],
+                    runId: "post-fix"
+                )
+                // #endregion
+                return
+            }
+
+            if isHoldingExpandedHomePage,
+               content.id == NotchContentRegistry.DragAndDrop.fileConverterActive.id {
+                // #region agent log
+                AgentDebugLog.write(
+                    hypothesisId: "I",
+                    location: "NotchEngine.send.showLiveActivity",
+                    message: "allowing file converter to interrupt expanded homepage",
+                    data: ["incomingId": content.id],
+                    runId: "post-fix"
+                )
+                // #endregion
             }
 
         case .hideLiveActivity(let id):
@@ -226,6 +275,10 @@ final class NotchEngine: ObservableObject {
             return
         }
 
+        if isHoldingExpandedHomePage {
+            return
+        }
+
         guard bestVisible.id != notchModel.liveActivityContent?.id else {
             return
         }
@@ -257,6 +310,18 @@ final class NotchEngine: ObservableObject {
     }
 
     func handleOutsideClick() {
+        // #region agent log
+        AgentDebugLog.write(
+            hypothesisId: "B",
+            location: "NotchEngine.handleOutsideClick",
+            message: "outside-click collapse requested",
+            data: [
+                "expanded": notchModel.isLiveActivityExpanded,
+                "locked": UserDefaults.standard.bool(forKey: "isNotchLocked"),
+                "contentId": notchModel.liveActivityContent?.id ?? "nil"
+            ]
+        )
+        // #endregion
         if UserDefaults.standard.bool(forKey: "isNotchLocked") {
             return
         }
@@ -325,6 +390,11 @@ final class NotchEngine: ObservableObject {
         }
     }
 
+    private var isHoldingExpandedHomePage: Bool {
+        notchModel.isLiveActivityExpanded &&
+        notchModel.liveActivityContent?.id == NotchContentRegistry.HomePage.active.id
+    }
+
     private func recordDismissedLiveActivity(id: String) {
         dismissedLiveActivityIDs.removeAll(where: { $0 == id })
         dismissedLiveActivityIDs.append(id)
@@ -385,6 +455,37 @@ final class NotchEngine: ObservableObject {
                 return
             }
 
+            if isHoldingExpandedHomePage,
+               bestVisible?.id != NotchContentRegistry.HomePage.active.id,
+               bestVisible?.id != NotchContentRegistry.DragAndDrop.fileConverterActive.id {
+                // #region agent log
+                AgentDebugLog.write(
+                    hypothesisId: "I",
+                    location: "NotchEngine.executeState.showLiveActivity",
+                    message: "kept expanded homepage; skipped priority switch",
+                    data: [
+                        "bestId": bestVisible?.id ?? "nil",
+                        "expanded": true
+                    ],
+                    runId: "post-fix"
+                )
+                // #endregion
+                return
+            }
+
+            if isHoldingExpandedHomePage,
+               bestVisible?.id == NotchContentRegistry.DragAndDrop.fileConverterActive.id {
+                // #region agent log
+                AgentDebugLog.write(
+                    hypothesisId: "I",
+                    location: "NotchEngine.executeState.showLiveActivity",
+                    message: "priority switch allowing file converter over homepage",
+                    data: ["bestId": bestVisible?.id ?? "nil"],
+                    runId: "post-fix"
+                )
+                // #endregion
+            }
+
             await showLiveContentTransition(bestVisible)
 
         case .hideLiveActivity(let id):
@@ -428,6 +529,19 @@ final class NotchEngine: ObservableObject {
         if notchModel.liveActivityContent?.id == content?.id {
             return
         }
+
+        // #region agent log
+        AgentDebugLog.write(
+            hypothesisId: "E",
+            location: "NotchEngine.showLiveContentTransition",
+            message: "content switch will collapse then show",
+            data: [
+                "fromId": notchModel.liveActivityContent?.id ?? "nil",
+                "toId": content?.id ?? "nil",
+                "expanded": notchModel.isLiveActivityExpanded
+            ]
+        )
+        // #endregion
 
         await withCheckedContinuation { continuation in
             transition(

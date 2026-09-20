@@ -16,6 +16,7 @@ struct HomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
     let localTimerViewModel: LocalTimerViewModel
     let nowPlayingViewModel: NowPlayingViewModel
     let fileConverterViewModel: FileConverterViewModel
+    let fileTrayViewModel: FileTrayViewModel
     let mediaAndFilesSettings: MediaAndFilesSettingsStore
     let applicationSettings: ApplicationSettingsStore
 
@@ -37,6 +38,14 @@ struct HomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
             return AppleMusicHomePageNotchContent()
         case .todos:
             return TodoHomePageNotchContent()
+        case .fileTray:
+            return FileTrayHomePageNotchContent(
+                fileTrayViewModel: fileTrayViewModel,
+                mediaSettings: mediaAndFilesSettings,
+                onRequestCollapse: { [weak notchViewModel] in
+                    notchViewModel?.handleOutsideClick()
+                }
+            )
         case .localTimer:
             return LocalTimerHomePageNotchContent()
         case .systemStats:
@@ -44,10 +53,13 @@ struct HomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
         case .fileConverter:
             return FileConverterHomePageNotchContent(
                 fileConverterViewModel: fileConverterViewModel,
+                mediaSettings: mediaAndFilesSettings,
                 onRequestCollapse: { [weak notchViewModel] in
                     notchViewModel?.handleOutsideClick()
                 }
             )
+        case .aiUsage:
+            return AIUsageHomePageNotchContent()
         }
     }
 
@@ -94,6 +106,7 @@ struct HomePageNotchContent: NotchContentProtocol, DynamicIslandCustomizable {
                 localTimerViewModel: localTimerViewModel,
                 nowPlayingViewModel: nowPlayingViewModel,
                 fileConverterViewModel: fileConverterViewModel,
+                fileTrayViewModel: fileTrayViewModel,
                 mediaAndFilesSettings: mediaAndFilesSettings,
                 applicationSettings: applicationSettings,
                 initialPage: homePages

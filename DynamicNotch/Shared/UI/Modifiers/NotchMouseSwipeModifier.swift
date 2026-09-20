@@ -9,12 +9,31 @@ struct NotchMouseSwipeModifier: ViewModifier {
         content.background(
             NotchMouseSwipeMonitorRepresentable(
                 canSwipeUp: isEnabled && notchViewModel.canDismissWithMouseDrag,
-                canSwipeDown: isEnabled && notchViewModel.canRestoreWithMouseDrag,
+                canSwipeDown: isEnabled && (
+                    notchViewModel.canRestoreWithMouseDrag ||
+                    (!notchViewModel.isDisplayingExpandedLiveActivity && notchViewModel.canExpandActiveLiveActivity)
+                ),
                 onSwipeUp: {
+                    // #region agent log
+                    AgentDebugLog.write(
+                        hypothesisId: "A",
+                        location: "NotchMouseSwipeModifier.onSwipeUp",
+                        message: "mouse-drag swipe-up dismiss",
+                        data: [
+                            "expanded": notchViewModel.isDisplayingExpandedLiveActivity,
+                            "contentId": notchViewModel.notchModel.liveActivityContent?.id ?? "nil"
+                        ]
+                    )
+                    // #endregion
                     notchViewModel.dismissActiveContent()
                 },
                 onSwipeDown: {
-                    notchViewModel.restoreDismissedContent()
+                    if !notchViewModel.isDisplayingExpandedLiveActivity,
+                       notchViewModel.canExpandActiveLiveActivity {
+                        notchViewModel.handleActiveContentTap()
+                    } else {
+                        notchViewModel.restoreDismissedContent()
+                    }
                 },
                 onSwipeStretchChanged: { interaction, progress in
                     notchViewModel.updateSwipeStretch(for: interaction, progress: progress)
@@ -211,7 +230,25 @@ private extension NotchMouseSwipeMonitorView {
             resetTracking()
         }
 
-        if canSwipeUp, isDismissTranslation(translation) {
+        let isDismiss = canSwipeUp && isDismissTranslation(translation)
+        let isRestore = canSwipeDown && isRestoreTranslation(translation)
+        // #region agent log
+        AgentDebugLog.write(
+            hypothesisId: "A",
+            location: "NotchMouseSwipeMonitorView.handleMouseUp",
+            message: "mouse-up after notch drag",
+            data: [
+                "dx": Double(translation.width),
+                "dy": Double(translation.height),
+                "canSwipeUp": canSwipeUp,
+                "isDismiss": isDismiss,
+                "isRestore": isRestore,
+                "hasWindow": event.window != nil
+            ]
+        )
+        // #endregion
+
+        if isDismiss {
             DispatchQueue.main.async { [weak self] in
                 self?.onSwipeUp?()
             }

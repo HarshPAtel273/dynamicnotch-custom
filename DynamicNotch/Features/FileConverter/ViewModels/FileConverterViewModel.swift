@@ -16,6 +16,7 @@ enum FileConverterMediaKind {
     case image
     case video
     case audio
+    case document
     case archive
     case generic
     
@@ -27,6 +28,8 @@ enum FileConverterMediaKind {
             return .mp4
         case .audio:
             return .m4a
+        case .document:
+            return .docx
         case .archive:
             return .tar
         case .generic:
@@ -55,6 +58,7 @@ enum FileConverterOutputFormat: String, CaseIterable, Identifiable {
     case mp3
     case ogg
     case wav
+    case docx
     case zip
     case tar
     case tarGzip
@@ -83,6 +87,7 @@ enum FileConverterOutputFormat: String, CaseIterable, Identifiable {
         case .mp3: return "MP3"
         case .ogg: return "OGG"
         case .wav: return "WAV"
+        case .docx: return "DOCX"
         case .zip: return "ZIP"
         case .tar: return "TAR"
         case .tarGzip: return "TAR.GZ"
@@ -111,6 +116,7 @@ enum FileConverterOutputFormat: String, CaseIterable, Identifiable {
         case .mp3: return "mp3"
         case .ogg: return "ogg"
         case .wav: return "wav"
+        case .docx: return "docx"
         case .zip: return "zip"
         case .tar: return "tar"
         case .tarGzip: return "tar.gz"
@@ -147,6 +153,8 @@ enum FileConverterOutputFormat: String, CaseIterable, Identifiable {
             return .video
         case .aac, .aiff, .m4a, .flac, .mp3, .ogg, .wav:
             return .audio
+        case .docx:
+            return .document
         case .zip, .tar, .tarGzip, .gzip:
             return .archive
         }
@@ -234,6 +242,8 @@ enum FileConverterOutputFormat: String, CaseIterable, Identifiable {
             return videoFormats + archiveFormats(isDirectory: isDirectory)
         case .audio:
             return audioFormats + archiveFormats(isDirectory: isDirectory)
+        case .document:
+            return documentFormats + archiveFormats(isDirectory: isDirectory)
         case .archive, .generic:
             return archiveFormats(isDirectory: isDirectory)
         }
@@ -249,6 +259,10 @@ enum FileConverterOutputFormat: String, CaseIterable, Identifiable {
     
     private static var audioFormats: [FileConverterOutputFormat] {
         allCases.filter { $0.mediaKind == .audio && $0.afconvertFileFormat != nil }
+    }
+    
+    private static var documentFormats: [FileConverterOutputFormat] {
+        allCases.filter { $0.mediaKind == .document }
     }
     
     private static func archiveFormats(isDirectory: Bool) -> [FileConverterOutputFormat] {
@@ -434,6 +448,12 @@ final class FileConverterViewModel: ObservableObject {
     private static let archiveInputExtensions: Set<String> = [
         "zip", "tar", "tgz", "gz", "rar", "7z"
     ]
+
+    private static let documentInputExtensions: Set<String> = [
+        "pages"
+    ]
+
+    private static let pagesBundleIdentifier = "com.apple.iWork.Pages"
     
     var onItemChange: (@MainActor (FileConverterItem?) -> Void)? {
         didSet {
@@ -480,29 +500,88 @@ final class FileConverterViewModel: ObservableObject {
             )
         }
         
+        let kind = mediaKind(for: standardizedURL, isDirectory: isDirectory.boolValue)
         let converterItem = FileConverterItem(
             url: standardizedURL,
-            mediaKind: mediaKind(for: standardizedURL, isDirectory: isDirectory.boolValue),
+            mediaKind: kind,
             isDirectory: isDirectory.boolValue
         )
+        // #region agent log
+        AgentDebugLog.write(
+            hypothesisId: "C",
+            location: "FileConverterViewModel.setFile",
+            message: "file selected",
+            data: [
+                "ext": standardizedURL.pathExtension.lowercased(),
+                "isDirectory": isDirectory.boolValue,
+                "mediaKind": String(describing: kind),
+                "name": standardizedURL.lastPathComponent
+            ]
+        )
+        // #endregion
         item = converterItem
         selectedFormat = defaultFormat(for: converterItem)
+        // #region agent log
+        AgentDebugLog.write(
+            hypothesisId: "C",
+            location: "FileConverterViewModel.setFile",
+            message: "default format chosen",
+            data: [
+                "selectedFormat": selectedFormat.rawValue,
+                "available": availableFormats.map(\.rawValue)
+            ]
+        )
+        // #endregion
         status = .idle
         onItemChange?(converterItem)
     }
     
     func convert(options: FileConverterConversionOptions) {
-        guard let item, status != .converting else { return }
+        guard let item, status != .converting else {
+            // #region agent log
+            AgentDebugLog.write(
+                hypothesisId: "D",
+                location: "FileConverterViewModel.convert",
+                message: "convert early return",
+                data: [
+                    "hasItem": self.item != nil,
+                    "status": String(describing: status)
+                ]
+            )
+            // #endregion
+            return
+        }
         
         conversionTask?.cancel()
         status = .converting
         
         let outputFormat = selectedFormat
+        // #region agent log
+        AgentDebugLog.write(
+            hypothesisId: "D",
+            location: "FileConverterViewModel.convert",
+            message: "convert started",
+            data: [
+                "itemKind": String(describing: item.mediaKind),
+                "outputFormat": outputFormat.rawValue,
+                "outputKind": String(describing: outputFormat.mediaKind),
+                "ext": item.fileExtension
+            ]
+        )
+        // #endregion
 
         let outputURL: URL
         do {
             outputURL = try preparedOutputURL(for: item.url, format: outputFormat, options: options)
         } catch {
+            // #region agent log
+            AgentDebugLog.write(
+                hypothesisId: "D",
+                location: "FileConverterViewModel.convert",
+                message: "preparedOutputURL failed",
+                data: ["error": error.localizedDescription]
+            )
+            // #endregion
             handleConversionFailure(error.localizedDescription)
             return
         }
@@ -553,14 +632,56 @@ final class FileConverterViewModel: ObservableObject {
                     )
                 }
             }
+
+        case (.document, .document):
+            // #region agent log
+            AgentDebugLog.write(
+                hypothesisId: "D",
+                location: "FileConverterViewModel.convert",
+                message: "taking document conversion branch",
+                data: ["outputURL": outputURL.path]
+            )
+            // #endregion
+            conversionTask = Task { [weak self] in
+                await self?.runAsyncConversion {
+                    try await self?.convertDocument(
+                        at: item.url,
+                        to: outputFormat,
+                        outputURL: outputURL
+                    )
+                }
+            }
             
         default:
+            // #region agent log
+            AgentDebugLog.write(
+                hypothesisId: "D",
+                location: "FileConverterViewModel.convert",
+                message: "unsupported conversion pair",
+                data: [
+                    "itemKind": String(describing: item.mediaKind),
+                    "outputKind": String(describing: outputFormat.mediaKind)
+                ]
+            )
+            // #endregion
             handleConversionFailure("\(outputFormat.title) is not available for this file.")
         }
     }
     
     @MainActor
     func chooseFileFromFinder() {
+        // #region agent log
+        AgentDebugLog.write(
+            hypothesisId: "C",
+            location: "FileConverterViewModel.chooseFileFromFinder",
+            message: "open panel presenting",
+            data: [
+                "pagesUTType": UTType(filenameExtension: "pages")?.identifier ?? "nil",
+                "pagesPackageUTType": UTType("com.apple.iwork.pages.sffpages")?.identifier ?? "nil"
+            ]
+        )
+        // #endregion
+
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false
         panel.canChooseFiles = true
@@ -568,24 +689,44 @@ final class FileConverterViewModel: ObservableObject {
         panel.canCreateDirectories = false
         panel.prompt = "Choose"
         panel.message = "Choose a file to convert"
-        
-        panel.allowedContentTypes = [
-            .image,
-            .movie,
-            .video,
-            .audio,
-            .archive,
-            .zip,
-            .folder
-        ]
+        panel.allowedContentTypes = []
         
         guard panel.runModal() == .OK, let url = panel.url else {
+            // #region agent log
+            AgentDebugLog.write(
+                hypothesisId: "C",
+                location: "FileConverterViewModel.chooseFileFromFinder",
+                message: "open panel cancelled",
+                data: [:]
+            )
+            // #endregion
             return
         }
+
+        // #region agent log
+        AgentDebugLog.write(
+            hypothesisId: "C",
+            location: "FileConverterViewModel.chooseFileFromFinder",
+            message: "open panel selected url",
+            data: [
+                "name": url.lastPathComponent,
+                "ext": url.pathExtension.lowercased(),
+                "path": url.path
+            ]
+        )
+        // #endregion
         
         do {
             try setFile(url)
         } catch {
+            // #region agent log
+            AgentDebugLog.write(
+                hypothesisId: "C",
+                location: "FileConverterViewModel.chooseFileFromFinder",
+                message: "setFile threw",
+                data: ["error": error.localizedDescription]
+            )
+            // #endregion
             status = .failed(error.localizedDescription)
         }
     }
@@ -621,6 +762,14 @@ final class FileConverterViewModel: ObservableObject {
     }
 
     private func handleConversionFailure(_ message: String) {
+        // #region agent log
+        AgentDebugLog.write(
+            hypothesisId: "B",
+            location: "FileConverterViewModel.handleConversionFailure",
+            message: "conversion failed",
+            data: ["error": message]
+        )
+        // #endregion
         conversionTask = nil
         status = .failed(message)
     }
@@ -793,6 +942,115 @@ final class FileConverterViewModel: ObservableObject {
         )
         return outputURL
     }
+
+    private func convertDocument(
+        at sourceURL: URL,
+        to format: FileConverterOutputFormat,
+        outputURL: URL
+    ) async throws -> URL {
+        let pagesURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: Self.pagesBundleIdentifier)
+        // #region agent log
+        AgentDebugLog.write(
+            hypothesisId: "A",
+            location: "FileConverterViewModel.convertDocument",
+            message: "convertDocument entry",
+            data: [
+                "format": format.rawValue,
+                "sourceExt": sourceURL.pathExtension.lowercased(),
+                "pagesInstalled": pagesURL != nil,
+                "pagesPath": pagesURL?.path ?? "nil",
+                "source": sourceURL.lastPathComponent,
+                "dest": outputURL.lastPathComponent
+            ]
+        )
+        // #endregion
+
+        guard format == .docx else {
+            throw NSError(
+                domain: "DynamicNotch.FileConverter",
+                code: 17,
+                userInfo: [NSLocalizedDescriptionKey: "Choose a document output format."]
+            )
+        }
+
+        guard sourceURL.pathExtension.lowercased() == "pages" else {
+            throw NSError(
+                domain: "DynamicNotch.FileConverter",
+                code: 18,
+                userInfo: [NSLocalizedDescriptionKey: "Only Pages documents can be converted to DOCX."]
+            )
+        }
+
+        guard pagesURL != nil else {
+            throw NSError(
+                domain: "DynamicNotch.FileConverter",
+                code: 19,
+                userInfo: [NSLocalizedDescriptionKey: "Pages is required to convert .pages files to DOCX."]
+            )
+        }
+
+        let sourcePath = appleScriptPOSIXPath(sourceURL.path)
+        let destinationPath = appleScriptPOSIXPath(outputURL.path)
+        let script = """
+        tell application "Pages"
+            set theDoc to open POSIX file "\(sourcePath)"
+            try
+                export theDoc to POSIX file "\(destinationPath)" as Microsoft Word
+                close theDoc saving no
+            on error errMsg number errNum
+                try
+                    close theDoc saving no
+                end try
+                error errMsg number errNum
+            end try
+        end tell
+        """
+
+        do {
+            try await FileConverterProcessRunner.run(
+                executablePath: "/usr/bin/osascript",
+                arguments: ["-e", script]
+            )
+            // #region agent log
+            AgentDebugLog.write(
+                hypothesisId: "B",
+                location: "FileConverterViewModel.convertDocument",
+                message: "osascript finished with status 0",
+                data: ["outputExists": FileManager.default.fileExists(atPath: outputURL.path)]
+            )
+            // #endregion
+        } catch {
+            // #region agent log
+            AgentDebugLog.write(
+                hypothesisId: "B",
+                location: "FileConverterViewModel.convertDocument",
+                message: "osascript failed",
+                data: ["error": error.localizedDescription]
+            )
+            // #endregion
+            throw error
+        }
+
+        let exists = FileManager.default.fileExists(atPath: outputURL.path)
+        // #region agent log
+        AgentDebugLog.write(
+            hypothesisId: "E",
+            location: "FileConverterViewModel.convertDocument",
+            message: "output existence check",
+            data: ["exists": exists, "path": outputURL.path]
+        )
+        // #endregion
+
+        guard exists else {
+            throw NSError(
+                domain: "DynamicNotch.FileConverter",
+                code: 20,
+                userInfo: [NSLocalizedDescriptionKey: "Pages did not create the DOCX file. Allow Automation access for DynamicNotch if prompted."]
+            )
+        }
+
+        return outputURL
+    }
     
     private func convertArchive(
         at sourceURL: URL,
@@ -855,10 +1113,15 @@ final class FileConverterViewModel: ObservableObject {
     }
     
     private func mediaKind(for url: URL, isDirectory: Bool) -> FileConverterMediaKind {
-        guard !isDirectory else { return .generic }
-        
         let pathExtension = url.pathExtension.lowercased()
         let contentType = UTType(filenameExtension: pathExtension)
+
+        if Self.documentInputExtensions.contains(pathExtension) ||
+            contentType?.identifier == "com.apple.iwork.pages.sffpages" {
+            return .document
+        }
+        
+        guard !isDirectory else { return .generic }
         
         if Self.archiveInputExtensions.contains(pathExtension) {
             return .archive
@@ -882,6 +1145,12 @@ final class FileConverterViewModel: ObservableObject {
         }
         
         return .generic
+    }
+
+    private func appleScriptPOSIXPath(_ path: String) -> String {
+        path
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "\"", with: "\\\"")
     }
     
     private func preparedOutputURL(

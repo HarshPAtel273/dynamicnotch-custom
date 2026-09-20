@@ -13,6 +13,17 @@ struct NotchSwipeDismissModifier: ViewModifier {
                 canSwipeDown: isEnabled && notchViewModel.canRestoreWithTrackpadSwipe,
                 isHoveringScrollableContent: notchViewModel.isHoveringScrollableContent,
                 onSwipeUp: {
+                    // #region agent log
+                    AgentDebugLog.write(
+                        hypothesisId: "C",
+                        location: "NotchSwipeDismissModifier.onSwipeUp",
+                        message: "scroll-wheel swipe-up dismiss",
+                        data: [
+                            "expanded": notchViewModel.isDisplayingExpandedLiveActivity,
+                            "contentId": notchViewModel.notchModel.liveActivityContent?.id ?? "nil"
+                        ]
+                    )
+                    // #endregion
                     notchViewModel.dismissActiveContent()
                 },
                 onSwipeDown: {
